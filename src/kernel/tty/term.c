@@ -1,3 +1,4 @@
+#pragma once
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -17,7 +18,7 @@ void terminal_init() {
   for (int y = 0; y < VGA_HEIGHT; y++) {
     for (int x = 0; x < VGA_WIDTH; x++) {
       const size_t index = y * VGA_WIDTH + x;
-      vga_buffer[index] = ((uint16_t)vga_color << 8) | '+';
+      vga_buffer[index] = ((uint16_t)vga_color << 8) | ' ';
     }
   }
 }
