@@ -24,7 +24,7 @@ void draw_madoka() {
   for (int y = 0; y < 16; y++) {
     for (int x = 0; x < 17; x++) {
       const size_t index = y * VGA_WIDTH + x;
-      vga_buffer[index] = ((uint16_t)madoka[y * 17 + x] << 8) | '.';
+      vga_buffer[index] = ((uint16_t)madoka[y * 17 + x] << 8) | 219;
     }
   }
 }
