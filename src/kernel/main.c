@@ -4,11 +4,13 @@
 
 #include "hardware/pit.c"
 #include "libc/str.c"
+
+#include "tty/madoka.c"
 #include "tty/term.c"
 
 void kernel_main() {
   // hello world.
-  terminal_color(0x2A);
+  terminal_color(0x0F);
   terminal_init();
 
   // read pit, just for testing.
@@ -17,7 +19,10 @@ void kernel_main() {
   uint32_t pit_read = pit_read_count();
   itoa(pit_read, buf);
 
-  terminal_print("reading pit, ");
+  draw_madoka();
+
+  terminal_print("MadokaOS v0.0.1 | interrupt=");
+
   for (int i = 0; i < 32; i++) {
     if (buf[i] == 0) {
       break;
@@ -25,11 +30,12 @@ void kernel_main() {
 
     terminal_write(buf[i]);
   }
-  terminal_print(", is what it receives from the inb/out. \n");
 
-  // spam
-  for (int i = 0; i < 6; i++) {
-    terminal_color(0x0B);
-    terminal_print("fuck this shit\n");
-  }
+  // Skip below logo
+  vga_x = 0;
+  vga_y = 17;
+  terminal_color(0x0C);
+  terminal_print("we all love madoka \n");
+  terminal_print("we all love madoka \n");
+  terminal_print("we all love madoka \n");
 }
