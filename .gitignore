@@ -1,12 +1,6 @@
-# precompiled stuff, dont want to include
-toolchains/bin/*
-toolchains/include/*
-toolchains/lib/*
-toolchains/libexec/*
-toolchains/share/*
-toolchains/lib/*
-toolchains/i686-elf/*
-
 # compiled stuff
+obj/
 *.o
+*.img
+*.iso
 *.bin
