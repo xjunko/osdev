@@ -7,6 +7,7 @@ objects = obj/loader.o \
 		  obj/hardware/port.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
+		  obj/rin_kernel.o \
 		  obj/kernel.o
 
 obj/%.o: src/%.cpp
