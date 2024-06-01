@@ -3,7 +3,7 @@
 
 namespace RinOS {
 namespace Utility {
-void wait_for_a_bit(int how_long);
+void sleep(int how_long);
 }  // namespace Utility
 
 }  // namespace RinOS
