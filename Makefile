@@ -8,7 +8,7 @@ objects = obj/loader.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
 		  obj/rin_kernel.o \
-		  obj/kernel.o
+		  obj/entry.o
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
@@ -46,7 +46,7 @@ kernel.iso: kernel.bin
 
 run: kernel.iso
 	$(info Running the kernel...)
-	qemu-system-i386 -enable-kvm \
+	qemu-system-i386 \
 		-boot menu=on \
 		-drive id=disk,file=boot.img,format=raw,if=none \
 		-device piix4-ide,id=piix4 \
