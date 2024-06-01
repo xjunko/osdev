@@ -8,7 +8,7 @@ GlobalDescriptorTable::GlobalDescriptorTable()
       unused_segment_selector(0, 0, 0),
       code_segment_selector(0, 64 * 1024 * 1024, 0x9A),
       data_segment_selector(0, 64 * 1024 * 1024, 0x92) {
-  RinOS::Terminal::printf("[System] GlobalDescriptorTable Initialized\n");
+  RinOS::Terminal::log("System", "GlobalDescriptorTable Initialized!");
   u32 i[2];
   i[1] = (u32)this;
   i[0] = sizeof(GlobalDescriptorTable) << 16;
@@ -19,18 +19,18 @@ GlobalDescriptorTable::GlobalDescriptorTable()
 GlobalDescriptorTable::~GlobalDescriptorTable() {}
 
 u16 GlobalDescriptorTable::DataSegmentSelector() {
-  RinOS::Terminal::printf("[DEBUG] DataSegmentSelector called! \n");
+  RinOS::Terminal::log("System", "DataSegmentSelector called!");
   return (u8 *)&data_segment_selector - (u8 *)this;
 }
 
 u16 GlobalDescriptorTable::CodeSegmentSelector() {
-  RinOS::Terminal::printf("[DEBUG] CodeSegmentSelector called! \n");
+  RinOS::Terminal::log("System", "CodeSegmentSelector called!");
   return (u8 *)&code_segment_selector - (u8 *)this;
 }
 
 GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(u32 base, u32 limit,
                                                             u8 flags) {
-  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor Initialized! \n");
+  RinOS::Terminal::log("System", "SegmentDescriptor Initialized!");
   u8 *target = (u8 *)this;
 
   if (limit <= 65536) {
@@ -58,7 +58,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(u32 base, u32 limit,
 }
 
 u32 GlobalDescriptorTable::SegmentDescriptor::Base() {
-  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor::Base Called! \n");
+  RinOS::Terminal::log("System", "SegmentDescriptor::Base Called!");
   u8 *target = (u8 *)this;
   u32 result = target[7];
   result = (result << 8) + target[4];
@@ -68,7 +68,7 @@ u32 GlobalDescriptorTable::SegmentDescriptor::Base() {
 }
 
 u32 GlobalDescriptorTable::SegmentDescriptor::Limit() {
-  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor::Limit Called! \n");
+  RinOS::Terminal::log("System", "SegmentDescriptor::Limit Called!");
   u8 *target = (u8 *)this;
   u32 result = target[6] & 0xF;
   result = (result << 8) + target[1];

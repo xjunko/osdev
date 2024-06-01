@@ -11,7 +11,6 @@
 class DumbKeyboardEventHandler
     : public RinOS::Hardware::Driver::KeyboardEventHandler {
  public:
-  DumbKeyboardEventHandler() {}
   void on_key_press(u8 key) override {
     char* str = " ";
     str[0] = key;
@@ -23,11 +22,14 @@ class DumbMouseEventHandler
     : public RinOS::Hardware::Driver::MouseEventHandler {
  public:
   i8 x_, y_;
-  DumbMouseEventHandler() {}
+
   void on_activate(i8 x, i8 y) override {
     static u16* VideoMemory = (u16*)0xb8000;
     VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xF000) >> 4 |
                               (VideoMemory[80 * y + x] & 0x0F00) << 4;
+
+    x_ = x;
+    y_ = y;
   }
 
   void on_move(i8 x, i8 y) override {
@@ -52,16 +54,26 @@ class RinKernel {
   RinKernel() {}
   ~RinKernel() {}
 
-  // Methods
+  // Functions
+  void print_banner() {
+    RinOS::Terminal::set_color(0x0F);
+    RinOS::Terminal::clear();
+    RinOS::Terminal::set_position(0, 0);
+
+    RinOS::Terminal::set_color(0xF0);
+    RinOS::Terminal::printf("RinOS v0.0.1");
+
+    for (u8 i = 12; i < 80; i++) {
+      RinOS::Terminal::printf(" ");
+    }
+
+    RinOS::Terminal::set_color(0x0F);
+    RinOS::Terminal::set_position(0, 24);
+    RinOS::Terminal::printf("Press any key to continue!\n");
+  }
+
+  // Entry
   void initialize() {
-    RinOS::Terminal::set_color(0x0E);
-    RinOS::Terminal::printf("Operating System Version 0.0.1 \n");
-    RinOS::Terminal::set_color(0x0F);
-
-    RinOS::Terminal::set_color(0x0A);
-    RinOS::Terminal::printf("Initializing GDT... \n");
-    RinOS::Terminal::set_color(0x0F);
-
     RinOS::Memory::GlobalDescriptorTable gdt;
     RinOS::Hardware::Communication::InterruptManager interrupts(&gdt);
 
@@ -80,18 +92,12 @@ class RinKernel {
     driver_manager.activate_all();
     interrupts.activate();
 
-    // TODO:
-    // - IRQs
-    // - PIT
+    // Fake loading...
+    RinOS::Terminal::log("System", "Booting!");
+    RinOS::Utility::wait_for_a_bit(1000);
 
-    // // Print these TODOs in a for loop
-    // RinOS::Terminal::set_color(0x04);
-    RinOS::Terminal::printf("TODO: Implement IRQs \n");
-    RinOS::Terminal::printf("TODO: Implement PIT \n");
-
-    // Fake ass terminal prompt
-    // RinOS::Terminal::set_color(0x0F);
-    RinOS::Terminal::printf("\n[junko@konno] $ ");
+    // Terminal UI
+    print_banner();
 
     while (true) {
     }
