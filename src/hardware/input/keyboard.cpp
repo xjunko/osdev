@@ -21,14 +21,13 @@ KeyboardDriver::~KeyboardDriver() {}
 void KeyboardDriver::activate() {
   while (command_port.Read() & 0x1) {
     data_port.Read();
+    command_port.Write(0xAE);  // Activate interrupts
+    command_port.Write(0x20);  // Command 0x20 = Read Controller Command Byte
+    u8 status = (data_port.Read() | 1) & ~0x10;
+    command_port.Write(0x60);  // Command 0x60 = Set Controller Command Byte
+    data_port.Write(status);
+    data_port.Write(0xF4);
   }
-
-  command_port.Write(0xAE);  // Activate interrupts
-  command_port.Write(0x20);  // Command 0x20 = Read Controller Command Byte
-  u8 status = (data_port.Read() | 1) & ~0x10;
-  command_port.Write(0x60);  // Command 0x60 = Set Controller Command Byte
-  data_port.Write(status);
-  data_port.Write(0xF4);
 }
 
 u32 KeyboardDriver::handle_interrupt(u32 esp) {
