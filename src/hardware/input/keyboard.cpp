@@ -3,9 +3,22 @@
 
 using namespace RinOS::Hardware::Driver;
 
+KeyboardEventHandler::KeyboardEventHandler() {}
+
+void KeyboardEventHandler::on_key_press(u8 key) {}
+
+void KeyboardEventHandler::on_key_release(u8 key) {}
+
 KeyboardDriver::KeyboardDriver(
-    RinOS::Hardware::Communication::InterruptManager* manager)
+    RinOS::Hardware::Communication::InterruptManager* manager,
+    KeyboardEventHandler* event)
     : InterruptHandler(0x21, manager), data_port(0x60), command_port(0x64) {
+  this->event = event;
+}
+
+KeyboardDriver::~KeyboardDriver() {}
+
+void KeyboardDriver::activate() {
   while (command_port.Read() & 0x1) {
     data_port.Read();
   }
@@ -18,170 +31,173 @@ KeyboardDriver::KeyboardDriver(
   data_port.Write(0xF4);
 }
 
-KeyboardDriver::~KeyboardDriver() {}
 u32 KeyboardDriver::handle_interrupt(u32 esp) {
   u8 key = data_port.Read();
+
+  if (event == 0) {
+    return esp;
+  }
 
   // Only key press.
   if (0 < 0x80) {
     switch (key) {
       // special chars 1
       case 0x29:
-        RinOS::Terminal::printf("`");
+        event->on_key_press('`');
         break;
       case 0x02:
-        RinOS::Terminal::printf("1");
+        event->on_key_press('1');
         break;
       case 0x03:
-        RinOS::Terminal::printf("2");
+        event->on_key_press('2');
         break;
       case 0x04:
-        RinOS::Terminal::printf("3");
+        event->on_key_press('3');
         break;
       case 0x05:
-        RinOS::Terminal::printf("4");
+        event->on_key_press('4');
         break;
       case 0x06:
-        RinOS::Terminal::printf("5");
+        event->on_key_press('5');
         break;
       case 0x07:
-        RinOS::Terminal::printf("6");
+        event->on_key_press('6');
         break;
       case 0x08:
-        RinOS::Terminal::printf("7");
+        event->on_key_press('7');
         break;
       case 0x09:
-        RinOS::Terminal::printf("8");
+        event->on_key_press('8');
         break;
       case 0x0a:
-        RinOS::Terminal::printf("9");
+        event->on_key_press('9');
         break;
       case 0x0b:
-        RinOS::Terminal::printf("0");
+        event->on_key_press('0');
         break;
       // special chars 2
       case 0x0c:
-        RinOS::Terminal::printf("-");
+        event->on_key_press('-');
         break;
       case 0x0d:
-        RinOS::Terminal::printf("=");
+        event->on_key_press('=');
         break;
       // first row of letters
       case 0x10:
-        RinOS::Terminal::printf("q");
+        event->on_key_press('q');
         break;
       case 0x11:
-        RinOS::Terminal::printf("w");
+        event->on_key_press('w');
         break;
       case 0x12:
-        RinOS::Terminal::printf("e");
+        event->on_key_press('e');
         break;
       case 0x13:
-        RinOS::Terminal::printf("r");
+        event->on_key_press('r');
         break;
       case 0x14:
-        RinOS::Terminal::printf("t");
+        event->on_key_press('t');
         break;
       case 0x15:
-        RinOS::Terminal::printf("y");
+        event->on_key_press('y');
         break;
       case 0x16:
-        RinOS::Terminal::printf("u");
+        event->on_key_press('u');
         break;
       case 0x17:
-        RinOS::Terminal::printf("i");
+        event->on_key_press('i');
         break;
       case 0x18:
-        RinOS::Terminal::printf("o");
+        event->on_key_press('o');
         break;
       case 0x19:
-        RinOS::Terminal::printf("p");
+        event->on_key_press('p');
         break;
       // special chars 3
       case 0x1a:
-        RinOS::Terminal::printf("[");
+        event->on_key_press('[');
         break;
       case 0x1b:
-        RinOS::Terminal::printf("]");
+        event->on_key_press(']');
         break;
       case 0x2b:
-        RinOS::Terminal::printf("\\");
+        event->on_key_press('\\');
         break;
       // second row of letters
       case 0x1e:
-        RinOS::Terminal::printf("a");
+        event->on_key_press('a');
         break;
       case 0x1f:
-        RinOS::Terminal::printf("s");
+        event->on_key_press('s');
         break;
       case 0x20:
-        RinOS::Terminal::printf("d");
+        event->on_key_press('d');
         break;
       case 0x21:
-        RinOS::Terminal::printf("f");
+        event->on_key_press('f');
         break;
       case 0x22:
-        RinOS::Terminal::printf("g");
+        event->on_key_press('g');
         break;
       case 0x23:
-        RinOS::Terminal::printf("h");
+        event->on_key_press('h');
         break;
       case 0x24:
-        RinOS::Terminal::printf("j");
+        event->on_key_press('j');
         break;
       case 0x25:
-        RinOS::Terminal::printf("k");
+        event->on_key_press('k');
         break;
       case 0x26:
-        RinOS::Terminal::printf("l");
+        event->on_key_press('l');
         break;
       // special chars 4
       case 0x27:
-        RinOS::Terminal::printf(";");
+        event->on_key_press(';');
         break;
       case 0x28:
-        RinOS::Terminal::printf("'");
+        event->on_key_press('\'');
         break;
       // third row of letters
       case 0x2c:
-        RinOS::Terminal::printf("z");
+        event->on_key_press('z');
         break;
       case 0x2d:
-        RinOS::Terminal::printf("x");
+        event->on_key_press('x');
         break;
       case 0x2e:
-        RinOS::Terminal::printf("c");
+        event->on_key_press('c');
         break;
       case 0x2f:
-        RinOS::Terminal::printf("v");
+        event->on_key_press('v');
         break;
       case 0x30:
-        RinOS::Terminal::printf("b");
+        event->on_key_press('b');
         break;
       case 0x31:
-        RinOS::Terminal::printf("n");
+        event->on_key_press('n');
         break;
       case 0x32:
-        RinOS::Terminal::printf("m");
+        event->on_key_press('m');
         break;
       // special chars 5
       case 0x33:
-        RinOS::Terminal::printf(",");
+        event->on_key_press(',');
         break;
       case 0x34:
-        RinOS::Terminal::printf(".");
+        event->on_key_press('.');
         break;
       case 0x35:
-        RinOS::Terminal::printf("/");
+        event->on_key_press('/');
         break;
 
       // space
       case 0x39:
-        RinOS::Terminal::printf(" ");
+        event->on_key_press(' ');
         break;
       // enter
       case 0x1c:
-        RinOS::Terminal::printf("\n");
+        event->on_key_press('\n');
         break;
       // caps lock
       case 0x3a:
@@ -193,11 +209,11 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // backspace
       case 0x0e:
-        RinOS::Terminal::printf("\b");
+        event->on_key_press('\b');
         break;
       // escape
       case 0x01:
-        RinOS::Terminal::printf("\x1b");
+        event->on_key_press('\x1b');
         break;
 
       // right control
@@ -210,7 +226,7 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // tab
       case 0x0f:
-        RinOS::Terminal::printf("\v");
+        event->on_key_press('\v');
         break;
 
       // alt keys
@@ -234,16 +250,16 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // arrow keys
       case 0x4b:
-        RinOS::Terminal::printf("\xfc");
+        event->on_key_press('\xfc');
         break;
       case 0x48:
-        RinOS::Terminal::printf("\xfd");
+        event->on_key_press('\xfd');
         break;
       case 0x50:
-        RinOS::Terminal::printf("\xfe");
+        event->on_key_press('\xfe');
         break;
       case 0x4d:
-        RinOS::Terminal::printf("\xff");
+        event->on_key_press('\xff');
         break;
     }
   }

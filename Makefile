@@ -9,6 +9,7 @@ objects = obj/loader.o \
 		  obj/hardware/communication/stubs/interrupts.o \
 		  obj/hardware/input/keyboard.o \
 		  obj/hardware/input/mouse.o \
+		  obj/hardware/driver/driver.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
 		  obj/commons/utility.o \

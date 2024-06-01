@@ -4,11 +4,23 @@
 #include <commons/types.h>
 #include <hardware/communication/interrupts.h>
 #include <hardware/communication/port.h>
+#include <hardware/driver/driver.h>
 
 namespace RinOS {
 namespace Hardware {
 namespace Driver {
-class MouseDriver : public RinOS::Hardware::Communication::InterruptHandler {
+class MouseEventHandler {
+ public:
+  MouseEventHandler();
+  ~MouseEventHandler();
+
+  virtual void on_activate(i8 x, i8 y);
+  virtual void on_move(i8 x, i8 y);
+  virtual void on_mouse_press(u8 button, u8 state);
+};
+
+class MouseDriver : public RinOS::Hardware::Communication::InterruptHandler,
+                    public RinOS::Hardware::Driver::Driver {
   RinOS::Hardware::Communication::Port8Bit data_port;
   RinOS::Hardware::Communication::Port8Bit command_port;
 
@@ -18,11 +30,16 @@ class MouseDriver : public RinOS::Hardware::Communication::InterruptHandler {
 
   i8 x, y;
 
+  MouseEventHandler* event;
+
  public:
-  MouseDriver(RinOS::Hardware::Communication::InterruptManager* manager);
+  MouseDriver(RinOS::Hardware::Communication::InterruptManager* manager,
+              MouseEventHandler* event);
   ~MouseDriver();
 
   virtual u32 handle_interrupt(u32 esp);
+
+  virtual void activate();
 };
 }  // namespace Driver
 }  // namespace Hardware

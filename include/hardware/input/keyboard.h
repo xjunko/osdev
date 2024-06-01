@@ -4,19 +4,36 @@
 #include <commons/types.h>
 #include <hardware/communication/interrupts.h>
 #include <hardware/communication/port.h>
+#include <hardware/driver/driver.h>
 
 namespace RinOS {
 namespace Hardware {
 namespace Driver {
-class KeyboardDriver : public RinOS::Hardware::Communication::InterruptHandler {
+
+class KeyboardEventHandler {
+ public:
+  KeyboardEventHandler();
+  ~KeyboardEventHandler();
+
+  virtual void on_key_press(u8 key);
+  virtual void on_key_release(u8 key);
+};
+
+class KeyboardDriver : public RinOS::Hardware::Communication::InterruptHandler,
+                       public RinOS::Hardware::Driver::Driver {
   RinOS::Hardware::Communication::Port8Bit data_port;
   RinOS::Hardware::Communication::Port8Bit command_port;
 
+  KeyboardEventHandler* event;
+
  public:
-  KeyboardDriver(RinOS::Hardware::Communication::InterruptManager* manager);
+  KeyboardDriver(RinOS::Hardware::Communication::InterruptManager* manager,
+                 KeyboardEventHandler* event);
   ~KeyboardDriver();
 
   virtual u32 handle_interrupt(u32 esp);
+
+  virtual void activate();
 };
 
 }  // namespace Driver
