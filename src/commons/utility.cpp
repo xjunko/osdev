@@ -1,9 +1,14 @@
 #include <commons/utility.h>
+#include <hardware/timer/pit.h>
 
-void RinOS::Utility::wait_for_a_bit(int how_long) {
-  for (int i = 0; i < how_long; i++) {
-    for (int j = 0; j < 1000000; j++) {
-      __asm__("nop");
+void RinOS::Utility::sleep(int millisecond) {
+  RinOS::Hardware::Timer::BasicPIT pit;
+
+  for (int i = 0; i < millisecond; i++) {
+    pit.set_count(0x2E9A);
+
+    u32 start = pit.read_count();
+    while ((start - pit.read_count()) < 1000) {
     }
   }
 }

@@ -94,7 +94,7 @@ class RinKernel {
 
     // Fake loading...
     RinOS::Terminal::log("System", "Booting!");
-    RinOS::Utility::wait_for_a_bit(1000);
+    RinOS::Utility::sleep(5000);
 
     // Terminal UI
     print_banner();
