@@ -4,8 +4,26 @@
 #include <hardware/port.h>
 #include <terminal/term.h>
 
+// InterruptHandler
+InterruptHandler::InterruptHandler(u8 interrupt_number,
+                                   InterruptManager* interrupt_manager) {
+  this->interrupt_number = interrupt_number;
+  this->interrupt_manager = interrupt_manager;
+  interrupt_manager->handlers[interrupt_number] = this;
+}
+
+InterruptHandler::~InterruptHandler() {
+  if (interrupt_manager->handlers[interrupt_number] == this) {
+    interrupt_manager->handlers[interrupt_number] = 0;
+  }
+}
+u32 InterruptHandler::handle_interrupt(u32 esp) { return esp; }
+
+// InterruptManager
 InterruptManager::GateDescriptor
     InterruptManager::interrupt_descriptor_table[256];
+
+InterruptManager* InterruptManager::active_interrupt_manager = 0;
 
 void InterruptManager::set_interrupt_descriptor_table_entry(
     u8 interrupt_number, u16 code_segment_selector_offset, void (*handler)(),
@@ -36,6 +54,7 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
   const u8 IDT_INTERRUPT_GATE = 0xE;
 
   for (u8 i = 255; i > 0; i--) {
+    handlers[i] = 0;
     set_interrupt_descriptor_table_entry(
         i, code_segment, &ignore_interrupt_request, 0, IDT_INTERRUPT_GATE);
   }
@@ -70,12 +89,52 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
 }
 
 void InterruptManager::activate() {
+  Terminal::set_color(0x04);
   Terminal::printf("[System] Activating Interrupts... \n");
-  Utility::wait_for_a_bit(200);
+  Terminal::set_color(0x0F);
+
+  if (active_interrupt_manager != 0) {
+    active_interrupt_manager->deactivate();
+  }
+
+  active_interrupt_manager = this;
   asm("sti");
 }
 
+void InterruptManager::deactivate() {
+  Terminal::set_color(0x04);
+  Terminal::printf("[System] Deactivating Interrupts... \n");
+  Terminal::set_color(0x0F);
+
+  if (active_interrupt_manager == this) {
+    active_interrupt_manager = 0;
+    asm("cli");
+  }
+}
+
 u32 InterruptManager::handle_interrupt(u8 interrupt_number, u32 esp) {
-  Terminal::printf("\n --> INTERRUPT ! \n");
+  if (active_interrupt_manager != 0) {
+    return active_interrupt_manager->do_handle_interrupt(interrupt_number, esp);
+  }
+
+  return esp;
+}
+
+u32 InterruptManager::do_handle_interrupt(u8 interrupt_number, u32 esp) {
+  if (handlers[interrupt_number] != 0) {
+    esp = handlers[interrupt_number]->handle_interrupt(esp);
+  } else if (interrupt_number != 0x20) {
+    Terminal::set_color(0x04);
+    Terminal::printf("[System] Unhandled interrupt 0xTODO \n");
+    Terminal::set_color(0x0F);
+  }
+
+  if (0x20 <= interrupt_number && interrupt_number < 0x30) {
+    pic_master_command.Write(0x20);
+    if (0x28 <= interrupt_number) {
+      pic_slave_command.Write(0x20);
+    }
+  }
+
   return esp;
 }
