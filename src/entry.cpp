@@ -1,4 +1,4 @@
-// kernel.cpp - high level kernel
+// entry.cpp - entry point for the kernel
 #include <commons/types.h>
 #include <constructors.h>
 #include <memory/gdt.h>
