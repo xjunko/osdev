@@ -65,6 +65,9 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
   set_interrupt_descriptor_table_entry(0x21, code_segment,
                                        &handle_interrupt_request_0x01, 0,
                                        IDT_INTERRUPT_GATE);
+  set_interrupt_descriptor_table_entry(0x2C, code_segment,
+                                       &handle_interrupt_request_0x0C, 0,
+                                       IDT_INTERRUPT_GATE);
 
   pic_master_command.Write(0x11);
   pic_slave_command.Write(0x11);

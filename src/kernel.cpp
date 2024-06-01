@@ -2,6 +2,7 @@
 #include <commons/types.h>
 #include <commons/utility.h>
 #include <hardware/input/keyboard.h>
+#include <hardware/input/mouse.h>
 #include <hardware/interrupts.h>
 #include <memory/gdt.h>
 #include <terminal/term.h>
@@ -25,6 +26,7 @@ class RinKernel {
     Memory::GlobalDescriptorTable gdt;
     InterruptManager interrupts(&gdt);
     KeyboardDriver keyboard(&interrupts);
+    MouseDriver mouse(&interrupts);
     interrupts.activate();
 
     // TODO:

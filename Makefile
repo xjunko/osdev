@@ -1,5 +1,5 @@
 GPP_ARGS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-threadsafe-statics -fno-leading-underscore -Wno-write-strings \
-			-fno-stack-protector # this might fuck me up later on
+			-fno-stack-protector -Wall -Wextra # this might fuck me up later on
 AS_ARGS = --32
 LD_ARGS = -melf_i386
 
@@ -8,6 +8,7 @@ objects = obj/loader.o \
 		  obj/hardware/interrupts.o \
 		  obj/hardware/stubs/interrupts.o \
 		  obj/hardware/input/keyboard.o \
+		  obj/hardware/input/mouse.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
 		  obj/commons/utility.o \

@@ -11,6 +11,6 @@ literally the most basic shit ever, ill cook with this over time when im free :D
 - [x] global descriptor table
 - [x] interrupt descriptor table
 - [x] keyboard driver
-- [ ] mouse driver
+- [x] mouse driver
 - [ ] basic audio driver
 - [ ] interactive terminal

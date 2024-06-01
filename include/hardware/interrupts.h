@@ -63,6 +63,7 @@ class InterruptManager {
   static void ignore_interrupt_request();
   static void handle_interrupt_request_0x00();
   static void handle_interrupt_request_0x01();
+  static void handle_interrupt_request_0x0C();
 };
 
 #endif  // __LOVE_INTERRUPTS_H
