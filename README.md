@@ -14,3 +14,7 @@ literally the most basic shit ever, ill cook with this over time when im free :D
 - [x] mouse driver
 - [ ] basic audio driver
 - [ ] interactive terminal
+
+## credits
+- [[wyoos]](https://github.com/AlgorithMan-de/wyoos) - most of the core concept is from this, big credits to the creator.
+- [[osakaOS]](https://github.com/pac-ac/osakaOS) [(and it's webseries)](https://www.youtube.com/watch?v=vYImR-wrTV0&list=PLdJTmEZjUpt0JZIg6a_WLFvN-7RLsfMdx) - for igniting my curiosity
