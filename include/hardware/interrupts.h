@@ -5,6 +5,9 @@
 #include <hardware/port.h>
 #include <memory/gdt.h>
 
+namespace RinOS {
+namespace Hardware {
+namespace Communication {
 class InterruptManager;
 
 class InterruptHandler {
@@ -51,7 +54,7 @@ class InterruptManager {
   Port8BitSlow pic_slave_data;
 
  public:
-  InterruptManager(Memory::GlobalDescriptorTable* gdt);
+  InterruptManager(RinOS::Memory::GlobalDescriptorTable* gdt);
   ~InterruptManager();
 
   void activate();
@@ -65,5 +68,8 @@ class InterruptManager {
   static void handle_interrupt_request_0x01();
   static void handle_interrupt_request_0x0C();
 };
+}  // namespace Communication
+}  // namespace Hardware
+}  // namespace RinOS
 
 #endif  // __LOVE_INTERRUPTS_H

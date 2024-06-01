@@ -1,7 +1,10 @@
 #include <hardware/input/keyboard.h>
 #include <terminal/term.h>
 
-KeyboardDriver::KeyboardDriver(InterruptManager* manager)
+using namespace RinOS::Hardware::Driver;
+
+KeyboardDriver::KeyboardDriver(
+    RinOS::Hardware::Communication::InterruptManager* manager)
     : InterruptHandler(0x21, manager), data_port(0x60), command_port(0x64) {
   while (command_port.Read() & 0x1) {
     data_port.Read();
@@ -24,161 +27,161 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
     switch (key) {
       // special chars 1
       case 0x29:
-        Terminal::printf("`");
+        RinOS::Terminal::printf("`");
         break;
       case 0x02:
-        Terminal::printf("1");
+        RinOS::Terminal::printf("1");
         break;
       case 0x03:
-        Terminal::printf("2");
+        RinOS::Terminal::printf("2");
         break;
       case 0x04:
-        Terminal::printf("3");
+        RinOS::Terminal::printf("3");
         break;
       case 0x05:
-        Terminal::printf("4");
+        RinOS::Terminal::printf("4");
         break;
       case 0x06:
-        Terminal::printf("5");
+        RinOS::Terminal::printf("5");
         break;
       case 0x07:
-        Terminal::printf("6");
+        RinOS::Terminal::printf("6");
         break;
       case 0x08:
-        Terminal::printf("7");
+        RinOS::Terminal::printf("7");
         break;
       case 0x09:
-        Terminal::printf("8");
+        RinOS::Terminal::printf("8");
         break;
       case 0x0a:
-        Terminal::printf("9");
+        RinOS::Terminal::printf("9");
         break;
       case 0x0b:
-        Terminal::printf("0");
+        RinOS::Terminal::printf("0");
         break;
       // special chars 2
       case 0x0c:
-        Terminal::printf("-");
+        RinOS::Terminal::printf("-");
         break;
       case 0x0d:
-        Terminal::printf("=");
+        RinOS::Terminal::printf("=");
         break;
       // first row of letters
       case 0x10:
-        Terminal::printf("q");
+        RinOS::Terminal::printf("q");
         break;
       case 0x11:
-        Terminal::printf("w");
+        RinOS::Terminal::printf("w");
         break;
       case 0x12:
-        Terminal::printf("e");
+        RinOS::Terminal::printf("e");
         break;
       case 0x13:
-        Terminal::printf("r");
+        RinOS::Terminal::printf("r");
         break;
       case 0x14:
-        Terminal::printf("t");
+        RinOS::Terminal::printf("t");
         break;
       case 0x15:
-        Terminal::printf("y");
+        RinOS::Terminal::printf("y");
         break;
       case 0x16:
-        Terminal::printf("u");
+        RinOS::Terminal::printf("u");
         break;
       case 0x17:
-        Terminal::printf("i");
+        RinOS::Terminal::printf("i");
         break;
       case 0x18:
-        Terminal::printf("o");
+        RinOS::Terminal::printf("o");
         break;
       case 0x19:
-        Terminal::printf("p");
+        RinOS::Terminal::printf("p");
         break;
       // special chars 3
       case 0x1a:
-        Terminal::printf("[");
+        RinOS::Terminal::printf("[");
         break;
       case 0x1b:
-        Terminal::printf("]");
+        RinOS::Terminal::printf("]");
         break;
       case 0x2b:
-        Terminal::printf("\\");
+        RinOS::Terminal::printf("\\");
         break;
       // second row of letters
       case 0x1e:
-        Terminal::printf("a");
+        RinOS::Terminal::printf("a");
         break;
       case 0x1f:
-        Terminal::printf("s");
+        RinOS::Terminal::printf("s");
         break;
       case 0x20:
-        Terminal::printf("d");
+        RinOS::Terminal::printf("d");
         break;
       case 0x21:
-        Terminal::printf("f");
+        RinOS::Terminal::printf("f");
         break;
       case 0x22:
-        Terminal::printf("g");
+        RinOS::Terminal::printf("g");
         break;
       case 0x23:
-        Terminal::printf("h");
+        RinOS::Terminal::printf("h");
         break;
       case 0x24:
-        Terminal::printf("j");
+        RinOS::Terminal::printf("j");
         break;
       case 0x25:
-        Terminal::printf("k");
+        RinOS::Terminal::printf("k");
         break;
       case 0x26:
-        Terminal::printf("l");
+        RinOS::Terminal::printf("l");
         break;
       // special chars 4
       case 0x27:
-        Terminal::printf(";");
+        RinOS::Terminal::printf(";");
         break;
       case 0x28:
-        Terminal::printf("'");
+        RinOS::Terminal::printf("'");
         break;
       // third row of letters
       case 0x2c:
-        Terminal::printf("z");
+        RinOS::Terminal::printf("z");
         break;
       case 0x2d:
-        Terminal::printf("x");
+        RinOS::Terminal::printf("x");
         break;
       case 0x2e:
-        Terminal::printf("c");
+        RinOS::Terminal::printf("c");
         break;
       case 0x2f:
-        Terminal::printf("v");
+        RinOS::Terminal::printf("v");
         break;
       case 0x30:
-        Terminal::printf("b");
+        RinOS::Terminal::printf("b");
         break;
       case 0x31:
-        Terminal::printf("n");
+        RinOS::Terminal::printf("n");
         break;
       case 0x32:
-        Terminal::printf("m");
+        RinOS::Terminal::printf("m");
         break;
       // special chars 5
       case 0x33:
-        Terminal::printf(",");
+        RinOS::Terminal::printf(",");
         break;
       case 0x34:
-        Terminal::printf(".");
+        RinOS::Terminal::printf(".");
         break;
       case 0x35:
-        Terminal::printf("/");
+        RinOS::Terminal::printf("/");
         break;
 
       // space
       case 0x39:
-        Terminal::printf(" ");
+        RinOS::Terminal::printf(" ");
         break;
       // enter
       case 0x1c:
-        Terminal::printf("\n");
+        RinOS::Terminal::printf("\n");
         break;
       // caps lock
       case 0x3a:
@@ -190,11 +193,11 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // backspace
       case 0x0e:
-        Terminal::printf("\b");
+        RinOS::Terminal::printf("\b");
         break;
       // escape
       case 0x01:
-        Terminal::printf("\x1b");
+        RinOS::Terminal::printf("\x1b");
         break;
 
       // right control
@@ -207,7 +210,7 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // tab
       case 0x0f:
-        Terminal::printf("\v");
+        RinOS::Terminal::printf("\v");
         break;
 
       // alt keys
@@ -231,16 +234,16 @@ u32 KeyboardDriver::handle_interrupt(u32 esp) {
 
       // arrow keys
       case 0x4b:
-        Terminal::printf("\xfc");
+        RinOS::Terminal::printf("\xfc");
         break;
       case 0x48:
-        Terminal::printf("\xfd");
+        RinOS::Terminal::printf("\xfd");
         break;
       case 0x50:
-        Terminal::printf("\xfe");
+        RinOS::Terminal::printf("\xfe");
         break;
       case 0x4d:
-        Terminal::printf("\xff");
+        RinOS::Terminal::printf("\xff");
         break;
     }
   }

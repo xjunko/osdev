@@ -1,14 +1,14 @@
 #include <memory/gdt.h>
 #include <terminal/term.h>
 
-namespace Memory {
+using namespace RinOS::Memory;
 
 GlobalDescriptorTable::GlobalDescriptorTable()
     : null_segment_selector(0, 0, 0),
       unused_segment_selector(0, 0, 0),
       code_segment_selector(0, 64 * 1024 * 1024, 0x9A),
       data_segment_selector(0, 64 * 1024 * 1024, 0x92) {
-  Terminal::printf("[System] GlobalDescriptorTable Initialized\n");
+  RinOS::Terminal::printf("[System] GlobalDescriptorTable Initialized\n");
   u32 i[2];
   i[1] = (u32)this;
   i[0] = sizeof(GlobalDescriptorTable) << 16;
@@ -19,18 +19,18 @@ GlobalDescriptorTable::GlobalDescriptorTable()
 GlobalDescriptorTable::~GlobalDescriptorTable() {}
 
 u16 GlobalDescriptorTable::DataSegmentSelector() {
-  Terminal::printf("[DEBUG] DataSegmentSelector called! \n");
+  RinOS::Terminal::printf("[DEBUG] DataSegmentSelector called! \n");
   return (u8 *)&data_segment_selector - (u8 *)this;
 }
 
 u16 GlobalDescriptorTable::CodeSegmentSelector() {
-  Terminal::printf("[DEBUG] CodeSegmentSelector called! \n");
+  RinOS::Terminal::printf("[DEBUG] CodeSegmentSelector called! \n");
   return (u8 *)&code_segment_selector - (u8 *)this;
 }
 
 GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(u32 base, u32 limit,
                                                             u8 flags) {
-  Terminal::printf("[DEBUG] SegmentDescriptor Initialized! \n");
+  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor Initialized! \n");
   u8 *target = (u8 *)this;
 
   if (limit <= 65536) {
@@ -58,7 +58,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(u32 base, u32 limit,
 }
 
 u32 GlobalDescriptorTable::SegmentDescriptor::Base() {
-  Terminal::printf("[DEBUG] SegmentDescriptor::Base Called! \n");
+  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor::Base Called! \n");
   u8 *target = (u8 *)this;
   u32 result = target[7];
   result = (result << 8) + target[4];
@@ -68,7 +68,7 @@ u32 GlobalDescriptorTable::SegmentDescriptor::Base() {
 }
 
 u32 GlobalDescriptorTable::SegmentDescriptor::Limit() {
-  Terminal::printf("[DEBUG] SegmentDescriptor::Limit Called! \n");
+  RinOS::Terminal::printf("[DEBUG] SegmentDescriptor::Limit Called! \n");
   u8 *target = (u8 *)this;
   u32 result = target[6] & 0xF;
   result = (result << 8) + target[1];
@@ -80,5 +80,3 @@ u32 GlobalDescriptorTable::SegmentDescriptor::Limit() {
 
   return result;
 }
-
-}  // namespace Memory

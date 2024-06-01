@@ -5,9 +5,12 @@
 #include <hardware/interrupts.h>
 #include <hardware/port.h>
 
-class MouseDriver : public InterruptHandler {
-  Port8Bit data_port;
-  Port8Bit command_port;
+namespace RinOS {
+namespace Hardware {
+namespace Driver {
+class MouseDriver : public RinOS::Hardware::Communication::InterruptHandler {
+  RinOS::Hardware::Communication::Port8Bit data_port;
+  RinOS::Hardware::Communication::Port8Bit command_port;
 
   u8 buffer[3];
   u8 offset;
@@ -16,10 +19,12 @@ class MouseDriver : public InterruptHandler {
   i8 x, y;
 
  public:
-  MouseDriver(InterruptManager* manager);
+  MouseDriver(RinOS::Hardware::Communication::InterruptManager* manager);
   ~MouseDriver();
 
   virtual u32 handle_interrupt(u32 esp);
 };
-
+}  // namespace Driver
+}  // namespace Hardware
+}  // namespace RinOS
 #endif

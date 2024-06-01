@@ -1,6 +1,8 @@
 #include <commons/types.h>
 #include <hardware/port.h>
 
+using namespace RinOS::Hardware::Communication;
+
 // Base Port
 Port::Port(u16 port_number) { this->port_number = port_number; }
 Port::~Port() {}

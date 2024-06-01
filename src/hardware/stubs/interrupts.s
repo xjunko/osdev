@@ -1,7 +1,7 @@
 .set IRQ_BASE, 0x20
 
 .section .text
-.extern _ZN16InterruptManager16handle_interruptEhj
+.extern _ZN5RinOS8Hardware13Communication16InterruptManager16handle_interruptEhj
 
 .macro HandleException num
 .global _ZN16InterruptManager16handle_exception_\num\()Ev
@@ -11,8 +11,8 @@ _ZN16InterruptManager16handle_exception_\num\()Ev:
 .endm
 
 .macro HandleInterruptRequest num
-.global _ZN16InterruptManager29handle_interrupt_request_\num\()Ev
-_ZN16InterruptManager29handle_interrupt_request_\num\()Ev:
+.global _ZN5RinOS8Hardware13Communication16InterruptManager29handle_interrupt_request_\num\()Ev
+_ZN5RinOS8Hardware13Communication16InterruptManager29handle_interrupt_request_\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
     jmp int_bottom
 .endm
@@ -30,7 +30,7 @@ int_bottom:
 
     pushl %esp
     push (interruptnumber)
-    call _ZN16InterruptManager16handle_interruptEhj
+    call _ZN5RinOS8Hardware13Communication16InterruptManager16handle_interruptEhj
     movl %eax, %esp
 
     popl %gs
@@ -41,8 +41,8 @@ int_bottom:
 
     iret
 
-.global _ZN16InterruptManager24ignore_interrupt_requestEv
-_ZN16InterruptManager24ignore_interrupt_requestEv:
+.global _ZN5RinOS8Hardware13Communication16InterruptManager24ignore_interrupt_requestEv
+_ZN5RinOS8Hardware13Communication16InterruptManager24ignore_interrupt_requestEv:
     iret
 
 .data 

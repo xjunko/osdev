@@ -5,15 +5,22 @@
 #include <hardware/interrupts.h>
 #include <hardware/port.h>
 
-class KeyboardDriver : public InterruptHandler {
-  Port8Bit data_port;
-  Port8Bit command_port;
+namespace RinOS {
+namespace Hardware {
+namespace Driver {
+class KeyboardDriver : public RinOS::Hardware::Communication::InterruptHandler {
+  RinOS::Hardware::Communication::Port8Bit data_port;
+  RinOS::Hardware::Communication::Port8Bit command_port;
 
  public:
-  KeyboardDriver(InterruptManager* manager);
+  KeyboardDriver(RinOS::Hardware::Communication::InterruptManager* manager);
   ~KeyboardDriver();
 
   virtual u32 handle_interrupt(u32 esp);
 };
+
+}  // namespace Driver
+}  // namespace Hardware
+}  // namespace RinOS
 
 #endif

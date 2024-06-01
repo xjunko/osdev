@@ -9,7 +9,7 @@
 
 class RinKernel {
  public:
-  Memory::GlobalDescriptorTable gdt;
+  RinOS::Memory::GlobalDescriptorTable gdt;
 
   // Constructor
   RinKernel() {}
@@ -17,35 +17,32 @@ class RinKernel {
 
   // Methods
   void initialize() {
-    Terminal::set_color(0x0E);
-    Terminal::printf("Operating System Version 0.0.1 \n");
+    RinOS::Terminal::set_color(0x0E);
+    RinOS::Terminal::printf("Operating System Version 0.0.1 \n");
+    RinOS::Terminal::set_color(0x0F);
 
-    Terminal::set_color(0x0A);
+    RinOS::Terminal::set_color(0x0A);
+    RinOS::Terminal::printf("Initializing GDT... \n");
+    RinOS::Terminal::set_color(0x0F);
 
-    Terminal::printf("Initializing GDT... \n");
-    Memory::GlobalDescriptorTable gdt;
-    InterruptManager interrupts(&gdt);
-    KeyboardDriver keyboard(&interrupts);
-    MouseDriver mouse(&interrupts);
+    RinOS::Memory::GlobalDescriptorTable gdt;
+    RinOS::Hardware::Communication::InterruptManager interrupts(&gdt);
+    RinOS::Hardware::Driver::KeyboardDriver keyboard(&interrupts);
+    RinOS::Hardware::Driver::MouseDriver mouse(&interrupts);
     interrupts.activate();
 
     // TODO:
     // - IRQs
     // - PIT
-    // - Mouse
 
     // // Print these TODOs in a for loop
-    Terminal::set_color(0x04);
-    Utility::wait_for_a_bit(25);
-    Terminal::printf("TODO: Implement IRQs \n");
-    Utility::wait_for_a_bit(25);
-    Terminal::printf("TODO: Implement PIT \n");
-    Utility::wait_for_a_bit(25);
-    Terminal::printf("TODO: Implement Mouse \n");
+    // RinOS::Terminal::set_color(0x04);
+    RinOS::Terminal::printf("TODO: Implement IRQs \n");
+    RinOS::Terminal::printf("TODO: Implement PIT \n");
 
     // Fake ass terminal prompt
-    Terminal::set_color(0x0F);
-    Terminal::printf("\n[junko@konno] $ ");
+    // RinOS::Terminal::set_color(0x0F);
+    RinOS::Terminal::printf("\n[junko@konno] $ ");
 
     while (true) {
     }

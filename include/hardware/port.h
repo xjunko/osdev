@@ -3,6 +3,9 @@
 
 #include <commons/types.h>
 
+namespace RinOS {
+namespace Hardware {
+namespace Communication {
 class Port {
  protected:
   u16 port_number;
@@ -44,5 +47,8 @@ class Port32Bit : public Port {
   virtual void Write(u32 data);
   virtual u32 Read();
 };
+}  // namespace Communication
+}  // namespace Hardware
+}  // namespace RinOS
 
 #endif  // __LOVE_PORT_H

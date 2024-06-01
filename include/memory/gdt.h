@@ -3,6 +3,7 @@
 
 #include <commons/types.h>
 
+namespace RinOS {
 namespace Memory {
 
 class GlobalDescriptorTable {
@@ -37,4 +38,5 @@ class GlobalDescriptorTable {
 };
 
 }  // namespace Memory
+}  // namespace RinOS
 #endif  // __LOVE_GDT_H

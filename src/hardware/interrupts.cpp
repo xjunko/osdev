@@ -4,6 +4,8 @@
 #include <hardware/port.h>
 #include <terminal/term.h>
 
+using namespace RinOS::Hardware::Communication;
+
 // InterruptHandler
 InterruptHandler::InterruptHandler(u8 interrupt_number,
                                    InterruptManager* interrupt_manager) {
@@ -29,7 +31,9 @@ void InterruptManager::set_interrupt_descriptor_table_entry(
     u8 interrupt_number, u16 code_segment_selector_offset, void (*handler)(),
     u8 privilege, u8 type) {
   // Spam
-  // Terminal::printf("[System] SetInterruptDescriptorTableEntry called! \n");
+  //  RinOS::Terminal::printf("[System] SetInterruptDescriptorTableEntry
+  //  called!
+  // \n");
 
   interrupt_descriptor_table[interrupt_number].handler_address_low =
       ((u32)handler) & 0xFFFF;
@@ -42,12 +46,12 @@ void InterruptManager::set_interrupt_descriptor_table_entry(
   interrupt_descriptor_table[interrupt_number].reserved = 0;
 }
 
-InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
+InterruptManager::InterruptManager(RinOS::Memory::GlobalDescriptorTable* gdt)
     : pic_master_command(0x20),
       pic_master_data(0x21),
       pic_slave_command(0xA0),
       pic_slave_data(0xA1) {
-  Terminal::printf("[System] InterruptManager initialized! \n");
+  RinOS::Terminal::printf("[System] InterruptManager initialized! \n");
 
   u32 code_segment = gdt->CodeSegmentSelector();
 
@@ -92,9 +96,9 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
 }
 
 void InterruptManager::activate() {
-  Terminal::set_color(0x04);
-  Terminal::printf("[System] Activating Interrupts... \n");
-  Terminal::set_color(0x0F);
+  // RinOS::Terminal::set_color(0x04);
+  RinOS::Terminal::printf("[System] Activating Interrupts... \n");
+  // RinOS::Terminal::set_color(0x0F);
 
   if (active_interrupt_manager != 0) {
     active_interrupt_manager->deactivate();
@@ -105,9 +109,9 @@ void InterruptManager::activate() {
 }
 
 void InterruptManager::deactivate() {
-  Terminal::set_color(0x04);
-  Terminal::printf("[System] Deactivating Interrupts... \n");
-  Terminal::set_color(0x0F);
+  // RinOS::Terminal::set_color(0x04);
+  RinOS::Terminal::printf("[System] Deactivating Interrupts... \n");
+  // RinOS::Terminal::set_color(0x0F);
 
   if (active_interrupt_manager == this) {
     active_interrupt_manager = 0;
@@ -127,9 +131,9 @@ u32 InterruptManager::do_handle_interrupt(u8 interrupt_number, u32 esp) {
   if (handlers[interrupt_number] != 0) {
     esp = handlers[interrupt_number]->handle_interrupt(esp);
   } else if (interrupt_number != 0x20) {
-    Terminal::set_color(0x04);
-    Terminal::printf("[System] Unhandled interrupt 0xTODO \n");
-    Terminal::set_color(0x0F);
+    // RinOS::Terminal::set_color(0x04);
+    RinOS::Terminal::printf("[System] Unhandled interrupt 0xTODO \n");
+    // RinOS::Terminal::set_color(0x0F);
   }
 
   if (0x20 <= interrupt_number && interrupt_number < 0x30) {

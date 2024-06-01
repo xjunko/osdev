@@ -1,7 +1,10 @@
 #include <hardware/input/mouse.h>
 #include <terminal/term.h>
 
-MouseDriver::MouseDriver(InterruptManager* manager)
+using namespace RinOS::Hardware::Driver;
+
+MouseDriver::MouseDriver(
+    RinOS::Hardware::Communication::InterruptManager* manager)
     : InterruptHandler(0x2C, manager), data_port(0x60), command_port(0x64) {
   offset = 0;
   buttons = 0;

@@ -10,5 +10,3 @@ extern "C" void call_constructors() {
     (*i)();
   }
 }
-
-extern "C" void print_debug_message(const char* msg) { Terminal::printf(msg); }
