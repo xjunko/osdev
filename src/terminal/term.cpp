@@ -15,6 +15,11 @@ void RinOS::Terminal::set_position(u8 x, u8 y) {
   TERM_Y = y;
 }
 
+void RinOS::Terminal::get_position(u8 *x, u8 *y) {
+  *x = TERM_X;
+  *y = TERM_Y;
+}
+
 void RinOS::Terminal::set_color(u8 color) { VGA_COLOR = color; }
 
 void RinOS::Terminal::set_pixel(u16 x, u16 y, u8 color, u8 character) {

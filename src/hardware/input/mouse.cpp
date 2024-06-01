@@ -27,7 +27,7 @@ void MouseDriver::activate() {
   command_port.Write(0xA8);
   command_port.Write(0x20);
 
-  u8 status = (data_port.Read() | 2);
+  u8 status = data_port.Read() | 2;
   command_port.Write(0x60);
   data_port.Write(status);
 
@@ -41,15 +41,16 @@ void MouseDriver::activate() {
 u32 MouseDriver::handle_interrupt(u32 esp) {
   u8 status = command_port.Read();
 
-  if (event == 0) {
-    return esp;
-  }
-
   if (!(status & 0x20)) {
     return esp;
   }
 
   buffer[offset] = data_port.Read();
+
+  if (event == 0) {
+    return esp;
+  }
+
   offset = (offset + 1) % 3;
 
   if (offset == 0) {

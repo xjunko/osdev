@@ -14,6 +14,15 @@ class DumbKeyboardEventHandler
   bool pressed;
 
   void on_key_press(u8 key) override {
+    // SCuffed Backspace
+    if (key == '\b') {
+      u8 x, y;
+      RinOS::Terminal::get_position(&x, &y);
+      RinOS::Terminal::set_pixel(x, y, 0x0F, ' ');
+      RinOS::Terminal::set_position(x - 1, y);
+      return;
+    }
+
     char* str = " ";
     str[0] = key;
     RinOS::Terminal::printf(str);
@@ -108,7 +117,7 @@ class RinKernel {
     RinOS::Hardware::Driver::MouseDriver mouse(&interrupts, &mouse_event);
 
     driver_manager.add_driver(&keyboard);
-    // driver_manager.add_driver(&mouse);
+    driver_manager.add_driver(&mouse);
 
     driver_manager.activate_all();
     interrupts.activate();
