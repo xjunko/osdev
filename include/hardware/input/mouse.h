@@ -2,8 +2,8 @@
 #define __LOVE_HW_MOUSE_H
 
 #include <commons/types.h>
-#include <hardware/interrupts.h>
-#include <hardware/port.h>
+#include <hardware/communication/interrupts.h>
+#include <hardware/communication/port.h>
 
 namespace RinOS {
 namespace Hardware {

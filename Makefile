@@ -4,9 +4,9 @@ AS_ARGS = --32
 LD_ARGS = -melf_i386
 
 objects = obj/loader.o \
-		  obj/hardware/port.o \
-		  obj/hardware/interrupts.o \
-		  obj/hardware/stubs/interrupts.o \
+		  obj/hardware/communication/port.o \
+		  obj/hardware/communication/interrupts.o \
+		  obj/hardware/communication/stubs/interrupts.o \
 		  obj/hardware/input/keyboard.o \
 		  obj/hardware/input/mouse.o \
 		  obj/memory/gdt.o \

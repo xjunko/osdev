@@ -1,5 +1,5 @@
 #include <commons/types.h>
-#include <hardware/port.h>
+#include <hardware/communication/port.h>
 
 using namespace RinOS::Hardware::Communication;
 

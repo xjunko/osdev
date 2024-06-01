@@ -2,7 +2,7 @@
 #define __LOVE_INTERRUPTS_H
 
 #include <commons/types.h>
-#include <hardware/port.h>
+#include <hardware/communication/port.h>
 #include <memory/gdt.h>
 
 namespace RinOS {

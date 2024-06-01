@@ -1,7 +1,7 @@
 #include <commons/types.h>
 #include <commons/utility.h>
-#include <hardware/interrupts.h>
-#include <hardware/port.h>
+#include <hardware/communication/interrupts.h>
+#include <hardware/communication/port.h>
 #include <terminal/term.h>
 
 using namespace RinOS::Hardware::Communication;

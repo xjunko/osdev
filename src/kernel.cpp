@@ -1,9 +1,9 @@
 // rin_kernel.cpp - higher higher kernel
 #include <commons/types.h>
 #include <commons/utility.h>
+#include <hardware/communication/interrupts.h>
 #include <hardware/input/keyboard.h>
 #include <hardware/input/mouse.h>
-#include <hardware/interrupts.h>
 #include <memory/gdt.h>
 #include <terminal/term.h>
 
