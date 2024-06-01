@@ -3,4 +3,14 @@ i have no idea what im doing, just doing it for the meme.
 
 # preview
 literally the most basic shit ever, ill cook with this over time when im free :DDDDD
-![image](https://github.com/xjunko/osdev/assets/44401509/b5abc7ca-d77b-4a35-981f-ab60426b2433)
+![image](https://github.com/xjunko/osdev/assets/44401509/aee8c1fc-508b-4f40-a59b-0dc8ade709b3)
+
+# roadmaps
+- [x] bootloader
+- [x] raw vga buffer
+- [x] global descriptor table
+- [x] interrupt descriptor table
+- [x] keyboard driver
+- [ ] mouse driver
+- [ ] basic audio driver
+- [ ] interactive terminal
