@@ -1,4 +1,5 @@
 #include <commons/types.h>
+#include <commons/utility.h>
 #include <hardware/interrupts.h>
 #include <hardware/port.h>
 #include <terminal/term.h>
@@ -9,6 +10,9 @@ InterruptManager::GateDescriptor
 void InterruptManager::set_interrupt_descriptor_table_entry(
     u8 interrupt_number, u16 code_segment_selector_offset, void (*handler)(),
     u8 privilege, u8 type) {
+  // Spam
+  // Terminal::printf("[System] SetInterruptDescriptorTableEntry called! \n");
+
   interrupt_descriptor_table[interrupt_number].handler_address_low =
       ((u32)handler) & 0xFFFF;
   interrupt_descriptor_table[interrupt_number].handler_address_high =
@@ -25,10 +29,13 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
       pic_master_data(0x21),
       pic_slave_command(0xA0),
       pic_slave_data(0xA1) {
+  Terminal::printf("[System] InterruptManager initialized! \n");
+
   u32 code_segment = gdt->CodeSegmentSelector();
+
   const u8 IDT_INTERRUPT_GATE = 0xE;
 
-  for (u16 i = 0; i < 256; i++) {
+  for (u8 i = 255; i > 0; i--) {
     set_interrupt_descriptor_table_entry(
         i, code_segment, &ignore_interrupt_request, 0, IDT_INTERRUPT_GATE);
   }
@@ -62,7 +69,11 @@ InterruptManager::InterruptManager(Memory::GlobalDescriptorTable* gdt)
   asm volatile("lidt %0" : : "m"(idt));
 }
 
-void InterruptManager::activate() { asm("sti"); }
+void InterruptManager::activate() {
+  Terminal::printf("[System] Activating Interrupts... \n");
+  Utility::wait_for_a_bit(200);
+  asm("sti");
+}
 
 u32 InterruptManager::handle_interrupt(u8 interrupt_number, u32 esp) {
   Terminal::printf("\n --> INTERRUPT ! \n");

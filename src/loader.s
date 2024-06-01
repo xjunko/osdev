@@ -16,6 +16,7 @@
 .section .text
 .extern kernel_entry
 .extern call_constructors
+.extern print_debug_message
 .global loader
 
 loader:
