@@ -10,8 +10,8 @@ GlobalDescriptorTable::GlobalDescriptorTable()
       data_segment_selector(0, 64 * 1024 * 1024, 0x92) {
   Terminal::printf("[System] GlobalDescriptorTable Initialized\n");
   u32 i[2];
-  i[0] = (u32)this;
-  i[1] = sizeof(GlobalDescriptorTable) << 16;
+  i[1] = (u32)this;
+  i[0] = sizeof(GlobalDescriptorTable) << 16;
 
   asm volatile("lgdt (%0)" : : "p"(((u8 *)i) + 2));
 }
