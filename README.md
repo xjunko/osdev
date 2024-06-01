@@ -3,7 +3,7 @@ i have no idea what im doing, just doing it for the meme.
 
 # preview
 literally the most basic shit ever, ill cook with this over time when im free :DDDDD
-![preview](./assets/p1.gif)
+![preview](./assets/p2.gif)
 
 # roadmaps
 - [x] bootloader
