@@ -5,9 +5,12 @@ LD_ARGS = -melf_i386
 
 objects = obj/loader.o \
 		  obj/hardware/port.o \
+		  obj/hardware/interrupts.o \
+		  obj/hardware/stubs/interrupts.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
-		  obj/rin_kernel.o \
+		  obj/commons/utility.o \
+		  obj/kernel.o \
 		  obj/entry.o
 
 obj/%.o: src/%.cpp
