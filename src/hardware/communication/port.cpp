@@ -49,6 +49,7 @@ u16 Port16Bit::Read() {
 
 // 32Bit Port
 Port32Bit::Port32Bit(u16 port_number) : Port(port_number) {}
+Port32Bit::~Port32Bit() {}
 
 void Port32Bit::Write(u32 data) {
   __asm__ volatile("outl %0, %1" : : "a"(data), "Nd"(port_number));
