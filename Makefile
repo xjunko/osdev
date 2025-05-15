@@ -4,6 +4,7 @@ AS_ARGS = --32
 LD_ARGS = -melf_i386
 
 objects = obj/loader.o \
+		  obj/hardware/communication/pci.o \
 		  obj/hardware/communication/port.o \
 		  obj/hardware/communication/interrupts.o \
 		  obj/hardware/communication/stubs/interrupts.o \
@@ -58,12 +59,11 @@ run: kernel.iso
 		-drive id=disk,file=boot.img,format=raw,if=none \
 		-device piix4-ide,id=piix4 \
 		-device ide-hd,drive=disk,bus=piix4.0 \
+		-device e1000 \
+		-device ich9-ahci \
+		-device usb-ehci \
+		-device virtio-balloon-pci \
 		-cpu 486 -smp 1 -m 8M -vga virtio
-
-
-run_vb: kernel.iso
-	(killall VirtualBoxVM && sleep 1) || true
-	VirtualBoxVM --startvm "RinOS" &
 
 
 
