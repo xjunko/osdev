@@ -2,6 +2,7 @@
 #include <commons/types.h>
 #include <commons/utility.h>
 #include <hardware/communication/interrupts.h>
+#include <hardware/communication/pci.h>
 #include <hardware/driver/driver.h>
 #include <hardware/input/keyboard.h>
 #include <hardware/input/mouse.h>
@@ -102,6 +103,18 @@ class RinKernel {
     RinOS::Terminal::printf(">");
   }
 
+  void userland() {
+    // Fake loading...
+    RinOS::Terminal::log("System", "Booting!");
+    RinOS::Utility::sleep(1000);
+
+    RinOS::Terminal::set_color(0x0F);
+    RinOS::Terminal::clear();
+
+    // Terminal
+    RinKernel::print_terminal();
+  }
+
   // Entry
   void initialize() {
     RinOS::Memory::GlobalDescriptorTable gdt;
@@ -116,27 +129,15 @@ class RinKernel {
     DumbMouseEventHandler mouse_event;
     RinOS::Hardware::Driver::MouseDriver mouse(&interrupts, &mouse_event);
 
+    RinOS::Hardware::Communication::PCIController pci_controller;
+    pci_controller.SelectDriver(&driver_manager);
+
     driver_manager.add_driver(&keyboard);
     driver_manager.add_driver(&mouse);
 
     driver_manager.activate_all();
     interrupts.activate();
 
-    // Fake loading...
-    RinOS::Terminal::log("System", "Booting!");
-    RinOS::Utility::sleep(1000);
-
-    // PreMenu
-    while (!kb_event.pressed) {
-      print_lockscreen();
-      RinOS::Utility::sleep(24);
-    }
-
-    RinOS::Terminal::set_color(0x0F);
-    RinOS::Terminal::clear();
-
-    // Terminal
-    print_terminal();
     while (true) {
       RinOS::Utility::sleep(16);
     }

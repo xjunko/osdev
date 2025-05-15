@@ -51,6 +51,14 @@ void RinOS::Terminal::printf(const char *str) {
   }
 }
 
+void RinOS::Terminal::print_hex(u8 n) {
+  char *x1 = "00";
+  char *hex = "0123456789ABCDEF";
+  x1[0] = hex[(n >> 4) & 0xF];
+  x1[1] = hex[n & 0xF];
+  RinOS::Terminal::printf(x1);
+}
+
 void RinOS::Terminal::log(const char *prefix, const char *str) {
   RinOS::Terminal::set_color(0x0F);
   RinOS::Terminal::printf("[");
