@@ -130,7 +130,7 @@ class RinKernel {
     RinOS::Hardware::Driver::MouseDriver mouse(&interrupts, &mouse_event);
 
     RinOS::Hardware::Communication::PCIController pci_controller;
-    pci_controller.SelectDriver(&driver_manager);
+    pci_controller.select_drivers(&driver_manager);
 
     driver_manager.add_driver(&keyboard);
     driver_manager.add_driver(&mouse);
