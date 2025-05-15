@@ -45,7 +45,7 @@ class PCIController {
   void Write(u16 bus, u16 device, u16 function, u32 register_offset, u32 data);
   bool DeviceHasFunctions(u16 bus, u16 device);
 
-  void SelectDriver(RinOS::Hardware::Driver::DriverManager *driver_manager);
+  void select_drivers(RinOS::Hardware::Driver::DriverManager *driver_manager);
   PCIDescriptor GetDeviceDescriptor(u16 bus, u16 device, u16 function);
 };
 
