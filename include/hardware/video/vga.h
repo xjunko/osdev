@@ -10,8 +10,8 @@ namespace Driver {
 class VGA {
  protected:
   RinOS::Hardware::Communication::Port8Bit misc_port;
-  RinOS::Hardware::Communication::Port8Bit dac_data_port;
   RinOS::Hardware::Communication::Port8Bit dac_index_port;
+  RinOS::Hardware::Communication::Port8Bit dac_data_port;
   RinOS::Hardware::Communication::Port8Bit crtc_index_port;
   RinOS::Hardware::Communication::Port8Bit crtc_data_port;
   RinOS::Hardware::Communication::Port8Bit sequencer_index_port;
