@@ -11,6 +11,15 @@ namespace RinOS {
 namespace Hardware {
 namespace Communication {
 
+enum BaseAddressRegisterType { MemoryMapping = 0, InputOutput = 1 };
+
+class BaseAddressRegister {
+ public:
+  bool prefetchable;
+  u8 *address;
+  u32 size;
+  BaseAddressRegisterType type;
+};
 class PCIDescriptor {
  public:
   u32 port_base;
@@ -45,8 +54,15 @@ class PCIController {
   void Write(u16 bus, u16 device, u16 function, u32 register_offset, u32 data);
   bool DeviceHasFunctions(u16 bus, u16 device);
 
-  void select_drivers(RinOS::Hardware::Driver::DriverManager *driver_manager);
+  void select_drivers(
+      RinOS::Hardware::Driver::DriverManager *driver_manager,
+      RinOS::Hardware::Communication::InterruptManager *interrupts);
+  RinOS::Hardware::Driver::Driver *GetDriver(
+      PCIDescriptor *dev,
+      RinOS::Hardware::Communication::InterruptManager *interrupts);
   PCIDescriptor GetDeviceDescriptor(u16 bus, u16 device, u16 function);
+  BaseAddressRegister GetBaseAddressRegister(u16 bus, u16 device, u16 function,
+                                             u16 bar);
 };
 
 }  // namespace Communication

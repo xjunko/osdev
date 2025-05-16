@@ -36,7 +36,8 @@ bool PCIController::DeviceHasFunctions(u16 bus, u16 device) {
 }
 
 void PCIController::select_drivers(
-    RinOS::Hardware::Driver::DriverManager *driverManager) {
+    RinOS::Hardware::Driver::DriverManager *driver_manager,
+    RinOS::Hardware::Communication::InterruptManager *interrupts) {
   for (int bus = 0; bus < 8; bus++) {
     for (int device = 0; device < 32; device++) {
       int num_functions = DeviceHasFunctions(bus, device) ? 8 : 1;
@@ -44,7 +45,21 @@ void PCIController::select_drivers(
         PCIDescriptor dev = GetDeviceDescriptor(bus, device, function);
 
         if (dev.vendor_id == 0x0000 || dev.vendor_id == 0xFFFF) {
-          break;  // No more functions.
+          continue;
+        }
+
+        for (int bar_num = 0; bar_num < 6; bar_num++) {
+          BaseAddressRegister bar =
+              GetBaseAddressRegister(bus, device, function, bar_num);
+
+          if (bar.address && bar.type == InputOutput) {
+            dev.port_base = (u32)bar.address;
+          }
+
+          RinOS::Hardware::Driver::Driver *driver = GetDriver(&dev, interrupts);
+          if (driver != 0) {
+            driver_manager->add_driver(driver);
+          }
         }
 
         RinOS::Terminal::log("PCI", "BUS:");
@@ -74,6 +89,12 @@ void PCIController::select_drivers(
   };
 }
 
+RinOS::Hardware::Driver::Driver *PCIController::GetDriver(
+    PCIDescriptor *dev,
+    RinOS::Hardware::Communication::InterruptManager *interrupts) {
+  return 0;
+}
+
 PCIDescriptor PCIController::GetDeviceDescriptor(u16 bus, u16 device,
                                                  u16 function) {
   PCIDescriptor result;
@@ -91,6 +112,37 @@ PCIDescriptor PCIController::GetDeviceDescriptor(u16 bus, u16 device,
 
   result.revision = Read(bus, device, function, 0x08);
   result.interrupt = Read(bus, device, function, 0x3c);
+
+  return result;
+}
+
+BaseAddressRegister PCIController::GetBaseAddressRegister(u16 bus, u16 device,
+                                                          u16 function,
+                                                          u16 bar) {
+  BaseAddressRegister result;
+
+  u32 header_type = Read(bus, device, function, 0x0E) & 0x7F;
+  int max_bars = 6 - (4 * header_type);
+
+  if (bar >= max_bars) {
+    return result;
+  }
+
+  u32 bar_value = Read(bus, device, function, 0x10 + 4 * bar);
+  result.type = (bar_value & 0x1) ? InputOutput : MemoryMapping;
+
+  if (result.type == MemoryMapping) {
+    switch ((bar_value >> 1) & 0x3) {
+      case 0:  // 32bit
+      case 1:  // 20bit
+      case 2:  // 64bit
+        break;
+    }
+    result.prefetchable = ((bar_value >> 3) & 0x1) == 0x1;
+  } else {
+    result.address = (u8 *)(bar_value & ~0x3);
+    result.prefetchable = false;
+  }
 
   return result;
 }
