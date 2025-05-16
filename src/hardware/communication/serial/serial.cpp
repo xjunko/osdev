@@ -1,5 +1,8 @@
 #include <commons/types.h>
 #include <hardware/communication/serial/serial.h>
+#include <sys/std/printf.h>
+
+#include <cstdarg>
 
 using namespace RinOS::Hardware::Communication::Serial;
 
@@ -47,7 +50,12 @@ void COMLog::WriteString(char* str) {
   }
 }
 
-void COMLog::Print(char* str) {
-  this->WriteString(str);
-  this->Write('\n');
+extern "C" void COMLog::Print(const char* fmt, ...) {
+  __builtin_va_list args;
+  __builtin_va_start(args, fmt);
+  printf(fmt, args);
+  printf("\n");
+  __builtin_va_end(args);
 }
+
+extern "C" void putchar_(char c) { COM1.Write(c); }

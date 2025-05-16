@@ -24,11 +24,21 @@ class COMLog {
   bool IsReady();
   void Write(char c);
   void WriteString(char* str);
-  void Print(char* str);
+  void Print(const char* format, ...);
 };
 
 extern COMLog COM1;
 void InitializeGlobalCOM();
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void putchar_(char c);
+
+#ifdef __cplusplus
+}
+#endif
 
 }  // namespace Serial
 }  // namespace Communication
