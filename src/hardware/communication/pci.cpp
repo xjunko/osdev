@@ -2,10 +2,11 @@
 #include <hardware/communication/interrupts.h>
 #include <hardware/communication/pci.h>
 #include <hardware/communication/port.h>
+#include <hardware/communication/serial/serial.h>
 #include <hardware/driver/driver.h>
-#include <terminal/term.h>
 
 using namespace RinOS::Hardware::Communication;
+using namespace RinOS::Hardware::Communication::Serial;
 
 PCIDescriptor::PCIDescriptor() {}
 
@@ -62,28 +63,9 @@ void PCIController::select_drivers(
           }
         }
 
-        RinOS::Terminal::log("PCI", "BUS:");
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::print_hex(bus & 0xFF);
-
-        RinOS::Terminal::log("PCI", "Device:");
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::print_hex(device & 0xFF);
-
-        RinOS::Terminal::log("PCI", "Function:");
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::print_hex(function & 0xFF);
-
-        RinOS::Terminal::log("PCI", "Vendor:");
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::print_hex((dev.vendor_id & 0xFF00) >> 8);
-        RinOS::Terminal::print_hex(dev.vendor_id & 0xFF);
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::log("PCI", "Device:");
-        RinOS::Terminal::printf("-> ");
-        RinOS::Terminal::print_hex((dev.device_id & 0xFF00) >> 8);
-        RinOS::Terminal::print_hex(dev.device_id & 0xFF);
-        RinOS::Terminal::printf("\n");
+        COM1.Print("[PCI] Bus: 0x%X", bus & 0xFF);
+        COM1.Print("[PCI] Function: 0x%X", function & 0xFF);
+        COM1.Print("[PCI] Vendor: 0x%X", (dev.vendor_id & 0xFF00) >> 8);
       }
     }
   };

@@ -22,6 +22,7 @@ VGA::VGA()
       attribute_controller_write_port(0x3c0),
       attribute_controller_reset_port(0x3da) {
   COM1.Print("[VGA] Initialized.");
+
   COM1.Print("[VGA] Reading VGA Pallete.");
   this->dac_index_port.Write(0);
 
@@ -30,6 +31,8 @@ VGA::VGA()
     vga_pallete[i][1] = this->dac_data_port.Read();
     vga_pallete[i][2] = this->dac_data_port.Read();
   }
+
+  COM1.Print("[VGA] VGA Pallete, filled the entire array!");
 }
 
 VGA::~VGA() {}
@@ -75,10 +78,11 @@ void VGA::WriteRegisters(u8* registers) {
   attribute_controller_index_port.Write(0x20);
 }
 
+// Dummy implementation
 bool VGA::IsSupported(u32 width, u32 height, u32 color_depth) { return true; }
 
 bool VGA::SetMode(u32 width, u32 height, u32 colordepth) {
-  RinOS::Terminal::log("VGA", "ModeSet!");
+  COM1.Print("[VGA] ModeSet!");
   static u8 g_320x200x256[] = {
       /* MISC */
       0x63,
@@ -93,8 +97,6 @@ bool VGA::SetMode(u32 width, u32 height, u32 colordepth) {
       /* AC */
       0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
       0x0C, 0x0D, 0x0E, 0x0F, 0x41, 0x00, 0x0F, 0x00, 0x00};
-
-  RinOS::Terminal::log("VGA", "ModeSet[2]!");
   WriteRegisters(g_320x200x256);  // 8bit color depth!
   return true;
 }

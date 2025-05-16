@@ -2,9 +2,11 @@
 #include <commons/utility.h>
 #include <hardware/communication/interrupts.h>
 #include <hardware/communication/port.h>
+#include <hardware/communication/serial/serial.h>
 #include <terminal/term.h>
 
 using namespace RinOS::Hardware::Communication;
+using namespace RinOS::Hardware::Communication::Serial;
 
 // InterruptHandler
 InterruptHandler::InterruptHandler(u8 interrupt_number,
@@ -46,7 +48,7 @@ InterruptManager::InterruptManager(RinOS::Memory::GlobalDescriptorTable* gdt)
       pic_master_data(0x21),
       pic_slave_command(0xA0),
       pic_slave_data(0xA1) {
-  RinOS::Terminal::log("System", "InterruptManager Initialized!");
+  COM1.Print("[System] InterruptManager Initialized!");
   u32 code_segment = gdt->CodeSegmentSelector();
 
   const u8 IDT_INTERRUPT_GATE = 0xE;
@@ -90,7 +92,7 @@ InterruptManager::InterruptManager(RinOS::Memory::GlobalDescriptorTable* gdt)
 }
 
 void InterruptManager::activate() {
-  RinOS::Terminal::log("System", "Activating Interrupts...");
+  COM1.Print("[System] Activating Interrupts...");
 
   if (active_interrupt_manager != 0) {
     active_interrupt_manager->deactivate();
@@ -101,7 +103,7 @@ void InterruptManager::activate() {
 }
 
 void InterruptManager::deactivate() {
-  RinOS::Terminal::log("System", "Deactivating Interrupts...");
+  COM1.Print("[System] Deactivating Interrupts...");
 
   if (active_interrupt_manager == this) {
     active_interrupt_manager = 0;
@@ -121,7 +123,7 @@ u32 InterruptManager::do_handle_interrupt(u8 interrupt_number, u32 esp) {
   if (handlers[interrupt_number] != 0) {
     esp = handlers[interrupt_number]->handle_interrupt(esp);
   } else if (interrupt_number != 0x20) {
-    RinOS::Terminal::log("System::ERROR", "Unhandled interrupt!");
+    COM1.Print("[System::Error] Unhandled interrupt!");
   }
 
   if (0x20 <= interrupt_number && interrupt_number < 0x30) {
