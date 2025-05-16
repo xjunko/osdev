@@ -3,9 +3,11 @@
 #include <commons/utility.h>
 #include <hardware/communication/interrupts.h>
 #include <hardware/communication/pci.h>
+#include <hardware/communication/serial/serial.h>
 #include <hardware/driver/driver.h>
 #include <hardware/input/keyboard.h>
 #include <hardware/input/mouse.h>
+#include <hardware/video/vga.h>
 #include <memory/gdt.h>
 #include <terminal/term.h>
 
@@ -15,7 +17,7 @@ class DumbKeyboardEventHandler
   bool pressed;
 
   void on_key_press(u8 key) override {
-    // SCuffed Backspace
+    // Scuffed Backspace
     if (key == '\b') {
       u8 x, y;
       RinOS::Terminal::get_position(&x, &y);
@@ -117,6 +119,8 @@ class RinKernel {
 
   // Entry
   void initialize() {
+    RinOS::Hardware::Communication::Serial::InitializeGlobalCOM();
+
     RinOS::Memory::GlobalDescriptorTable gdt;
     RinOS::Hardware::Communication::InterruptManager interrupts(&gdt);
 
@@ -130,13 +134,25 @@ class RinKernel {
     RinOS::Hardware::Driver::MouseDriver mouse(&interrupts, &mouse_event);
 
     RinOS::Hardware::Communication::PCIController pci_controller;
-    pci_controller.select_drivers(&driver_manager);
+    pci_controller.select_drivers(&driver_manager, &interrupts);
+
+    RinOS::Hardware::Driver::VGA vga;
 
     driver_manager.add_driver(&keyboard);
     driver_manager.add_driver(&mouse);
 
     driver_manager.activate_all();
     interrupts.activate();
+
+    vga.SetMode(320, 200, 8);
+    for (int y = 0; y < 200; y++) {
+      for (int x = 0; x < 320; x++) {
+        vga.PutPixel(x, y, x, y, x + y);
+      }
+    }
+
+    RinOS::Hardware::Communication::Serial::COM1.Print(
+        "[System] Booted, hello world!");
 
     while (true) {
       RinOS::Utility::sleep(16);
