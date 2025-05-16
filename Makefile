@@ -1,13 +1,21 @@
-GPP_ARGS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-threadsafe-statics -fno-leading-underscore -Wno-write-strings \
-			-fno-stack-protector -Wall -Wextra # this might fuck me up later on
+C_FLAGS = -m32 -g -c -ffreestanding -Wall -Werror -fcommon -Iinclude/ \
+	      -mno-mmx -mno-sse -mno-sse2 -mno-red-zone -fno-stack-protector \
+		  -fno-stack-check -fno-lto -fno-rtti -fno-exceptions\
+		  -nostartfiles -nostdlib -fno-builtin \
+		  -DPRINTF_INCLUDE_CONFIG_H=1 -DPRINTF_ALIAS_STANDARD_FUNCTION_NAMES_SOFT=1 \
+		  -Wno-error=int-to-pointer-cast -Wno-error=write-strings \
+		  -fno-use-cxa-atexit -fno-threadsafe-statics
+
 AS_ARGS = --32
 LD_ARGS = -melf_i386
 
 objects = obj/loader.o \
+		  obj/hardware/communication/serial/serial.o \
 		  obj/hardware/communication/pci.o \
 		  obj/hardware/communication/port.o \
 		  obj/hardware/communication/interrupts.o \
 		  obj/hardware/communication/stubs/interrupts.o \
+		  obj/hardware/video/vga.o \
 		  obj/hardware/input/keyboard.o \
 		  obj/hardware/input/mouse.o \
 		  obj/hardware/timer/pit.o \
@@ -15,12 +23,17 @@ objects = obj/loader.o \
 		  obj/memory/gdt.o \
 		  obj/terminal/term.o \
 		  obj/commons/utility.o \
+		  obj/commons/printf.o \
 		  obj/kernel.o \
 		  obj/entry.o
 
+obj/%.o: src/%.c
+	mkdir -p $(@D)
+	g++ $(C_FLAGS) -o $@ -c $<
+
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
-	g++ $(GPP_ARGS) -o $@ -c $<
+	g++ $(C_FLAGS) -o $@ -c $<
 
 obj/%.o: src/%.s
 	mkdir -p $(@D)
@@ -63,7 +76,11 @@ run: kernel.iso
 		-device ich9-ahci \
 		-device usb-ehci \
 		-device virtio-balloon-pci \
-		-cpu 486 -smp 1 -m 8M -vga virtio
+		-cpu 486 -smp 1 -m 8M -vga virtio \
+		-chardev stdio,id=char0,logfile=system.log,signal=off \
+        -serial chardev:char0
+
+
 
 
 
