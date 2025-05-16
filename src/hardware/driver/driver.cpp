@@ -10,7 +10,7 @@ void Driver::activate() {}
 
 void Driver::deactivate() {}
 
-int Driver::reset() {}
+int Driver::reset() { return -1; }
 
 DriverManager::DriverManager() { num_drivers = 0; }
 
