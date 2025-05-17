@@ -9,38 +9,35 @@ C_FLAGS = -m32 -g -c -ffreestanding -Wall -Werror -fcommon -Iinclude/ \
 AS_ARGS = --32
 LD_ARGS = -melf_i386
 
-objects = obj/commons/utility.o \
-		  obj/commons/printf.o \
-		  obj/kernel/hardware/communication/serial/serial.o \
-		  obj/kernel/hardware/communication/pci.o \
-		  obj/kernel/hardware/communication/port.o \
-		  obj/kernel/hardware/communication/interrupts.o \
-		  obj/kernel/hardware/communication/stubs/interrupts.o \
-		  obj/kernel/hardware/video/vga.o \
-		  obj/kernel/hardware/input/keyboard.o \
-		  obj/kernel/hardware/input/mouse.o \
-		  obj/kernel/hardware/timer/pit.o \
-		  obj/kernel/hardware/driver/driver.o \
-		  obj/kernel/memory/gdt.o \
-		  obj/kernel/terminal/term.o \
-		  obj/kernel/kernel.o \
-		  obj/kernel/entry.o \
-		  obj/kernel/loader.o 
+SRC_DIR  := src
+OBJ_DIR  := obj
+BOOT_DIR := boot
 
-obj/%.o: src/%.c
+ASM_SOURCES := $(shell find $(SRC_DIR) -name '*.s')
+CPP_SOURCES := $(shell find $(SRC_DIR) -name '*.cpp')
+C_SOURCES   := $(shell find $(SRC_DIR) -name '*.c')
+SOURCES     := $(CPP_SOURCES) $(C_SOURCES) $(ASM_SOURCES)
+
+ASM_OBJECTS := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
+CPP_OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP_SOURCES))
+C_OBJECTS   := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
+OBJECTS     := $(CPP_OBJECTS) $(C_OBJECTS) $(ASM_OBJECTS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
 	g++ $(C_FLAGS) -o $@ -c $<
 
-obj/%.o: src/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(@D)
 	g++ $(C_FLAGS) -o $@ -c $<
 
-obj/%.o: src/%.s
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
 	mkdir -p $(@D)
 	as $(AS_ARGS) -o $@ $<
 
-kernel.bin: linker.ld $(objects)
-	ld $(LD_ARGS) -T $< -o $@ ${objects}
+kernel.bin: linker.ld $(OBJECTS)
+	echo $(OBJECTS)
+	ld $(LD_ARGS) -T $< -o $@ ${OBJECTS}
 
 install: kernel.bin
 	sudo cp $< /boot/kernel.bin
