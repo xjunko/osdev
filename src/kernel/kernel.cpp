@@ -65,6 +65,10 @@ class DumbMouseEventHandler
 class RinKernel {
  public:
   RinOS::Memory::GlobalDescriptorTable gdt;
+  RinOS::Hardware::Driver::DriverManager driver_manager;
+  RinOS::Hardware::Communication::PCIController pci_controller;
+
+  RinOS::Hardware::Driver::VGA vga_display;
 
   // Constructor
   RinKernel() {}
@@ -120,34 +124,29 @@ class RinKernel {
   // Entry
   void initialize() {
     RinOS::Hardware::Communication::Serial::InitializeGlobalCOM();
-
-    RinOS::Memory::GlobalDescriptorTable gdt;
     RinOS::Hardware::Communication::InterruptManager interrupts(&gdt);
 
-    // Drivers
-    RinOS::Hardware::Driver::DriverManager driver_manager;
-
+    // Driver
     DumbKeyboardEventHandler kb_event;
     RinOS::Hardware::Driver::KeyboardDriver keyboard(&interrupts, &kb_event);
+    driver_manager.add_driver(&keyboard);
 
     DumbMouseEventHandler mouse_event;
     RinOS::Hardware::Driver::MouseDriver mouse(&interrupts, &mouse_event);
-
-    RinOS::Hardware::Communication::PCIController pci_controller;
-    pci_controller.select_drivers(&driver_manager, &interrupts);
-
-    RinOS::Hardware::Driver::VGA vga;
-
-    driver_manager.add_driver(&keyboard);
     driver_manager.add_driver(&mouse);
 
+    // PCI
+    pci_controller.select_drivers(&driver_manager, &interrupts);
+
+    // Activation
     driver_manager.activate_all();
     interrupts.activate();
 
-    vga.SetMode(320, 200, 8);
+    // On Display
+    vga_display.SetMode(320, 200, 8);
     for (int y = 0; y < 200; y++) {
       for (int x = 0; x < 320; x++) {
-        vga.PutPixel(x, y, x, y, x + y);
+        vga_display.PutPixel(x, y, x, y, x + y);
       }
     }
 
@@ -155,7 +154,10 @@ class RinKernel {
         "[System] Booted, hello world!");
 
     while (true) {
-      RinOS::Utility::sleep(16);
+      RinOS::Hardware::Communication::Serial::COM1.Print("[System] Ping!");
+      RinOS::Utility::sleep(1000);
+      RinOS::Hardware::Communication::Serial::COM1.Print("[System] Pong!");
+      RinOS::Utility::sleep(1000);
     }
   }
 };
