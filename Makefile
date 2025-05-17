@@ -9,23 +9,23 @@ C_FLAGS = -m32 -g -c -ffreestanding -Wall -Werror -fcommon -Iinclude/ \
 AS_ARGS = --32
 LD_ARGS = -melf_i386
 
-objects = obj/loader.o \
-		  obj/hardware/communication/serial/serial.o \
-		  obj/hardware/communication/pci.o \
-		  obj/hardware/communication/port.o \
-		  obj/hardware/communication/interrupts.o \
-		  obj/hardware/communication/stubs/interrupts.o \
-		  obj/hardware/video/vga.o \
-		  obj/hardware/input/keyboard.o \
-		  obj/hardware/input/mouse.o \
-		  obj/hardware/timer/pit.o \
-		  obj/hardware/driver/driver.o \
-		  obj/memory/gdt.o \
-		  obj/terminal/term.o \
-		  obj/commons/utility.o \
+objects = obj/commons/utility.o \
 		  obj/commons/printf.o \
-		  obj/kernel.o \
-		  obj/entry.o
+		  obj/kernel/hardware/communication/serial/serial.o \
+		  obj/kernel/hardware/communication/pci.o \
+		  obj/kernel/hardware/communication/port.o \
+		  obj/kernel/hardware/communication/interrupts.o \
+		  obj/kernel/hardware/communication/stubs/interrupts.o \
+		  obj/kernel/hardware/video/vga.o \
+		  obj/kernel/hardware/input/keyboard.o \
+		  obj/kernel/hardware/input/mouse.o \
+		  obj/kernel/hardware/timer/pit.o \
+		  obj/kernel/hardware/driver/driver.o \
+		  obj/kernel/memory/gdt.o \
+		  obj/kernel/terminal/term.o \
+		  obj/kernel/kernel.o \
+		  obj/kernel/entry.o \
+		  obj/kernel/loader.o 
 
 obj/%.o: src/%.c
 	mkdir -p $(@D)

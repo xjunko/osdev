@@ -1,6 +1,6 @@
 #pragma once
 
-#include <terminal/term.h>
+#include <kernel/terminal/term.h>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;

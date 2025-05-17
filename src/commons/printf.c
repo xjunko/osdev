@@ -41,15 +41,15 @@
 // the printf_config.h header file
 
 // RinOS specific
-#include <hardware/communication/serial/serial.h>
+#include <kernel/hardware/communication/serial/serial.h>
 
 //
 
 #if PRINTF_INCLUDE_CONFIG_H
-#include <sys/std/printf_config.h>
+#include <libs/printf_config.h>
 #endif
 
-#include <sys/std/printf.h>
+#include <libs/printf.h>
 
 #ifdef __cplusplus
 #include <climits>

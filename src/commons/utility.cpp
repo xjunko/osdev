@@ -1,5 +1,5 @@
 #include <commons/utility.h>
-#include <hardware/timer/pit.h>
+#include <kernel/hardware/timer/pit.h>
 
 void RinOS::Utility::sleep(int millisecond) {
   RinOS::Hardware::Timer::BasicPIT pit;
