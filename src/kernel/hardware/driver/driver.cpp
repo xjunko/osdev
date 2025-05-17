@@ -13,6 +13,7 @@ void Driver::deactivate() {}
 int Driver::reset() { return -1; }
 
 DriverManager::DriverManager() { num_drivers = 0; }
+DriverManager::~DriverManager() {}
 
 void DriverManager::add_driver(Driver* drv) {
   drivers[num_drivers] = drv;
