@@ -1,7 +1,7 @@
 #ifndef __LOVE_TERM_H
 #define __LOVE_TERM_H
 
-#include <commons/types.h>
+#include <global/types.h>
 
 namespace RinOS {
 namespace Terminal {

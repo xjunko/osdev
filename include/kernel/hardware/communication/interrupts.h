@@ -1,7 +1,7 @@
 #ifndef __LOVE_INTERRUPTS_H
 #define __LOVE_INTERRUPTS_H
 
-#include <commons/types.h>
+#include <global/types.h>
 #include <kernel/hardware/communication/port.h>
 #include <kernel/memory/gdt.h>
 

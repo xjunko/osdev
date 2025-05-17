@@ -1,7 +1,7 @@
 #ifndef __LOVE_HW_VGA_H
 #define __LOVE_HW_VGA_H
 
-#include <commons/types.h>
+#include <global/types.h>
 #include <kernel/hardware/communication/port.h>
 
 namespace RinOS {

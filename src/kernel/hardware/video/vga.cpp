@@ -1,4 +1,4 @@
-#include <commons/types.h>
+#include <global/types.h>
 #include <kernel/hardware/communication/port.h>
 #include <kernel/hardware/communication/serial/serial.h>
 #include <kernel/hardware/video/vga.h>

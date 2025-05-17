@@ -1,4 +1,4 @@
-#include <commons/types.h>
+#include <global/types.h>
 #include <kernel/terminal/term.h>
 
 static u16 *C_VIDEO_MEMORY = (u16 *)0xb8000;

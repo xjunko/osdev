@@ -1,7 +1,7 @@
 #ifndef __LOVE_HW_KEYBOARD_H
 #define __LOVE_HW_KEYBOARD_H
 
-#include <commons/types.h>
+#include <global/types.h>
 #include <kernel/hardware/communication/interrupts.h>
 #include <kernel/hardware/communication/port.h>
 #include <kernel/hardware/driver/driver.h>

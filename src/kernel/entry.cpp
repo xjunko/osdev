@@ -1,6 +1,6 @@
 // entry.cpp - entry point for the kernel
-#include <commons/types.h>
 #include <constructors.h>
+#include <global/types.h>
 #include <kernel/memory/gdt.h>
 #include <kernel/terminal/term.h>
 

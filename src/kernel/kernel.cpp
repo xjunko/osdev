@@ -1,6 +1,6 @@
 // rin_kernel.cpp - higher higher kernel
-#include <commons/types.h>
-#include <commons/utility.h>
+#include <global/coreutils/sleep.h>
+#include <global/types.h>
 #include <kernel/hardware/communication/interrupts.h>
 #include <kernel/hardware/communication/pci.h>
 #include <kernel/hardware/communication/serial/serial.h>

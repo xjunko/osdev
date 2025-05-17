@@ -1,7 +1,7 @@
 #ifndef __LOVE_GDT_H
 #define __LOVE_GDT_H
 
-#include <commons/types.h>
+#include <global/types.h>
 
 namespace RinOS {
 namespace Memory {
