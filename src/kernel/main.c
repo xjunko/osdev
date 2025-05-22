@@ -71,7 +71,6 @@ extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
     pit_sleep(100);
     for (int i = 0; i < 320; i++) {
       for (int j = 0; j < 200; j++) {
-        // Simple rainbow: cycle through color wheel using c
         u8 r = (u8)((i + c) % 256);
         u8 g = (u8)((j + c) % 256);
         u8 b = (u8)((i + j + c) % 256);
