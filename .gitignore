@@ -1,7 +1,7 @@
-# compiled stuff
-obj/
-*.o
+# ides
+.vscode/*
+
+# os
 *.img
-*.iso
 *.bin
 *.log

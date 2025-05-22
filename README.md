@@ -1,20 +1,36 @@
-# osdev, dumbass journey to bumfuck nowhere.
-i have no idea what im doing, just doing it for the meme.
+# rinOS - a monolithic kernel written in c
+it's nothing much atm, just your average unfinished kernel
 
-# preview
-literally the most basic shit ever, ill cook with this over time when im free :DDDDD
-![preview](./assets/p2.gif)
-
-# roadmaps
-- [x] bootloader
-- [x] raw vga buffer
+## work in progress
+- [x] boots into the system
+- [x] serial (com1) logging
 - [x] global descriptor table
 - [x] interrupt descriptor table
-- [x] keyboard driver
-- [x] mouse driver
-- [ ] basic audio driver
-- [ ] interactive terminal
+- [x] ps/2 inputs
+- [x] basic memory allocator (malloc/free)
+- [x] kernel printf (kprintf)
+- [x] programmable interrupt timer (PIT) support
+- [x] keyboard IRQ handler
+- [x] PIC remapping and EOI
+- [x] PCI device enumeration
+- [ ] paging and virtual memory
+- [ ] user mode support
+- [ ] file system support
+- [ ] multitasking
+- [ ] basic shell
+- [ ] process management
+- [ ] system calls
+- [ ] VGA text output improvements
+- [ ] more device drivers
+- [ ] ACPI support
+- [ ] SMP/multicore support
+- [ ] USB support
+- [ ] networking stack
+- [ ] ELF loading
+- [ ] userland programs
 
-## credits
-- [[wyoos]](https://github.com/AlgorithMan-de/wyoos) - most of the core concept is from this, big credits to the creator.
-- [[osakaOS]](https://github.com/pac-ac/osakaOS) [(and it's webseries)](https://www.youtube.com/watch?v=vYImR-wrTV0&list=PLdJTmEZjUpt0JZIg6a_WLFvN-7RLsfMdx) - for igniting my curiosity
+## inspirations
+[[ToaruOS]](https://github.com/klange/toaruos) [[osakaOS]](https://github.com/pac-ac/osakaOS) [[cavOS]](https://github.com/malwarepad/cavOS)
+
+## license
+[[LICENSE]](LICENSE)
