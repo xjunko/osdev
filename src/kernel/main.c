@@ -7,6 +7,7 @@
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
 #include <kernel/types.h>
+#include <kernel/vga.h>
 #include <stdlib/malloc.h>
 
 void kinit_serial() { _init_dev_serial(); }
@@ -47,12 +48,36 @@ void kinit_interrupts() {
   pci_select_drivers(idt);
 }
 
+void kinit_vga() {
+  vga_init();
+  vga_set_mode(640, 480, 32);
+
+  for (int i = 0; i < 320; i++) {
+    for (int j = 0; j < 200; j++) {
+      vga_put_pixel(i, j, 0xFF, 0xFF, 0xFF);
+    }
+  }
+}
+
 extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
   kinit_serial();
   kinit_memory(multiboot_struct);
   kinit_interrupts();
+  kinit_vga();
+
+  u32 c = 0x0;
 
   while (1) {
     pit_sleep(100);
+    for (int i = 0; i < 320; i++) {
+      for (int j = 0; j < 200; j++) {
+        // Simple rainbow: cycle through color wheel using c
+        u8 r = (u8)((i + c) % 256);
+        u8 g = (u8)((j + c) % 256);
+        u8 b = (u8)((i + j + c) % 256);
+        vga_put_pixel(i, j, r, g, b);
+      }
+    }
+    c += 32;
   }
 }
