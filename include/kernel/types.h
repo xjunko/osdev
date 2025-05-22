@@ -1,4 +1,5 @@
 #pragma once
+#include <stdbool.h>
 
 typedef char int8;
 typedef int8 i8;
@@ -19,3 +20,6 @@ typedef long long int64;
 typedef int64 i64;
 typedef unsigned long long uint64;
 typedef uint64 u64;
+
+typedef bool boolean;
+typedef const char* string;
