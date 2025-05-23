@@ -24,7 +24,7 @@ void outportbslow(u16 _port, u8 data) {
 }
 
 u16 inportw(u16 _port) {
-  u16 result;
+  u16 result = 0;
   __asm__ volatile("inw %1, %0" : "=a"(result) : "Nd"(_port));
   return result;
 }
@@ -34,7 +34,7 @@ void outportw(u16 _port, u16 _data) {
 }
 
 u32 inportl(u16 _port) {
-  u32 result;
+  u32 result = 0;
   __asm__ volatile("inl %1, %0" : "=a"(result) : "Nd"(_port));
   return result;
 }
