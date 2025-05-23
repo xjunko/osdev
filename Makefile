@@ -4,7 +4,7 @@ LD = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-ld
 
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
-		  -Wall -Wextra \
+		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable \
 		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
@@ -65,11 +65,16 @@ run: kernel.iso
 	$(info Running the kernel...)
 	qemu-system-i386 \
 		-boot menu=on \
-		-drive file=boot.img,format=raw,if=none,id=disk \
-		-device piix4-ide,id=piix4 -device ide-hd,drive=disk,bus=piix4.0 \
-		-cpu pentium3 -smp 1 -m 128M -vga virtio \
+		-drive id=disk,file=boot.img,format=raw,if=none \
+		-device piix4-ide,id=piix4 \
+		-device ide-hd,drive=disk,bus=piix4.0 \
+		-device e1000 \
+		-device ich9-ahci \
+		-device usb-ehci \
+		-device virtio-balloon-pci \
+		-cpu 486 -smp 1 -m 8M -vga virtio \
 		-chardev stdio,id=char0,logfile=system.log,signal=off \
-		-serial chardev:char0 \
+        -serial chardev:char0 \
 		-no-reboot -no-shutdown
 
 
