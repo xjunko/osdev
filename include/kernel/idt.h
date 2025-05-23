@@ -4,7 +4,6 @@
 
 struct interrupt_handler {
   u8 interrupt_number;
-  struct interrupt_manager* manager;
   u32 (*handle)(u32 esp);
 };
 
