@@ -33,9 +33,9 @@ struct pci_desc {
 
 struct pci_desc pci_get_device_descriptor(u16, u16, u16);
 bool pci_device_has_function(u16, u16);
-void pci_select_drivers(struct interrupt_manager*);
+void pci_init();
 
 u32 pci_read(u16, u16, u16, u32);
 void pci_write(u16, u16, u16, u32, u32);
 
-void* pci_get_driver(struct pci_desc, struct interrupt_manager*);
+void* pci_get_driver(struct pci_desc);

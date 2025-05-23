@@ -24,17 +24,17 @@ void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
   interrupt_desc_table[interrupt_number].reserved = 0;
 }
 
-void new_interrupt_handler(u8 interrupt_number,
-                           struct interrupt_manager* interrupt_manager,
-                           u32 (*handle)(u32 esp)) {
+void idt_set_handler(u8 interrupt_number, u32 (*handle)(u32 esp)) {
+  struct interrupt_manager* manager = &idt;
+
   struct interrupt_handler* handler = malloc(sizeof(struct interrupt_handler));
   handler->interrupt_number = interrupt_number;
-  handler->manager = interrupt_manager;
+  handler->manager = manager;
   handler->handle = handle;
-  interrupt_manager->handlers[interrupt_number] = handler;
+  manager->handlers[interrupt_number] = handler;
 }
 
-struct interrupt_manager* idt_init(struct global_descriptor_table* gdt) {
+void idt_init(struct global_descriptor_table* gdt) {
   struct interrupt_manager* manager = &idt;
 
   u32 code_segment = code_segment_selector(gdt);
@@ -89,8 +89,6 @@ struct interrupt_manager* idt_init(struct global_descriptor_table* gdt) {
           "wrong. \n");
     }
   }
-
-  return manager;
 }
 
 void idt_activate() {

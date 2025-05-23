@@ -33,19 +33,14 @@ void kinit_interrupts() {
   }
   kprintf("[Kernel] GDT created successfully\n");
 
-  struct interrupt_manager* idt = idt_init(gdt);
-  if (idt == 0) {
-    kprintf("[Kernel] IDT creation failed\n");
-    return;
-  }
-
-  idt_activate(idt);
+  idt_init(gdt);
+  idt_activate();
 
   // ps/2
-  ps2_kb_init(idt);
+  ps2_device_init();
 
   // pci
-  pci_select_drivers(idt);
+  pci_init();
 }
 
 void kinit_vga() {

@@ -8,17 +8,15 @@ struct interrupt_handler {
   u32 (*handle)(u32 esp);
 };
 
-void new_interrupt_handler(u8, struct interrupt_manager*,
-                           u32 (*handle)(u32 esp));
-
 struct interrupt_manager {
   struct interrupt_handler* handlers[256];
 };
 
-struct interrupt_manager* idt_init(struct global_descriptor_table*);
+void idt_init(struct global_descriptor_table*);
 void idt_activate();
 void idt_deactivate();
 void idt_set_entry(u8, u16, void (*handler)(), u8, u8);
+void idt_set_handler(u8, u32 (*handle)(u32 esp));
 u32 idt_handle_interrupt(u8, u32);
 u32 _idt_handle_interrupt(u8, u32);
 

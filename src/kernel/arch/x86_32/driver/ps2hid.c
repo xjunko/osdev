@@ -12,15 +12,15 @@
 #define MOUSE_IRQ 0x2C
 
 // master
-int ps2_device_init(struct interrupt_manager* manager) {
-  ps2_kb_init(manager);
-  ps2_mouse_init(manager);
+int ps2_device_init() {
+  ps2_kb_init();
+  // ps2_mouse_init();
   return 0;
 }
 
 // irq dev 0x01 (keyboard)
-int ps2_kb_init(struct interrupt_manager* manager) {
-  new_interrupt_handler(KB_IRQ, manager, &ps2_kb_handle);
+int ps2_kb_init() {
+  idt_set_handler(KB_IRQ, &ps2_kb_handle);
 
   while (inportb(PS2_CMD) & 0x1) {
     inportb(PS2_DATA);
@@ -49,8 +49,8 @@ static i8 mouse_x = 0;
 static i8 mouse_y = 0;
 static ps2_mouse_callback mouse_callbacks[PS2_MOUSE_CALLBACKS_SIZE];
 
-int ps2_mouse_init(struct interrupt_manager* manager) {
-  new_interrupt_handler(MOUSE_IRQ, manager, &ps2_mouse_handle);
+int ps2_mouse_init() {
+  idt_set_handler(MOUSE_IRQ, &ps2_mouse_handle);
 
   outportb(PS2_CMD, 0xA8);  // active
   outportb(PS2_CMD, 0x20);  // get current state

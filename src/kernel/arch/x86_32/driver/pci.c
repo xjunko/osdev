@@ -79,7 +79,7 @@ bool pci_device_has_function(u16 bus, u16 device) {
   return pci_read(bus, device, 0, 0x0E) & (1 << 7);
 }
 
-void pci_select_drivers(struct interrupt_manager* interrupts) {
+void pci_init() {
   for (int bus = 0; bus < 8; bus++) {
     for (int device = 0; device < 32; device++) {
       int num_functions = pci_device_has_function(bus, device) ? 8 : 1;
@@ -99,7 +99,7 @@ void pci_select_drivers(struct interrupt_manager* interrupts) {
           }
         }
 
-        void* driver = pci_get_driver(dev, interrupts);
+        void* driver = pci_get_driver(dev);
         if (driver != 0) {
           // todo: drivers
         }
@@ -113,8 +113,7 @@ void pci_select_drivers(struct interrupt_manager* interrupts) {
   }
 }
 
-void* pci_get_driver(struct pci_desc dev,
-                     struct interrupt_manager* interrupts) {
+void* pci_get_driver(struct pci_desc dev) {
   switch (dev.vendor) {
     case 0x8086:
       kprintf("[PCI] Intel device found\n");
