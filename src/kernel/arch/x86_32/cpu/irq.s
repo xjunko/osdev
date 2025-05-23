@@ -1,7 +1,7 @@
 .set IRQ_BASE, 0x20
 
 .section .text
-.extern interrupt_manager_handle_interrupt
+.extern idt_handle_interrupt
 
 .macro HandleException num
 .global handle_interrupt_exception_\num
@@ -30,7 +30,7 @@ int_bottom:
 
     pushl %esp
     push (interruptnumber)
-    call interrupt_manager_handle_interrupt
+    call idt_handle_interrupt
     movl %eax, %esp
 
     popl %gs

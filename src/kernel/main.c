@@ -33,13 +33,13 @@ void kinit_interrupts() {
   }
   kprintf("[Kernel] GDT created successfully\n");
 
-  struct interrupt_manager* idt = new_idt(gdt);
+  struct interrupt_manager* idt = idt_init(gdt);
   if (idt == 0) {
     kprintf("[Kernel] IDT creation failed\n");
     return;
   }
 
-  interrupt_manager_active(idt);
+  idt_activate(idt);
 
   // ps/2
   ps2_kb_init(idt);

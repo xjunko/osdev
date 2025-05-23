@@ -11,7 +11,7 @@ C_FLAGS = -m32 -ffreestanding \
 C_FLAGS += -Iinclude/
 
 AS_FLAGS = --32
-LD_FLAGS = -melf_i386 -O2
+LD_FLAGS = -melf_i386
 
 SRC_DIR  := src
 OBJ_DIR  := obj

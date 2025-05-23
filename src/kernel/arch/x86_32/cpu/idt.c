@@ -8,13 +8,11 @@
 
 #define IRQ_BASE 0x20
 
-struct interrupt_gate_desc interrupt_desc_table[256];
-struct interrupt_manager* active_interrupt_manager;
+static struct interrupt_gate_desc interrupt_desc_table[256];
+static struct interrupt_manager idt;
 
-void set_interrupt_desc_table_entry(struct interrupt_manager* manager,
-                                    u8 interrupt_number,
-                                    u16 code_segment_selector_offset,
-                                    void (*handler)(), u8 privilege, u8 type) {
+void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
+                   void (*handler)(), u8 privilege, u8 type) {
   interrupt_desc_table[interrupt_number].handler_address_low =
       ((u32)handler) & 0xFFFF;
   interrupt_desc_table[interrupt_number].handler_address_high =
@@ -26,19 +24,18 @@ void set_interrupt_desc_table_entry(struct interrupt_manager* manager,
   interrupt_desc_table[interrupt_number].reserved = 0;
 }
 
-struct interrupt_handler* new_interrupt_handler(
-    u8 interrupt_number, struct interrupt_manager* interrupt_manager,
-    u32 (*handle)(u32 esp)) {
+void new_interrupt_handler(u8 interrupt_number,
+                           struct interrupt_manager* interrupt_manager,
+                           u32 (*handle)(u32 esp)) {
   struct interrupt_handler* handler = malloc(sizeof(struct interrupt_handler));
   handler->interrupt_number = interrupt_number;
   handler->manager = interrupt_manager;
   handler->handle = handle;
   interrupt_manager->handlers[interrupt_number] = handler;
-  return handler;
 }
 
-struct interrupt_manager* new_idt(struct global_descriptor_table* gdt) {
-  struct interrupt_manager* manager = malloc(sizeof(struct interrupt_manager));
+struct interrupt_manager* idt_init(struct global_descriptor_table* gdt) {
+  struct interrupt_manager* manager = &idt;
 
   u32 code_segment = code_segment_selector(gdt);
   const u8 idt_interrupt_gate = 0xE;
@@ -47,26 +44,23 @@ struct interrupt_manager* new_idt(struct global_descriptor_table* gdt) {
 
   for (u8 i = 255; i > 0; i--) {
     manager->handlers[i] = 0;
-    set_interrupt_desc_table_entry(manager, i, code_segment,
-                                   &ignore_interrupt_request, 0,
-                                   idt_interrupt_gate);
+    idt_set_entry(i, code_segment, &ignore_interrupt_request, 0,
+                  idt_interrupt_gate);
   }
 
   // Requests
-  set_interrupt_desc_table_entry(manager, IRQ_BASE + 0x0, code_segment,
-                                 &handle_interrupt_request_0x00, 0,
-                                 idt_interrupt_gate);
+  idt_set_entry(IRQ_BASE + 0x0, code_segment, &handle_interrupt_request_0x00, 0,
+                idt_interrupt_gate);
 
-  set_interrupt_desc_table_entry(manager, IRQ_BASE + 0x1, code_segment,
-                                 &handle_interrupt_request_0x01, 0,
-                                 idt_interrupt_gate);
+  idt_set_entry(IRQ_BASE + 0x1, code_segment, &handle_interrupt_request_0x01, 0,
+                idt_interrupt_gate);
 
-  // set_interrupt_desc_table_entry(manager, IRQ_BASE + 0xc, code_segment,
+  // idt_set_entry(manager, IRQ_BASE + 0xc, code_segment,
   //                                &handle_interrupt_request_0x0C, 0,
   //                                idt_interrupt_gate);
 
   // Exceptions
-  // set_interrupt_desc_table_entry(manager, 0x0D, code_segment,
+  // idt_set_entry(manager, 0x0D, code_segment,
   //                                &handle_interrupt_exception_0x0D, 0,
   //                                idt_interrupt_gate);
 
@@ -99,44 +93,36 @@ struct interrupt_manager* new_idt(struct global_descriptor_table* gdt) {
   return manager;
 }
 
-void interrupt_manager_active(struct interrupt_manager* manager) {
-  if (active_interrupt_manager != 0) {
-    interrupt_manager_deactive(active_interrupt_manager);
-  }
-
-  active_interrupt_manager = manager;
+void idt_activate() {
   asm("sti");
-
   kprintf("[IDT] Activated! \n");
 }
 
-void interrupt_manager_deactive(struct interrupt_manager* manager) {
-  if (active_interrupt_manager == manager) {
-    active_interrupt_manager = 0;
-    asm("cli");
-    kprintf("[IDT] Deactivated! \n");
-  }
+void idt_deactivate() {
+  asm("cli");
+  kprintf("[IDT] Deactivated! \n");
 }
 
-extern u32 interrupt_manager_handle_interrupt(u8 interrupt_number, u32 esp) {
+extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
+  struct interrupt_manager* manager = &idt;
   kprintf(
-      "[IDT] interrupt_manager_handle_interrupt called with "
+      "[IDT] idt_handle_interrupt called with "
       "interrupt_number=%d, esp=%d\n",
       interrupt_number, esp);
 
-  if (active_interrupt_manager != 0) {
-    return interrupt_manager_do_handle_interrupt(active_interrupt_manager,
-                                                 interrupt_number, esp);
+  if (manager != 0) {
+    return _idt_handle_interrupt(interrupt_number, esp);
   }
   return esp;
 }
 
-u32 interrupt_manager_do_handle_interrupt(struct interrupt_manager* manager,
-                                          u8 interrupt_number, u32 esp) {
+u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
+  struct interrupt_manager* manager = &idt;
+
   if (manager->handlers[interrupt_number] != 0) {
     esp = manager->handlers[interrupt_number]->handle(esp);
   } else if (interrupt_number != 0x20) {
-    kprintf("[IDT] Unhandled Interrupt: %d \n", interrupt_number);
+    kprintf("[IDT] Unhandled Interrupt: %x \n", interrupt_number);
   }
 
   irq_ack(interrupt_number);
