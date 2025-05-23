@@ -54,7 +54,7 @@ void kinit_vga() {
 
   for (int i = 0; i < 320; i++) {
     for (int j = 0; j < 200; j++) {
-      vga_put_pixel(i, j, 0xFF, 0xFF, 0xFF);
+      vga_put_pixel(i, j, 0x0, 0x0, 0x0);
     }
   }
 }
@@ -65,18 +65,7 @@ extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
   kinit_interrupts();
   kinit_vga();
 
-  u32 c = 0x0;
-
   while (1) {
     pit_sleep(100);
-    for (int i = 0; i < 320; i++) {
-      for (int j = 0; j < 200; j++) {
-        u8 r = (u8)((i + c) % 256);
-        u8 g = (u8)((j + c) % 256);
-        u8 b = (u8)((i + j + c) % 256);
-        vga_put_pixel(i, j, r, g, b);
-      }
-    }
-    c += 32;
   }
 }
