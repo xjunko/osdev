@@ -1,4 +1,5 @@
 #pragma once
+#include <kernel/gdt.h>
 #include <kernel/types.h>
 
 struct interrupt_handler {
@@ -38,10 +39,9 @@ struct interrupt_desc_table_ptr {
   u32 base;
 } __attribute__((packed));
 
-static void ignore_interrupt_request();
+void ignore_interrupt_request();
 
-static void handle_interrupt_request_0x00();
-static void handle_interrupt_request_0x01();
-static void handle_interrupt_request_0x0C();
-
-static void handle_interrupt_exception_0x0D();
+void handle_interrupt_request_0x00();
+void handle_interrupt_request_0x01();
+void handle_interrupt_request_0x0C();
+void handle_interrupt_exception_0x0D();
