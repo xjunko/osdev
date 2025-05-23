@@ -3,8 +3,13 @@
 #include <kernel/ports.h>
 #include <kernel/types.h>
 // #include <stdarg.h>
-#define NANOPRINTF_IMPLEMENTATION
-#include <library/nanoprintf.h>
+// #define NANOPRINTF_IMPLEMENTATION
+// #include <library/nanoprintf.h>
+
+typedef __builtin_va_list va_list;
+#define va_start __builtin_va_start
+#define va_end __builtin_va_end
+#define va_arg __builtin_va_arg
 
 // Serial
 const u16 COM1 = 0x3F8;
@@ -102,10 +107,95 @@ void serialputchar(int c, void* extras) {
   }
 }
 
+// int kprintf(string fmt, ...) {
+//   __builtin_va_list args;
+//   __builtin_va_start(args, fmt);
+//   int ret = npf_pprintf(serialputchar, NULL, fmt, args);
+//   __builtin_va_end(args);
+//   return ret;
+// }
+
+// basic implementation cuz nanoprint is acting weird.
+void print_char(char c) { serialputchar(c, 0); }
+
+void print_string(const char* str) {
+  while (*str) {
+    print_char(*str++);
+  }
+}
+
+void print_decimal(int value) {
+  if (value < 0) {
+    print_char('-');
+    value = -value;
+  }
+
+  char buffer[10];
+  int i = 0;
+
+  if (value == 0) {
+    print_char('0');
+    return;
+  }
+
+  while (value > 0) {
+    buffer[i++] = '0' + (value % 10);
+    value /= 10;
+  }
+
+  while (i--) {
+    print_char(buffer[i]);
+  }
+}
+
+void print_hex(unsigned int value) {
+  char hex_digits[] = "0123456789ABCDEF";
+  print_string("0x");
+
+  int started = 0;
+  for (int i = 28; i >= 0; i -= 4) {
+    char digit = (value >> i) & 0xF;
+    if (digit || started || i == 0) {
+      print_char(hex_digits[(u8)digit]);
+      started = 1;
+    }
+  }
+}
+
 int kprintf(string fmt, ...) {
-  __builtin_va_list args;
-  __builtin_va_start(args, fmt);
-  int ret = npf_pprintf(serialputchar, NULL, fmt, args);
-  __builtin_va_end(args);
-  return ret;
+  va_list args;
+  va_start(args, fmt);
+
+  int written = 0;
+
+  while (*fmt) {
+    if (*fmt == '%' && *(fmt + 1)) {
+      fmt++;
+      switch (*fmt) {
+        case 'd':
+          print_decimal(va_arg(args, int));
+          break;
+        case 's':
+          print_string(va_arg(args, const char*));
+          break;
+        case 'x':
+          print_hex(va_arg(args, unsigned int));
+          break;
+        case 'X':
+          print_hex(va_arg(args, unsigned int));
+          break;
+        default:
+          print_char('%');
+          print_char(*fmt);
+          break;
+      }
+    } else {
+      print_char(*fmt);
+    }
+    fmt++;
+    written++;
+  }
+
+  va_end(args);
+  return written;
 }
