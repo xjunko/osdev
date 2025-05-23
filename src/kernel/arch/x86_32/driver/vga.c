@@ -1,7 +1,7 @@
 #include <kernel/ports.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
-#include <libc/stdio.h>
+#include <stdio.h>
 
 #define VGA_MISC_PORT 0x3c2
 #define VGA_DAC_INDEX_PORT 0x3C7

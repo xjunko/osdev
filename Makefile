@@ -8,7 +8,7 @@ C_FLAGS = -m32 -ffreestanding \
 		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
-C_FLAGS += -Iinclude/
+C_FLAGS += -Iinclude/ -Iinclude/libc/
 
 AS_FLAGS = --32
 LD_FLAGS = -melf_i386

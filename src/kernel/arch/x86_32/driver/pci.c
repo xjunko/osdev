@@ -3,7 +3,7 @@
 #include <kernel/pci.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
-#include <libc/stdio.h>
+#include <stdio.h>
 
 #define PCI_DATA_PORT 0xCFC
 #define PCI_COMMAND_PORT 0xCF8

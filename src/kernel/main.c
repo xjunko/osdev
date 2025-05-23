@@ -8,8 +8,8 @@
 #include <kernel/serial.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
-#include <libc/malloc.h>
-#include <libc/stdio.h>
+#include <malloc.h>
+#include <stdio.h>
 
 void kinit_serial() { serial_init(); }
 

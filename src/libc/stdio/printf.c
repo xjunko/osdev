@@ -3,7 +3,7 @@
 #include <kernel/ports.h>
 #include <kernel/serial.h>
 #include <kernel/types.h>
-#include <libc/stdio.h>
+#include <stdio.h>
 
 typedef __builtin_va_list va_list;
 #define va_start __builtin_va_start

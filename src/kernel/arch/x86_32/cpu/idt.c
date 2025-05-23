@@ -3,8 +3,8 @@
 #include <kernel/pic.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
-#include <libc/malloc.h>
-#include <libc/stdio.h>
+#include <malloc.h>
+#include <stdio.h>
 
 #define IRQ_BASE 0x20
 

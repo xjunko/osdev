@@ -1,6 +1,6 @@
 #include <kernel/types.h>
-#include <libc/malloc.h>
-#include <libc/stdio.h>
+#include <malloc.h>
+#include <stdio.h>
 
 static struct mem_manager* global_manager = 0;
 

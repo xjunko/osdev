@@ -1,7 +1,7 @@
 #include <kernel/gdt.h>
 #include <kernel/types.h>
-#include <libc/malloc.h>
-#include <libc/stdio.h>
+#include <malloc.h>
+#include <stdio.h>
 
 struct segment_desc new_segment_desc(u32 base, u32 limit, u8 flags) {
   struct segment_desc desc;

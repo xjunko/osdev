@@ -3,7 +3,7 @@
 #include <kernel/ps2hid.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
-#include <libc/stdio.h>
+#include <stdio.h>
 
 #define PS2_DATA 0x60
 #define PS2_CMD 0x64
