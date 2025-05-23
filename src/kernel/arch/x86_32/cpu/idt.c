@@ -49,9 +49,8 @@ void idt_init(struct global_descriptor_table* gdt) {
   idt_set_entry(IRQ_BASE + 0x1, code_segment, &handle_interrupt_request_0x01, 0,
                 idt_interrupt_gate);
 
-  // idt_set_entry(manager, IRQ_BASE + 0xc, code_segment,
-  //                                &handle_interrupt_request_0x0C, 0,
-  //                                idt_interrupt_gate);
+  idt_set_entry(IRQ_BASE + 0xc, code_segment, &handle_interrupt_request_0x0C, 0,
+                idt_interrupt_gate);
 
   // Exceptions
   // idt_set_entry(manager, 0x0D, code_segment,

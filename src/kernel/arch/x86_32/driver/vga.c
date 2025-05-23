@@ -17,7 +17,12 @@
 #define VGA_ATTRIBUTE_CONTROLLER_WRITE_PORT 0x3c0
 #define VGA_ATTRIBUTE_CONTROLLER_RESET_PORT 0x3da
 
+#define VGA_COLOR_PALLETE_MASK_WRITE 0x3C6
+#define VGA_COLOR_DATA_WRITE 0x3C9
+#define VGA_COLOR_REGISTER_WRITE 0x3C8
+
 static u8 vga_pallete[256][3];
+static u8 vga_buffer[320 * 200];
 
 void vga_init() {
   outportb(VGA_DAC_DATA_PORT, 0);
@@ -26,8 +31,16 @@ void vga_init() {
     vga_pallete[i][1] = inportb(VGA_DAC_DATA_PORT);
     vga_pallete[i][2] = inportb(VGA_DAC_DATA_PORT);
   }
+
+  for (int x = 0; x < 320; x++) {
+    for (int y = 0; y < 200; y++) {
+      vga_buffer[x + y * 320] = 0;
+    }
+  }
+
   kprintf("[VGA] Pallete initialized.\n");
 }
+
 void vga_write_registers(u8* registers) {
   outportb(VGA_MISC_PORT, *(registers++));
 
@@ -79,47 +92,88 @@ void vga_set_mode(u32 width, u32 height, u32 color_depth) {
           color_depth);
 
   static u8 g_320x200x256[] = {
-      /* MISC */
       0x63,
-      /* SEQ */
-      0x03, 0x01, 0x0F, 0x00, 0x0E,
-      /* CRTC */
-      0x5F, 0x4F, 0x50, 0x82, 0x54, 0x80, 0xBF, 0x1F, 0x00, 0x41, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x9C, 0x0E, 0x8F, 0x28, 0x40, 0x96, 0xB9, 0xA3,
-      0xFF,
-      /* GC */
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0F, 0xFF,
-      /* AC */
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
-      0x0C, 0x0D, 0x0E, 0x0F, 0x41, 0x00, 0x0F, 0x00, 0x00};
+      /* seq */
+      0x03, 0x01, 0x0f, 0x00, 0x0e,
+      /* crtc */
+      0x5f, 0x4f, 0x50, 0x82, 0x54, 0x80, 0xbf, 0x1f, 0x00, 0x41, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x9c, 0x0e, 0x8f, 0x28, 0x40, 0x96, 0xb9, 0xa3,
+      0xff,
+      /* gc */
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0f, 0xff,
+      /* ac */
+      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+      0x0c, 0x0d, 0x0e, 0x0f, 0x41, 0x00, 0x0f, 0x00, 0x00};
   vga_write_registers(g_320x200x256);  // 8bit color depth!
+
+  // outportb(VGA_COLOR_PALLETE_MASK_WRITE, 0xFF);
+  // for (u16 color = 0; color < 256; color++) {
+  //   outportb(VGA_COLOR_REGISTER_WRITE, color);
+
+  //   switch (color / 64) {
+  //     case 0:
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0));
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0));
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0));
+  //       break;
+  //     case 1:
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0) >>
+  //                3);
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0) >>
+  //                3);
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0) >>
+  //                3);
+  //       break;
+  //     case 2:
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0) <<
+  //                3);
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0) <<
+  //                3);
+  //       outportb(VGA_COLOR_DATA_WRITE,
+  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0) <<
+  //                3);
+  //       break;
+  //     default:
+  //       outportb(VGA_COLOR_DATA_WRITE, 0);
+  //       outportb(VGA_COLOR_DATA_WRITE, 0);
+  //       outportb(VGA_COLOR_DATA_WRITE, 0);
+  //       break;
+  //   }
+  // }
+}
+
+static inline u8 square_diff(u8 a, u8 b) {
+  int diff = (int)a - (int)b;
+  return diff * diff;
 }
 
 u8 vga_get_color_index(u8 r, u8 g, u8 b) {
-  int i;
-  int best_index = 0;
-  int best_distance = 256 * 256 * 3;
+  u8 best_index = 0;
+  int best_distance = 255 * 255 * 3;
 
-  r >>= 2;
-  g >>= 2;
-  b >>= 2;
-
-  for (i = 0; i < 256; i++) {
-    int dr = (int)r - (int)vga_pallete[i][0];
-    int dg = (int)g - (int)vga_pallete[i][1];
-    int db = (int)b - (int)vga_pallete[i][2];
-
+  for (u8 i = 0; i < 255; ++i) {
+    int dr = (int)vga_pallete[i][0] - r;
+    int dg = (int)vga_pallete[i][1] - g;
+    int db = (int)vga_pallete[i][2] - b;
     int distance = dr * dr + dg * dg + db * db;
-
-    if (distance == 0) return (u8)i;
 
     if (distance < best_distance) {
       best_distance = distance;
       best_index = i;
+
+      if (distance == 0) break;
     }
   }
 
-  return (u8)best_index;
+  return best_index;
 }
 
 u8* vga_get_frame_buffer_part() {
@@ -139,11 +193,19 @@ u8* vga_get_frame_buffer_part() {
 }
 
 void vga_put_color_index(u32 x, u32 y, u32 color_index) {
-  u8* pixel_address = vga_get_frame_buffer_part() + 320 * y + x;
+  u8* pixel_address = vga_get_frame_buffer_part() + ((y << 8) + (y << 6) + x);
   *pixel_address = color_index;
 }
 
+// G B R
 void vga_put_pixel(u32 x, u32 y, u8 r, u8 g, u8 b) {
-  u8 color_index = vga_get_color_index(r, g, b);
-  vga_put_color_index(x, y, color_index);
+  u8 color_index = vga_get_color_index(g, b, r);
+  vga_buffer[(y << 8) + (y << 6) + x] = color_index;
+}
+
+void vga_draw() {
+  u8* pixel_address = vga_get_frame_buffer_part();
+  for (int i = 0; i < 320 * 200; i++) {
+    *(pixel_address + i) = vga_buffer[i];
+  }
 }

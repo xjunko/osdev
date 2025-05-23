@@ -25,6 +25,19 @@ void kinit_memory(void* multiboot_struct) {
   _init_memory(heap, (*memupper) * 1024 - heap - 10 * 1024);
 }
 
+void kdebug_mouse(struct ps2_mouse_state state) {
+  kprintf("[Mouse] x: %d, y: %d, buttons: %d %d %d\n", state.x, state.y,
+          state.buttons[0], state.buttons[1], state.buttons[2]);
+
+  for (int i = 0; i < 320; i++) {
+    for (int j = 0; j < 200; j++) {
+      vga_put_pixel(i, j, 0x0, 0x0, 0x0);
+    }
+  }
+  vga_put_pixel(state.x, state.y, 0xFF, 0xFF, 0xFF);
+  vga_draw();
+}
+
 void kinit_interrupts() {
   struct global_descriptor_table* gdt = new_gdt();
   if (gdt == 0) {
@@ -38,6 +51,7 @@ void kinit_interrupts() {
 
   // ps/2
   ps2_device_init();
+  ps2_mouse_register_callback(kdebug_mouse);
 
   // pci
   pci_init();
@@ -47,11 +61,18 @@ void kinit_vga() {
   vga_init();
   vga_set_mode(640, 480, 32);
 
-  for (int i = 0; i < 320; i++) {
-    for (int j = 0; j < 200; j++) {
-      vga_put_pixel(i, j, 0x0, 0x0, 0x0);
+  // pallete test
+  for (int y = 0; y < 200; y++) {
+    for (int x = 0; x < 320; x++) {
+      u8 r = x % 255;
+      u8 g = y % 255;
+      u8 b = (x + y) % 255;
+
+      vga_put_pixel(x, y, r, g, b);
     }
   }
+
+  vga_draw();
 }
 
 extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
