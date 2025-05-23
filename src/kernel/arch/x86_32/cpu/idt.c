@@ -1,10 +1,10 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
-#include <kernel/misc/kprintf.h>
 #include <kernel/pic.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
-#include <stdlib/malloc.h>
+#include <libc/malloc.h>
+#include <libc/stdio.h>
 
 #define IRQ_BASE 0x20
 
@@ -34,7 +34,7 @@ void idt_init(struct global_descriptor_table* gdt) {
   u32 code_segment = code_segment_selector(gdt);
   const u8 idt_interrupt_gate = 0xE;
 
-  kprintf("[IDT] CS=%d GATE=%d \n", code_segment, idt_interrupt_gate);
+  printf("[IDT] CS=%d GATE=%d \n", code_segment, idt_interrupt_gate);
 
   for (u8 i = 255; i > 0; i--) {
     idt_handlers[i] = 0;
@@ -71,13 +71,13 @@ void idt_init(struct global_descriptor_table* gdt) {
   asm volatile("sidt %0" : "=m"(after_idtr));
 
   if (idtr.size == after_idtr.size && idtr.base == after_idtr.base) {
-    kprintf(
+    printf(
         "[IDT] Matching Size and Base after fetching, safe to assume "
         "everything went fine. \n");
   } else {
     // spam so that we can see it
     for (int i = 0; i < 10; i++) {
-      kprintf(
+      printf(
           "[IDT] Size and Base mismatch after fetching, something went "
           "wrong. \n");
     }
@@ -86,16 +86,16 @@ void idt_init(struct global_descriptor_table* gdt) {
 
 void idt_activate() {
   asm("sti");
-  kprintf("[IDT] Activated! \n");
+  printf("[IDT] Activated! \n");
 }
 
 void idt_deactivate() {
   asm("cli");
-  kprintf("[IDT] Deactivated! \n");
+  printf("[IDT] Deactivated! \n");
 }
 
 extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
-  kprintf(
+  printf(
       "[IDT] idt_handle_interrupt called with "
       "interrupt_number=%d, esp=%d\n",
       interrupt_number, esp);
@@ -107,7 +107,7 @@ u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
   if (idt_handlers[interrupt_number] != 0) {
     esp = idt_handlers[interrupt_number]->handle(esp);
   } else if (interrupt_number != 0x20) {
-    kprintf("[IDT] Unhandled Interrupt: %x \n", interrupt_number);
+    printf("[IDT] Unhandled Interrupt: %x \n", interrupt_number);
   }
 
   irq_ack(interrupt_number);

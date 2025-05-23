@@ -2,32 +2,33 @@
 
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
-#include <kernel/misc/kprintf.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
+#include <kernel/serial.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
-#include <stdlib/malloc.h>
+#include <libc/malloc.h>
+#include <libc/stdio.h>
 
-void kinit_serial() { _init_dev_serial(); }
+void kinit_serial() { serial_init(); }
 
 void kinit_memory(void* multiboot_struct) {
   u32* memupper = (u32*)(((u32)multiboot_struct) + 8);
   u32 heap = 4 * 1024 * 1024;
 
-  kprintf("[Kernel] Memory upper: %d\n", *memupper);
-  kprintf("[Kernel] Heap: %d\n", heap);
-  kprintf("[Kernel] Heap end: %d\n", *memupper + heap);
-  kprintf("[Kernel] Heap end: %d\n", *memupper + heap);
-  kprintf("[Kernel] Heap end: %d\n", *memupper + heap);
+  printf("[Kernel] Memory upper: %d\n", *memupper);
+  printf("[Kernel] Heap: %d\n", heap);
+  printf("[Kernel] Heap end: %d\n", *memupper + heap);
+  printf("[Kernel] Heap end: %d\n", *memupper + heap);
+  printf("[Kernel] Heap end: %d\n", *memupper + heap);
 
   _init_memory(heap, (*memupper) * 1024 - heap - 10 * 1024);
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
-  kprintf("[Mouse] x: %d, y: %d, buttons: %d %d %d\n", state.x, state.y,
-          state.buttons[0], state.buttons[1], state.buttons[2]);
+  printf("[Mouse] x: %d, y: %d, buttons: %d %d %d\n", state.x, state.y,
+         state.buttons[0], state.buttons[1], state.buttons[2]);
 
   for (int i = 0; i < 320; i++) {
     for (int j = 0; j < 200; j++) {
@@ -41,10 +42,10 @@ void kdebug_mouse(struct ps2_mouse_state state) {
 void kinit_interrupts() {
   struct global_descriptor_table* gdt = new_gdt();
   if (gdt == 0) {
-    kprintf("[Kernel] GDT creation failed\n");
+    printf("[Kernel] GDT creation failed\n");
     return;
   }
-  kprintf("[Kernel] GDT created successfully\n");
+  printf("[Kernel] GDT created successfully\n");
 
   idt_init(gdt);
   idt_activate();

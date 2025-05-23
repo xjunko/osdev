@@ -1,9 +1,9 @@
 #include <kernel/idt.h>
-#include <kernel/misc/kprintf.h>
 #include <kernel/ports.h>
 #include <kernel/ps2hid.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
+#include <libc/stdio.h>
 
 #define PS2_DATA 0x60
 #define PS2_CMD 0x64
@@ -81,7 +81,7 @@ void ps2_mouse_register_callback(ps2_mouse_callback callback) {
     }
   }
 
-  kprintf("[PS2] Error: No space for mouse callback\n");
+  printf("[PS2] Error: No space for mouse callback\n");
 }
 
 u32 ps2_mouse_handle(u32 esp) {

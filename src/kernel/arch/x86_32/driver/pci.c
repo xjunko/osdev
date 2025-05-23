@@ -1,9 +1,9 @@
 // stupid pci that might work
 #include <kernel/idt.h>
-#include <kernel/misc/kprintf.h>
 #include <kernel/pci.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
+#include <libc/stdio.h>
 
 #define PCI_DATA_PORT 0xCFC
 #define PCI_COMMAND_PORT 0xCF8
@@ -104,7 +104,7 @@ void pci_init() {
           // todo: drivers
         }
 
-        kprintf(
+        printf(
             "[PCI] Bus: 0x%X | Function: 0x%X | Vendor: 0x%X | Device: 0x%X\n",
             bus & 0xFF, function & 0xFF, (dev.vendor & 0xFF00) >> 8,
             (dev.vendor & 0x00FF));
@@ -116,16 +116,16 @@ void pci_init() {
 void* pci_get_driver(struct pci_desc dev) {
   switch (dev.vendor) {
     case 0x8086:
-      kprintf("[PCI] Intel device found\n");
+      printf("[PCI] Intel device found\n");
       break;
   }
 
   switch (dev.class) {
     case 0x03:
-      kprintf("[PCI] VGA device found\n");
+      printf("[PCI] VGA device found\n");
       break;
     case 0x04:
-      kprintf("[PCI] Multimedia device found\n");
+      printf("[PCI] Multimedia device found\n");
       break;
   }
   return 0;

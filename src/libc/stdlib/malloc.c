@@ -1,6 +1,6 @@
-#include <kernel/misc/kprintf.h>
 #include <kernel/types.h>
-#include <stdlib/malloc.h>
+#include <libc/malloc.h>
+#include <libc/stdio.h>
 
 static struct mem_manager* global_manager = 0;
 
@@ -19,7 +19,7 @@ void _init_memory(u32 start, u32 size) {
 
   global_manager->first = initial;
 
-  kprintf("[Kernel] Memory initialized at %x with size %d\n", start, size);
+  printf("[Kernel] Memory initialized at %x with size %d\n", start, size);
 }
 
 void* malloc(u32 size) {
@@ -45,8 +45,8 @@ void* malloc(u32 size) {
         current->size = size;
       }
 
-      kprintf("[Kernel] Allocated %d bytes at %x\n", size,
-              (u32)((u8*)current + CHUNK_OVERHEAD));
+      printf("[Kernel] Allocated %d bytes at %x\n", size,
+             (u32)((u8*)current + CHUNK_OVERHEAD));
 
       current->allocated = true;
       return (void*)((u8*)current + CHUNK_OVERHEAD);
@@ -80,7 +80,7 @@ int free(void* ptr) {
     }
   }
 
-  kprintf("[Kernel] Freed memory at %x\n", (u32)chunk);
+  printf("[Kernel] Freed memory at %x\n", (u32)chunk);
 
   return 0;
 }

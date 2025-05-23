@@ -1,7 +1,7 @@
 #include <kernel/gdt.h>
-#include <kernel/misc/kprintf.h>
 #include <kernel/types.h>
-#include <stdlib/malloc.h>
+#include <libc/malloc.h>
+#include <libc/stdio.h>
 
 struct segment_desc new_segment_desc(u32 base, u32 limit, u8 flags) {
   struct segment_desc desc;
@@ -60,19 +60,19 @@ struct global_descriptor_table* new_gdt() {
   struct global_descriptor_table* gdt =
       malloc(sizeof(struct global_descriptor_table));
 
-  kprintf("[GDT] Segment Init: ");
+  printf("[GDT] Segment Init: ");
   gdt->null_segment_selector = new_segment_desc(0, 0, 0);
   gdt->unused_segment_selector = new_segment_desc(0, 0, 0);
   gdt->code_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x9A);
   gdt->data_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x92);
-  kprintf("Passed! \n");
+  printf("Passed! \n");
 
   u32 i[2];
   i[1] = (u32)gdt;
   i[0] = sizeof(struct global_descriptor_table) << 16;
   asm volatile("lgdt (%0)" : : "p"(((u8*)i) + 2));
 
-  kprintf("[GDT] Initialized! \n");
+  printf("[GDT] Initialized! \n");
 
   return gdt;
 }

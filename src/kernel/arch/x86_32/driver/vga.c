@@ -1,7 +1,7 @@
-#include <kernel/misc/kprintf.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
+#include <libc/stdio.h>
 
 #define VGA_MISC_PORT 0x3c2
 #define VGA_DAC_INDEX_PORT 0x3C7
@@ -38,7 +38,7 @@ void vga_init() {
     }
   }
 
-  kprintf("[VGA] Pallete initialized.\n");
+  printf("[VGA] Pallete initialized.\n");
 }
 
 void vga_write_registers(u8* registers) {
@@ -88,8 +88,8 @@ void vga_set_mode(u32 width, u32 height, u32 color_depth) {
   height = 200;
   color_depth = 8;
 
-  kprintf("[VGA] SetMode called with %d x %d x %d\n", width, height,
-          color_depth);
+  printf("[VGA] SetMode called with %d x %d x %d\n", width, height,
+         color_depth);
 
   static u8 g_320x200x256[] = {
       0x63,
