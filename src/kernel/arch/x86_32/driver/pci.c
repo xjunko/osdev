@@ -10,7 +10,7 @@
 
 struct base_addr_register pci_get_base_address_register(u16 bus, u16 device,
                                                         u16 function, u16 bar) {
-  struct base_addr_register res;
+  struct base_addr_register res = {};
 
   u32 header_type = pci_read(bus, device, function, 0x0E) & 0x7F;
   int max_bars = 6 - (4 * header_type);
@@ -40,7 +40,7 @@ struct base_addr_register pci_get_base_address_register(u16 bus, u16 device,
 }
 
 struct pci_desc pci_get_device_descriptor(u16 bus, u16 decice, u16 function) {
-  struct pci_desc res;
+  struct pci_desc res = {};
 
   res.bus = bus;
   res.device = decice;
