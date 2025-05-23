@@ -19,7 +19,7 @@ handle_interrupt_request_\num:
 
 HandleInterruptRequest 0x00
 HandleInterruptRequest 0x01
-# HandleInterruptRequest 0x0C
+HandleInterruptRequest 0x0C
 
 int_bottom:
     pusha
