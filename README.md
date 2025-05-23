@@ -4,15 +4,19 @@ it's nothing much atm, just your average unfinished kernel
 ## work in progress
 - [x] boots into the system
 - [x] serial (com1) logging
-- [x] global descriptor table
-- [x] interrupt descriptor table
-- [x] ps/2 inputs
+- [x] global descriptor table (gdt) initialization
+- [x] interrupt descriptor table (idt) initialization and activation
+- [x] interrupt handler registration
+- [x] ps/2 inputs (keyboard and mouse)
 - [x] basic memory allocator (malloc/free)
 - [x] kernel printf (kprintf)
-- [x] programmable interrupt timer (PIT) support
-- [x] keyboard IRQ handler
-- [x] PIC remapping and EOI
-- [x] PCI device enumeration
+- [x] programmable interrupt timer (pit) support
+- [x] timer sleep (pit_sleep)
+- [x] keyboard irq handler
+- [x] pic remapping and eoi
+- [x] pci device enumeration
+- [x] vga graphics mode (320x200x256)
+- [~] ps2 devices with callback
 - [ ] paging and virtual memory
 - [ ] user mode support
 - [ ] file system support
@@ -20,13 +24,13 @@ it's nothing much atm, just your average unfinished kernel
 - [ ] basic shell
 - [ ] process management
 - [ ] system calls
-- [ ] VGA text output improvements
-- [ ] more device drivers
-- [ ] ACPI support
-- [ ] SMP/multicore support
-- [ ] USB support
+- [ ] vga text output improvements
+- [~] more device drivers (pci, ps/2, serial, vga implemented)
+- [ ] acpi support
+- [ ] smp/multicore support
+- [ ] usb support
 - [ ] networking stack
-- [ ] ELF loading
+- [ ] elf loading
 - [ ] userland programs
 
 ## inspirations
