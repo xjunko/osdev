@@ -10,8 +10,8 @@ u32 ps2_kb_handle(u32);
 
 // mouse
 struct ps2_mouse_state {
-  i8 x;
-  i8 y;
+  i32 x;
+  i32 y;
   bool buttons[3];
 };
 typedef void (*ps2_mouse_callback)(struct ps2_mouse_state state);

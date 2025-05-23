@@ -14,7 +14,7 @@
 // master
 int ps2_device_init() {
   ps2_kb_init();
-  // ps2_mouse_init();
+  ps2_mouse_init();
   return 0;
 }
 
@@ -45,8 +45,8 @@ u32 ps2_kb_handle(u32 esp) {
 static u8 mouse_buffer[3];
 static u8 mouse_offset = 0;
 static u8 mouse_buttons = 0;
-static i8 mouse_x = 0;
-static i8 mouse_y = 0;
+static i32 mouse_x = 0;
+static i32 mouse_y = 0;
 static ps2_mouse_callback mouse_callbacks[PS2_MOUSE_CALLBACKS_SIZE];
 
 int ps2_mouse_init() {
@@ -97,12 +97,18 @@ u32 ps2_mouse_handle(u32 esp) {
   if (mouse_offset == 0) {
     struct ps2_mouse_state state = {};
 
-    mouse_x += mouse_buffer[1];
-    mouse_y -= mouse_buffer[2];
+    mouse_x += (i8)mouse_buffer[2];
+    mouse_y -= (i8)mouse_buffer[0];
+
+    if (mouse_x < 0) mouse_x = 0;
+    if (mouse_x > 319) mouse_x = 319;
+    if (mouse_y < 0) mouse_y = 0;
+    if (mouse_y > 199) mouse_y = 199;
 
     state.x = mouse_x;
     state.y = mouse_y;
 
+    // Call registered callbacks
     for (int i = 0; i < PS2_MOUSE_CALLBACKS_SIZE; i++) {
       if (mouse_callbacks[i] != 0) {
         mouse_callbacks[i](state);
