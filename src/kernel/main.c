@@ -82,7 +82,7 @@ void kinit_vga() {
 }
 
 // syscall test
-// void sys_err(const char* msg) { asm("int $0x80" ::"a"(0x04), "b"(msg)); }
+void sys_err(const char* msg) { asm("int $0x80" ::"a"(0x04), "b"(msg)); }
 
 extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
   kinit_serial();

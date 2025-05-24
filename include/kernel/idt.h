@@ -4,9 +4,11 @@
 
 #define IRQ_BASE 0x20
 
+typedef u32 (*interrupt_callback)(u32 esp);
+
 struct interrupt_handler {
   u8 interrupt_number;
-  u32 (*handle)(u32 esp);
+  interrupt_callback handle;
 };
 
 struct interrupt_manager {
@@ -17,7 +19,7 @@ void idt_init(struct global_descriptor_table*);
 void idt_activate();
 void idt_deactivate();
 void idt_set_entry(u8, u16, void (*handler)(), u8, u8);
-void idt_set_handler(u8, u32 (*handle)(u32 esp));
+void idt_set_handler(u8, interrupt_callback);
 u32 idt_handle_interrupt(u8, u32);
 u32 _idt_handle_interrupt(u8, u32);
 

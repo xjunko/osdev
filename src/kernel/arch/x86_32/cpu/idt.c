@@ -21,7 +21,7 @@ void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
   idt_entries[interrupt_number].reserved = 0;
 }
 
-void idt_set_handler(u8 interrupt_number, u32 (*handle)(u32 esp)) {
+void idt_set_handler(u8 interrupt_number, interrupt_callback handle) {
   struct interrupt_handler* handler = malloc(sizeof(struct interrupt_handler));
   handler->interrupt_number = interrupt_number;
   handler->handle = handle;
