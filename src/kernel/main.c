@@ -7,7 +7,7 @@
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
 #include <kernel/serial.h>
-#include <kernel/sys/syscalls.h>
+#include <kernel/syscall.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
 #include <stdio.h>

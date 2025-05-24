@@ -1,6 +1,6 @@
 #include <kernel/idt.h>
 #include <kernel/regs.h>
-#include <kernel/sys/syscalls.h>
+#include <kernel/syscall.h>
 #include <kernel/types.h>
 #include <stdio.h>
 
