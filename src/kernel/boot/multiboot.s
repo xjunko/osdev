@@ -7,10 +7,19 @@
 
 // multiboot
 .section .multiboot
-    .align 4
+    .align 16, 0
     .long MAGIC
     .long FLAGS
     .long CHECKSUM
+
+    # aout kludge (unused)
+    .long 0,0,0,0,0
+
+    # Video mode
+    .long   1       # Linear graphics please?
+    .long   1024       # Preferred width
+    .long   768      # Preferred height
+    .long   32      # Preferred pixel depth
 
 .section .text
 .global _start

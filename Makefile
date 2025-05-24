@@ -4,7 +4,7 @@ LD = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-ld
 
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
-		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable \
+		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member -Wno-error=unused-const-variable \
 		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
@@ -48,9 +48,10 @@ kernel.iso: kernel.bin
 	cp $< iso/boot/
 	echo 'set default=0' >> iso/boot/grub/grub.cfg
 	echo 'set timeout=0' >> iso/boot/grub/grub.cfg
+	echo 'set gfxpayload=1024x768x32' >> iso/boot/grub/grub.cfg
 	echo 'menuentry "RinOS" {' >> iso/boot/grub/grub.cfg
-	echo ' multiboot /boot/kernel.bin' >> iso/boot/grub/grub.cfg
-	echo ' boot' >> iso/boot/grub/grub.cfg
+	echo '  multiboot /boot/kernel.bin vid=preset,1024,768' >> iso/boot/grub/grub.cfg
+	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=$@ iso/
 	rm -rf iso
@@ -72,9 +73,9 @@ run: kernel.iso
 		-device ich9-ahci \
 		-device usb-ehci \
 		-device virtio-balloon-pci \
-		-cpu 486 -smp 1 -m 8M -vga virtio \
+		-cpu pentium3 -smp 1 -m 128M -vga std \
 		-chardev stdio,id=char0,logfile=system.log,signal=off \
-        -serial chardev:char0 \
+		-serial chardev:char0 \
 		-no-reboot -no-shutdown
 
 
