@@ -2,6 +2,8 @@
 #include <kernel/gdt.h>
 #include <kernel/types.h>
 
+#define IRQ_BASE 0x20
+
 struct interrupt_handler {
   u8 interrupt_number;
   u32 (*handle)(u32 esp);
@@ -34,7 +36,10 @@ struct interrupt_desc_table_ptr {
 
 void ignore_interrupt_request();
 
+// declared in irq.s
 void handle_interrupt_request_0x00();
 void handle_interrupt_request_0x01();
 void handle_interrupt_request_0x0C();
+
 void handle_interrupt_exception_0x0D();
+void handle_interrupt_exception_0x80();
