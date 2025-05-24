@@ -3,6 +3,7 @@
 
 # os
 obj/*
+src/apps/*
 *.o
 *.img
 *.bin
