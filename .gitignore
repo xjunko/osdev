@@ -2,6 +2,8 @@
 .vscode/*
 
 # os
+obj/*
+*.o
 *.img
 *.bin
 *.log
