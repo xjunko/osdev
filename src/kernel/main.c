@@ -3,28 +3,32 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
+#include <kernel/multiboot.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
 #include <kernel/serial.h>
 #include <kernel/syscall.h>
 #include <kernel/types.h>
+#include <kernel/vesa.h>
 #include <kernel/vga.h>
 #include <stdio.h>
 
 void kinit_serial() { serial_init(); }
 
-void kinit_memory(void* multiboot_struct) {
-  u32* memupper = (u32*)(((u32)multiboot_struct) + 8);
-  u32 heap = 4 * 1024 * 1024;
+void kinit_memory(multiboot_info_t* mb_i) {
+  u32 memupper_kb = mb_i->mem_upper;
+  u32 heap_start = 4 * 1024 * 1024;
 
-  printf("[Kernel] Memory upper: %d\n", *memupper);
-  printf("[Kernel] Heap: %d\n", heap);
-  printf("[Kernel] Heap end: %d\n", *memupper + heap);
-  printf("[Kernel] Heap end: %d\n", *memupper + heap);
-  printf("[Kernel] Heap end: %d\n", *memupper + heap);
+  printf("[Kernel] Memory upper: %d KB\n", memupper_kb);
+  printf("[Kernel] Heap start: %x\n", heap_start);
 
-  kmemory_init(heap, (*memupper) * 1024 - heap - 10 * 1024);
+  u32 upper_mem_bytes = memupper_kb * 1024;
+  u32 free_mem_size = upper_mem_bytes - (heap_start - 0x100000) - 10 * 1024;
+
+  printf("[Kernel] Free memory size for heap: %d bytes\n", free_mem_size);
+
+  kmemory_init(heap_start, free_mem_size);
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
@@ -63,7 +67,7 @@ void kinit_interrupts() {
   syscall_init(0x80);
 }
 
-void kinit_vga() {
+void kinit_vga(multiboot_info_t* mb_i) {
   vga_init();
   vga_set_mode(640, 480, 32);
 
@@ -84,11 +88,11 @@ void kinit_vga() {
 // syscall test
 void sys_err(const char* msg) { asm("int $0x80" ::"a"(0x04), "b"(msg)); }
 
-extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
+extern int kmain(void* mb_i, u32 multiboot_magic_number) {
   kinit_serial();
-  kinit_memory(multiboot_struct);
+  kinit_memory(mb_i);
   kinit_interrupts();
-  kinit_vga();
+  kinit_vga(mb_i);
 
   while (1) {
     pit_sleep(1000);
