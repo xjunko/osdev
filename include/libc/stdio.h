@@ -1,3 +1,4 @@
+#pragma once
 #include <kernel/types.h>
 
 int printf(string __restrict__ fmt, ...);

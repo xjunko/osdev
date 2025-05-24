@@ -3,8 +3,8 @@
 #include <kernel/pic.h>
 #include <kernel/ports.h>
 #include <kernel/types.h>
-#include <malloc.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static struct interrupt_gate_desc idt_entries[256];
 static struct interrupt_handler* idt_handlers[256];

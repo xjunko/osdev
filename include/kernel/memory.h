@@ -1,3 +1,4 @@
+#pragma once
 #include <kernel/types.h>
 
 struct mem_chunk {
@@ -12,9 +13,6 @@ struct mem_manager {
   u32 size;
 };
 
-struct mem_manager* new_memory_manager(u32, u32);
-
-void* malloc(u32);
-int free(void*);
-
-void _init_memory(u32, u32);
+void kmemory_init(u32, u32);
+void* kmalloc(u32);
+int kfree(void*);

@@ -2,4 +2,4 @@
 #include <kernel/types.h>
 #include <stdio.h>
 
-void* malloc(u32 size) { return kmalloc(size); }
+void free(void* ptr) { kfree(ptr); }

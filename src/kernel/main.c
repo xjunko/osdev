@@ -2,6 +2,7 @@
 
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
+#include <kernel/memory.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
@@ -9,7 +10,6 @@
 #include <kernel/sys/syscalls.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
-#include <malloc.h>
 #include <stdio.h>
 
 void kinit_serial() { serial_init(); }
@@ -24,7 +24,7 @@ void kinit_memory(void* multiboot_struct) {
   printf("[Kernel] Heap end: %d\n", *memupper + heap);
   printf("[Kernel] Heap end: %d\n", *memupper + heap);
 
-  _init_memory(heap, (*memupper) * 1024 - heap - 10 * 1024);
+  kmemory_init(heap, (*memupper) * 1024 - heap - 10 * 1024);
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
