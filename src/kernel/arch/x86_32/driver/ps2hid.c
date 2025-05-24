@@ -108,7 +108,6 @@ u32 ps2_mouse_handle(u32 esp) {
     state.x = mouse_x;
     state.y = mouse_y;
 
-    // Call registered callbacks
     for (int i = 0; i < PS2_MOUSE_CALLBACKS_SIZE; i++) {
       if (mouse_callbacks[i] != 0) {
         mouse_callbacks[i](state);

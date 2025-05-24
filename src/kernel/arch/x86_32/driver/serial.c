@@ -5,7 +5,7 @@
 #define COM1 0x3F8
 static bool _dev_init = false;
 
-#define _queue_size 1024
+#define _queue_size 256
 static u8 _queue[_queue_size];  // ought to be enough!
 static int _queue_i = 0;
 
