@@ -8,3 +8,4 @@ src/apps/*
 *.img
 *.bin
 *.log
+*.pf2
