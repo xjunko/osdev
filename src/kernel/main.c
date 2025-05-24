@@ -6,6 +6,7 @@
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
 #include <kernel/serial.h>
+#include <kernel/sys/syscalls.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
 #include <malloc.h>
@@ -56,6 +57,10 @@ void kinit_interrupts() {
 
   // pci
   pci_init();
+
+  // syscalls
+  // we're doing it linux style, so 0x80
+  syscall_init(0x80);
 }
 
 void kinit_vga() {
@@ -76,6 +81,9 @@ void kinit_vga() {
   vga_draw();
 }
 
+// syscall test
+// void sys_err(const char* msg) { asm("int $0x80" ::"a"(0x04), "b"(msg)); }
+
 extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
   kinit_serial();
   kinit_memory(multiboot_struct);
@@ -83,6 +91,6 @@ extern int kmain(void* multiboot_struct, u32 multiboot_magic_number) {
   kinit_vga();
 
   while (1) {
-    pit_sleep(100);
+    pit_sleep(1000);
   }
 }

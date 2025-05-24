@@ -40,6 +40,6 @@ void ignore_interrupt_request();
 void handle_interrupt_request_0x00();
 void handle_interrupt_request_0x01();
 void handle_interrupt_request_0x0C();
+void handle_interrupt_request_0x80();
 
 void handle_interrupt_exception_0x0D();
-void handle_interrupt_exception_0x80();

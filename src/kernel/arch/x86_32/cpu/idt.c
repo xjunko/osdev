@@ -6,8 +6,6 @@
 #include <malloc.h>
 #include <stdio.h>
 
-#define IRQ_BASE 0x20
-
 static struct interrupt_gate_desc idt_entries[256];
 static struct interrupt_handler* idt_handlers[256];
 static struct interrupt_manager idt;
@@ -52,10 +50,8 @@ void idt_init(struct global_descriptor_table* gdt) {
   idt_set_entry(IRQ_BASE + 0xc, code_segment, &handle_interrupt_request_0x0C, 0,
                 idt_interrupt_gate);
 
-  // Exceptions
-  // idt_set_entry(manager, 0x0D, code_segment,
-  //                                &handle_interrupt_exception_0x0D, 0,
-  //                                idt_interrupt_gate);
+  idt_set_entry(0x80, code_segment, &handle_interrupt_request_0x80, 0,
+                idt_interrupt_gate);
 
   // remap irqs
   irq_remap();

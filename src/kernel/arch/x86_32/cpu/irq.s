@@ -17,27 +17,37 @@ handle_interrupt_request_\num:
     jmp int_bottom
 .endm
 
+
 HandleInterruptRequest 0x00
 HandleInterruptRequest 0x01
 HandleInterruptRequest 0x0C
 
-int_bottom:
-    pusha
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
+HandleInterruptRequest 0x80
 
+int_bottom:
+    pushl %ebp
+    pushl %edi
+    pushl %esi
+
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
+    
     pushl %esp
     push (interruptnumber)
     call idt_handle_interrupt
-    movl %eax, %esp
+    mov %eax, %esp
 
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
-    popa
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
+
+    popl %esi
+    popl %edi
+    popl %ebp
+
 
     iret
 
