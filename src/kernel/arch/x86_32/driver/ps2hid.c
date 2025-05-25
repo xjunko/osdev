@@ -101,9 +101,9 @@ u32 ps2_mouse_handle(u32 esp) {
     mouse_y -= (i8)mouse_buffer[0];
 
     if (mouse_x < 0) mouse_x = 0;
-    if (mouse_x > 319) mouse_x = 319;
+    if (mouse_x >= 1024) mouse_x = 1023;
     if (mouse_y < 0) mouse_y = 0;
-    if (mouse_y > 199) mouse_y = 199;
+    if (mouse_y > 768) mouse_y = 767;
 
     state.x = mouse_x;
     state.y = mouse_y;
