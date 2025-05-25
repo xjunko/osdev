@@ -55,6 +55,5 @@ void framebuffer_fill_rect(u32 x, u32 y, u32 width, u32 height, u32 r, u32 g,
 
 void framebuffer_flush() {
   if (fb_addr == 0 || fb_backbuffer == 0) return;
-
   memcpy(fb_addr, fb_backbuffer, fb_pitch * fb_height);
 }

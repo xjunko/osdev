@@ -1,6 +1,7 @@
 #include <kernel/memory.h>
 #include <kernel/types.h>
 #include <stdio.h>
+#include <string.h>
 
 static struct mem_manager* global_manager = 0;
 
@@ -57,6 +58,30 @@ void* kmalloc(u32 size) {
   }
 
   return 0;
+}
+
+void* krealloc(void* ptr, u32 new_size) {
+  if (!ptr) return kmalloc(new_size);
+
+  if (new_size == 0) {
+    kfree(ptr);
+    return 0;
+  }
+
+  struct mem_chunk* old_chunk = (struct mem_chunk*)((u8*)ptr - CHUNK_OVERHEAD);
+  u32 old_size = old_chunk->size;
+
+  if (new_size <= old_size) {
+    return ptr;  // No need to reallocate
+  }
+
+  void* new_ptr = kmalloc(new_size);
+  if (!new_ptr) return 0;
+
+  memcpy(new_ptr, ptr, old_size);
+  kfree(ptr);
+
+  return new_ptr;
 }
 
 int kfree(void* ptr) {
