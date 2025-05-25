@@ -15,4 +15,5 @@ struct mem_manager {
 
 void kmemory_init(u32, u32);
 void* kmalloc(u32);
+void* krealloc(void*, u32);
 int kfree(void*);
