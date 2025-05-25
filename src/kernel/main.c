@@ -1,5 +1,6 @@
 // simplified kernel, just to see what went wrong.
 
+#include <kernel/framebuffer.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
@@ -10,42 +11,58 @@
 #include <kernel/serial.h>
 #include <kernel/syscall.h>
 #include <kernel/types.h>
-#include <kernel/vesa.h>
-#include <kernel/vga.h>
 #include <stdio.h>
+
+// will be filled by multiboot2
+static u32 heap_start = 4 * 1024 * 1024;
+static int total_usable_memory = 0x0;  // in bytes
 
 void kinit_serial() { serial_init(); }
 
-void kinit_memory(multiboot_info_t* mb_i) {
-  u32 memupper_kb = mb_i->mem_upper;
-  u32 heap_start = 4 * 1024 * 1024;
+void kmb_memory(struct multiboot_tag_mmap *mmap) {
+  printf("[Kernel] Memory Mapping: ");
 
-  printf("[Kernel] Memory upper: %d KB\n", memupper_kb);
-  printf("[Kernel] Heap start: %x\n", heap_start);
+  for (struct multiboot_mmap_entry *entry = mmap->entries;
+       (u8 *)entry < (u8 *)mmap + mmap->size;
+       entry =
+           (struct multiboot_mmap_entry *)((u8 *)entry + mmap->entry_size)) {
+    if (entry->type == 1 && entry->addr >= 0x100000) {
+      u64 entry_end = entry->addr + entry->len;
 
-  u32 upper_mem_bytes = memupper_kb * 1024;
-  u32 free_mem_size = upper_mem_bytes - (heap_start - 0x100000) - 10 * 1024;
+      if (entry_end > heap_start) {
+        u64 usable_start =
+            (entry->addr < heap_start) ? heap_start : entry->addr;
+        u64 usable_len = entry_end - usable_start;
+        total_usable_memory += (u32)usable_len;
+      }
+    }
+  }
 
-  printf("[Kernel] Free memory size for heap: %d bytes\n", free_mem_size);
+  printf("Got %d mb \n", total_usable_memory / 1024 / 1024);
+  printf("[Kernel] Memory limit: %d MiB\n", total_usable_memory / 1024 / 1024);
+  printf("[Kernel] Heap Addr: %x\n", heap_start);
+  kmemory_init(heap_start, total_usable_memory);
+}
 
-  kmemory_init(heap_start, free_mem_size);
+void kinit_multiboot(u32 mb_info) {
+  multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
+                         (multiboot_callback)kmb_memory);
+  multiboot_add_callback(MULTIBOOT_TAG_TYPE_FRAMEBUFFER,
+                         (multiboot_callback)framebuffer_init);
+  multiboot_start(mb_info);
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
   printf("[Mouse] x: %d, y: %d, buttons: %d %d %d\n", state.x, state.y,
          state.buttons[0], state.buttons[1], state.buttons[2]);
 
-  for (int i = 0; i < 320; i++) {
-    for (int j = 0; j < 200; j++) {
-      vga_put_pixel(i, j, 0x0, 0x0, 0x0);
-    }
-  }
-  vga_put_pixel(state.x, state.y, 0xFF, 0xFF, 0xFF);
-  vga_draw();
+  framebuffer_clear(255, 255, 255);
+  framebuffer_fill_rect(state.x, state.y, 100, 100, 255, 0, 0);
+  framebuffer_flush();
 }
 
 void kinit_interrupts() {
-  struct global_descriptor_table* gdt = new_gdt();
+  struct global_descriptor_table *gdt = new_gdt();
   if (gdt == 0) {
     printf("[Kernel] GDT creation failed\n");
     return;
@@ -54,7 +71,9 @@ void kinit_interrupts() {
 
   idt_init(gdt);
   idt_activate();
+}
 
+void kinit_devices() {
   // ps/2
   ps2_device_init();
   ps2_mouse_register_callback(kdebug_mouse);
@@ -67,32 +86,17 @@ void kinit_interrupts() {
   syscall_init(0x80);
 }
 
-void kinit_vga(multiboot_info_t* mb_i) {
-  vga_init();
-  vga_set_mode(640, 480, 32);
-
-  // pallete test
-  for (int y = 0; y < 200; y++) {
-    for (int x = 0; x < 320; x++) {
-      u8 r = x % 255;
-      u8 g = y % 255;
-      u8 b = (x + y) % 255;
-
-      vga_put_pixel(x, y, r, g, b);
-    }
+extern int kmain(u32 mb_magic, u32 mb_info) {
+  kinit_serial();
+  if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
+    printf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
+    while (1);  // lost cause
   }
 
-  vga_draw();
-}
+  kinit_multiboot(mb_info);
 
-// syscall test
-void sys_err(const char* msg) { asm("int $0x80" ::"a"(0x04), "b"(msg)); }
-
-extern int kmain(void* mb_i, u32 multiboot_magic_number) {
-  kinit_serial();
-  kinit_memory(mb_i);
   kinit_interrupts();
-  kinit_vga(mb_i);
+  kinit_devices();
 
   while (1) {
     pit_sleep(1000);

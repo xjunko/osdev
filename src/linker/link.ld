@@ -4,11 +4,11 @@ OUTPUT_ARCH(i386:i386)
 
 SECTIONS
 {
-    . = 2M;
+    . = 1M;
 
     .text BLOCK(4K) : ALIGN(4K) 
     {
-        *(.multiboot)
+        *(.multiboot2)
         *(.text*)
     }
 
@@ -25,16 +25,8 @@ SECTIONS
     .bss BLOCK(4K) : ALIGN(4K)
     {
         _bss_start = .;
-        *(COMMON)
         *(.bss)
+        *(COMMON)
         _bss_end = .;
     }
-
-
-    /DISCARD/ :
-    {
-        *(.comment)
-        *(.fini_array*)
-    }
-
 }

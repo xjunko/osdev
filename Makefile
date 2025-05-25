@@ -4,7 +4,8 @@ LD = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-ld
 
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
-		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member -Wno-error=unused-const-variable \
+		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member \
+		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast \
 		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
@@ -50,7 +51,7 @@ kernel.iso: kernel.bin
 	echo 'set timeout=0' >> iso/boot/grub/grub.cfg
 	echo 'set gfxpayload=1024x768x32' >> iso/boot/grub/grub.cfg
 	echo 'menuentry "RinOS" {' >> iso/boot/grub/grub.cfg
-	echo '  multiboot /boot/kernel.bin vid=preset,1024,768' >> iso/boot/grub/grub.cfg
+	echo '  multiboot2 /boot/kernel.bin vid=preset,1024,768' >> iso/boot/grub/grub.cfg
 	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=$@ iso/
