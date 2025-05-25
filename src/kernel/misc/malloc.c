@@ -26,6 +26,7 @@ void* kmalloc(u32 size) {
   if (!global_manager) return 0;
 
   struct mem_chunk* current = global_manager->first;
+  size = (size + 7) & ~7;
 
   while (current) {
     if (!current->allocated && current->size >= size) {
@@ -62,6 +63,12 @@ int kfree(void* ptr) {
   if (!ptr) return -1;
 
   struct mem_chunk* chunk = (struct mem_chunk*)((u8*)ptr - CHUNK_OVERHEAD);
+
+  if (chunk->allocated != true) {
+    printf("[Kernel] Warning: Double free or corruption at %x\n", (u32)chunk);
+    return -1;
+  }
+
   chunk->allocated = false;
 
   if (chunk->next && !chunk->next->allocated) {
@@ -80,7 +87,7 @@ int kfree(void* ptr) {
     }
   }
 
-  printf("[Kernel] Freed memory at %x\n", (u32)chunk);
+  printf("[Kernel] Freed memory at %x\n", (u32)ptr);
 
   return 0;
 }
