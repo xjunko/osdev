@@ -57,5 +57,5 @@ _start:
 // Reserve stack
 .section .bss
     .align 16
-    .space 8*1024*1024   // 2 MiB stack
+    .space 200*1024*1024 
 kernel_stack:

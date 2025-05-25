@@ -74,7 +74,7 @@ run: kernel.iso
 		-device ich9-ahci \
 		-device usb-ehci \
 		-device virtio-balloon-pci \
-		-cpu pentium3 -smp 1 -m 128M -vga std \
+		-cpu pentium3 -smp 1 -m 256M -vga std \
 		-chardev stdio,id=char0,logfile=system.log,signal=off \
 		-serial chardev:char0 \
 		-no-reboot -no-shutdown
