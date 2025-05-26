@@ -1,3 +1,4 @@
+#include <kernel/framebuffer.h>
 #include <kernel/idt.h>
 #include <kernel/ports.h>
 #include <kernel/ps2hid.h>
@@ -47,11 +48,32 @@ static u8 mouse_offset = 0;
 static u8 mouse_buttons = 0;
 static i32 mouse_x = 0;
 static i32 mouse_y = 0;
+static i32 mouse_max_x = -1;
+static i32 mouse_max_y = -1;
 static ps2_mouse_callback mouse_callbacks[PS2_MOUSE_CALLBACKS_SIZE];
 
 int ps2_mouse_init() {
+  // initialize irq handler
   idt_set_handler(MOUSE_IRQ, &ps2_mouse_handle);
 
+  // sets the mouse max res based on fb's resolution
+  u32 _x, _y = 0;
+  framebuffer_get_resolution(&_x, &_y);
+  mouse_max_x = (i32)_x;
+  mouse_max_y = (i32)_y;
+
+  if (mouse_max_x <= 0 || mouse_max_y <= 0) {
+    printf(
+        "[PS2] Error: Invalid framebuffer resolution for mouse, assuming "
+        "1024x768.\n");
+    mouse_max_x = 1024;
+    mouse_max_y = 768;
+    return -1;
+  }
+
+  printf("[PS2] Mouse max resolution: %dx%d\n", mouse_max_x, mouse_max_y);
+
+  // irq acks
   outportb(PS2_CMD, 0xA8);  // active
   outportb(PS2_CMD, 0x20);  // get current state
 
@@ -101,9 +123,9 @@ u32 ps2_mouse_handle(u32 esp) {
     mouse_y -= (i8)mouse_buffer[0];
 
     if (mouse_x < 0) mouse_x = 0;
-    if (mouse_x >= 1024) mouse_x = 1023;
+    if (mouse_x >= mouse_max_x) mouse_x = mouse_max_x - 1;
     if (mouse_y < 0) mouse_y = 0;
-    if (mouse_y > 768) mouse_y = 767;
+    if (mouse_y > mouse_max_y) mouse_y = mouse_max_y - 1;
 
     state.x = mouse_x;
     state.y = mouse_y;
