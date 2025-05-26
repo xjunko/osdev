@@ -44,6 +44,7 @@ void kmb_memory(struct multiboot_tag_mmap *mmap) {
   kmemory_init(heap_start, total_usable_memory);
 }
 
+// handles memory mapping and framebuffer initialization
 void kinit_multiboot(u32 mb_info) {
   multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
                          (multiboot_callback)kmb_memory);
