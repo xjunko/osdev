@@ -66,17 +66,12 @@ kernel.iso: kernel.bin
 run: kernel.iso
 	$(info Running the kernel...)
 	qemu-system-i386 \
-		-boot menu=on \
-		-drive id=disk,file=boot.img,format=raw,if=none \
-		-device piix4-ide,id=piix4 \
-		-device ide-hd,drive=disk,bus=piix4.0 \
-		-device e1000 \
-		-device ich9-ahci \
-		-device usb-ehci \
-		-device virtio-balloon-pci \
-		-cpu pentium3 -smp 1 -m 256M -vga std \
-		-chardev stdio,id=char0,logfile=system.log,signal=off \
-		-serial chardev:char0 \
+		-cdrom boot.img \
+		-cpu pentium3 \
+		-smp 1 \
+		-m 256M \
+		-vga std \
+		-serial stdio \
 		-no-reboot -no-shutdown
 
 
