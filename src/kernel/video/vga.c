@@ -1,3 +1,4 @@
+// vga.c - super basic 320x200 8bit driver, based on wyoos tutorial
 #include <kernel/ports.h>
 #include <kernel/types.h>
 #include <kernel/vga.h>
@@ -23,6 +24,21 @@
 
 static u8 vga_pallete[256][3];
 static u8 vga_buffer[320 * 200];
+
+// 320x200 8bit color mode
+static u8 vga_default_mode[] = {
+    0x63,
+    /* seq */
+    0x03, 0x01, 0x0f, 0x00, 0x0e,
+    /* crtc */
+    0x5f, 0x4f, 0x50, 0x82, 0x54, 0x80, 0xbf, 0x1f, 0x00, 0x41, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x9c, 0x0e, 0x8f, 0x28, 0x40, 0x96, 0xb9, 0xa3,
+    0xff,
+    /* gc */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0f, 0xff,
+    /* ac */
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+    0x0c, 0x0d, 0x0e, 0x0f, 0x41, 0x00, 0x0f, 0x00, 0x00};
 
 void vga_init() {
   outportb(VGA_DAC_DATA_PORT, 0);
@@ -91,63 +107,7 @@ void vga_set_mode(u32 width, u32 height, u32 color_depth) {
   printf("[VGA] SetMode called with %d x %d x %d\n", width, height,
          color_depth);
 
-  static u8 g_320x200x256[] = {
-      0x63,
-      /* seq */
-      0x03, 0x01, 0x0f, 0x00, 0x0e,
-      /* crtc */
-      0x5f, 0x4f, 0x50, 0x82, 0x54, 0x80, 0xbf, 0x1f, 0x00, 0x41, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x9c, 0x0e, 0x8f, 0x28, 0x40, 0x96, 0xb9, 0xa3,
-      0xff,
-      /* gc */
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0f, 0xff,
-      /* ac */
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
-      0x0c, 0x0d, 0x0e, 0x0f, 0x41, 0x00, 0x0f, 0x00, 0x00};
-  vga_write_registers(g_320x200x256);  // 8bit color depth!
-
-  // outportb(VGA_COLOR_PALLETE_MASK_WRITE, 0xFF);
-  // for (u16 color = 0; color < 256; color++) {
-  //   outportb(VGA_COLOR_REGISTER_WRITE, color);
-
-  //   switch (color / 64) {
-  //     case 0:
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0));
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0));
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0));
-  //       break;
-  //     case 1:
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0) >>
-  //                3);
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0) >>
-  //                3);
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0) >>
-  //                3);
-  //       break;
-  //     case 2:
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x20 ? 0x15 : 0) | (color & 0x04 ? 0x02a : 0) <<
-  //                3);
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x10 ? 0x15 : 0) | (color & 0x02 ? 0x02a : 0) <<
-  //                3);
-  //       outportb(VGA_COLOR_DATA_WRITE,
-  //                (color & 0x08 ? 0x15 : 0) | (color & 0x01 ? 0x02a : 0) <<
-  //                3);
-  //       break;
-  //     default:
-  //       outportb(VGA_COLOR_DATA_WRITE, 0);
-  //       outportb(VGA_COLOR_DATA_WRITE, 0);
-  //       outportb(VGA_COLOR_DATA_WRITE, 0);
-  //       break;
-  //   }
-  // }
+  vga_write_registers(vga_default_mode);  // 8bit color depth!
 }
 
 static inline u8 square_diff(u8 a, u8 b) {

@@ -1,4 +1,4 @@
-// framebuffer.c - grub's framebuffer driver
+// framebuffer.c - grub's framebuffer driver - acts like a linear framebuffer
 #include <kernel/framebuffer.h>
 #include <kernel/multiboot2.h>
 #include <kernel/types.h>
@@ -13,6 +13,8 @@ static u32 fb_height;
 static u32 fb_bpp;
 static u32 fb_pitch;
 
+// we're booting thru grub, so we don't have any say about the resolution, we
+// just rawdog it.
 void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
   if (fb->common.framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB) {
     fb_addr = (u8 *)fb->common.framebuffer_addr;
@@ -27,6 +29,12 @@ void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
   framebuffer_clear(255, 255, 255);
   framebuffer_flush();
   return;
+}
+
+// sets the current framebuffer resolution to the ptr
+void framebuffer_get_resolution(u32 *width, u32 *height) {
+  if (width) *width = fb_width;
+  if (height) *height = fb_height;
 }
 
 void framebuffer_set_pixel(u32 x, u32 y, u32 r, u32 g, u32 b) {
