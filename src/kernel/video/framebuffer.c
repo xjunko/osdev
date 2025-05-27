@@ -1,7 +1,7 @@
 // framebuffer.c - grub's framebuffer driver - acts like a linear framebuffer
 #include <kernel/framebuffer.h>
-#include <kernel/multiboot2.h>
 #include <kernel/types.h>
+#include <multiboot2.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

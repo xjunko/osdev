@@ -1,6 +1,6 @@
 #pragma once
-#include <kernel/multiboot2.h>
 #include <kernel/types.h>
+#include <multiboot2.h>
 #include <stdlib.h>
 
 typedef void (*multiboot_callback)(void*);
