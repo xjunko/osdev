@@ -54,9 +54,8 @@ build/kernel.iso: build/kernel.bin
 	cp $< iso/boot/
 	echo 'set default=0' >> iso/boot/grub/grub.cfg
 	echo 'set timeout=0' >> iso/boot/grub/grub.cfg
-	echo 'set gfxpayload=1024x768x32' >> iso/boot/grub/grub.cfg
 	echo 'menuentry "RinOS" {' >> iso/boot/grub/grub.cfg
-	echo '  multiboot2 /boot/kernel.bin vid=preset,1024,768' >> iso/boot/grub/grub.cfg
+	echo '  multiboot2 /boot/kernel.bin' >> iso/boot/grub/grub.cfg
 	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=$@ iso/

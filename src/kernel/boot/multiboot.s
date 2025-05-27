@@ -23,8 +23,8 @@ multiboot2_header:
     .short 5                 // type: framebuffer
     .short 0
     .long 20
-    .long 1024               // width
-    .long 768                // height
+    .long 1280               // width
+    .long 720                // height
     .long 32                 // bpp
     .align 8, 0
 
