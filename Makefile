@@ -5,7 +5,7 @@ LD = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-ld
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
 		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member \
-		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast \
+		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast -Wno-error=implicit-fallthrough=\
 		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
