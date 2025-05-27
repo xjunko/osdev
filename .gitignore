@@ -2,6 +2,7 @@
 .vscode/*
 
 # os
+src/ports/*
 build/*
 obj/*
 src/apps/*
