@@ -2,6 +2,7 @@
 .vscode/*
 
 # os
+build/*
 obj/*
 src/apps/*
 *.o

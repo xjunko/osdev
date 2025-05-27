@@ -26,6 +26,10 @@ ASM_OBJECTS := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
 C_OBJECTS   := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
 OBJECTS     := $(C_OBJECTS) $(ASM_OBJECTS)
 
+OS_FOLDER      := build
+STORAGE_FORMAT := raw
+STORAGE_SIZE   := 1024M
+
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
@@ -35,14 +39,15 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
 	mkdir -p $(@D)
 	$(AS) $(AS_FLAGS) -o $@ $<
 
-kernel.bin: src/linker/link.ld $(OBJECTS)
+build/kernel.bin: src/linker/link.ld $(OBJECTS)
+	mkdir -p build/
 	echo $(OBJECTS)
 	$(LD) $(LD_FLAGS) -T $< -o $@ ${OBJECTS}
 
-install: kernel.bin
+install: build/kernel.bin
 	sudo cp $< /boot/kernel.bin
 
-kernel.iso: kernel.bin
+build/kernel.iso: build/kernel.bin
 	mkdir -p iso/
 	mkdir -p iso/boot/
 	mkdir -p iso/boot/grub/
@@ -55,18 +60,28 @@ kernel.iso: kernel.bin
 	echo '  boot' >> iso/boot/grub/grub.cfg
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=$@ iso/
+
 	rm -rf iso
 	rm -rf obj
 
-	qemu-img create -f qcow2 boot.img 512M
-	dd if=kernel.iso of=boot.img
+	rm build/kernel.bin
 
-	rm kernel.iso
+build/master.img:
+	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
 
-run: kernel.iso
+build/slave.img:
+	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
+
+run: build/kernel.iso build/master.img build/slave.img
 	$(info Running the kernel...)
 	qemu-system-i386 \
-		-cdrom boot.img \
+		-drive file=build/master.img,if=none,id=hd0,index=0 \
+		-drive file=build/slave.img,if=none,id=hd1,index=1 \
+		-drive file=build/kernel.iso,if=none,id=bt0,index=2 \
+		-device ide-hd,drive=hd0,bus=ide.0,unit=0 \
+ 		-device ide-hd,drive=hd1,bus=ide.0,unit=1 \
+		-device ide-cd,drive=bt0,bus=ide.1 \
+		-boot d \
 		-cpu pentium3 \
 		-smp 1 \
 		-m 256M \
@@ -78,4 +93,4 @@ run: kernel.iso
 
 .PHONY: clean
 clean:
-	rm -rf obj kernel.bin kernel.iso
+	rm -rf obj kernel.bin build/kernel.iso
