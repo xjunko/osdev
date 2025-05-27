@@ -55,10 +55,10 @@ void kinit_multiboot(u32 mb_info) {
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
+#ifdef KERNEL_DEBUG
   printf("[Mouse] x: %d, y: %d, buttons: %d %d %d\n", state.x, state.y,
          state.buttons[0], state.buttons[1], state.buttons[2]);
-
-  framebuffer_clear(255, 255, 255);
+#endif
   framebuffer_fill_rect(state.x, state.y, 16, 16, 255, 0, 0);
   framebuffer_flush();
 }
@@ -117,7 +117,18 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_interrupts();
   kinit_devices();
 
+  int r = 0;
+  int g = 0;
+  int b = 0;
+  int dr = 1, dg = 2, db = 3;
+
   while (1) {
-    pit_sleep(1000);
+    r = (r + dr) % 256;
+    g = (g + dg) % 256;
+    b = (b + db) % 256;
+
+    framebuffer_clear(r, g, b);
+    framebuffer_flush();
+    pit_sleep(16);
   }
 }

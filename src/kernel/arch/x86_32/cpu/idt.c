@@ -123,11 +123,12 @@ void idt_deactivate() {
 }
 
 extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
+#ifdef KERNEL_DEBUG
   printf(
       "[IDT] idt_handle_interrupt called with "
-      "interrupt_number=%d, esp=%d\n",
+      "interrupt_number=%x, esp=%d\n",
       interrupt_number, esp);
-
+#endif
   return _idt_handle_interrupt(interrupt_number, esp);
 }
 
