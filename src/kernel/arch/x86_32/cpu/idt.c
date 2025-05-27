@@ -6,6 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IDT_EXCEPTION(irq)                                                 \
+  idt_set_entry((irq), code_segment, &handle_interrupt_exception_##irq, 0, \
+                idt_interrupt_gate)
+
+#define IDT_REQUEST(irq)                        \
+  idt_set_entry(IRQ_BASE + (irq), code_segment, \
+                &handle_interrupt_request_##irq, 0, idt_interrupt_gate)
+
 static struct interrupt_gate_desc idt_entries[256];
 static struct interrupt_handler* idt_handlers[256];
 static struct interrupt_manager idt;
@@ -40,18 +48,42 @@ void idt_init(struct global_descriptor_table* gdt) {
                   idt_interrupt_gate);
   }
 
+  // Exceptions
+  IDT_EXCEPTION(0x00);
+  IDT_EXCEPTION(0x01);
+  IDT_EXCEPTION(0x02);
+  IDT_EXCEPTION(0x03);
+  IDT_EXCEPTION(0x04);
+  IDT_EXCEPTION(0x05);
+  IDT_EXCEPTION(0x06);
+  IDT_EXCEPTION(0x07);
+  IDT_EXCEPTION(0x08);
+  IDT_EXCEPTION(0x09);
+  IDT_EXCEPTION(0x0A);
+  IDT_EXCEPTION(0x0B);
+  IDT_EXCEPTION(0x0C);
+  IDT_EXCEPTION(0x0D);
+  IDT_EXCEPTION(0x0E);
+  IDT_EXCEPTION(0x0F);
+  IDT_EXCEPTION(0x10);
+  IDT_EXCEPTION(0x11);
+  IDT_EXCEPTION(0x12);
+  IDT_EXCEPTION(0x13);
+
   // Requests
-  idt_set_entry(IRQ_BASE + 0x0, code_segment, &handle_interrupt_request_0x00, 0,
-                idt_interrupt_gate);
-
-  idt_set_entry(IRQ_BASE + 0x1, code_segment, &handle_interrupt_request_0x01, 0,
-                idt_interrupt_gate);
-
-  idt_set_entry(IRQ_BASE + 0xc, code_segment, &handle_interrupt_request_0x0C, 0,
-                idt_interrupt_gate);
-
-  idt_set_entry(0x80, code_segment, &handle_interrupt_request_0x80, 0,
-                idt_interrupt_gate);
+  IDT_REQUEST(0x00);
+  IDT_REQUEST(0x01);
+  IDT_REQUEST(0x02);
+  IDT_REQUEST(0x03);
+  IDT_REQUEST(0x04);
+  IDT_REQUEST(0x05);
+  IDT_REQUEST(0x06);
+  IDT_REQUEST(0x07);
+  IDT_REQUEST(0x08);
+  IDT_REQUEST(0x09);
+  IDT_REQUEST(0x0A);
+  IDT_REQUEST(0x0C);
+  IDT_REQUEST(0x60);
 
   // remap irqs
   irq_remap();

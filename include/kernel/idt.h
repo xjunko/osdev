@@ -4,6 +4,9 @@
 
 #define IRQ_BASE 0x20
 
+#define IDT_EXCEPTION_DEF(irq) void handle_interrupt_exception_##irq()
+#define IDT_REQUEST_DEF(irq) void handle_interrupt_request_##irq()
+
 typedef u32 (*interrupt_callback)(u32 esp);
 
 struct interrupt_handler {
@@ -38,10 +41,38 @@ struct interrupt_desc_table_ptr {
 
 void ignore_interrupt_request();
 
-// declared in irq.s
-void handle_interrupt_request_0x00();
-void handle_interrupt_request_0x01();
-void handle_interrupt_request_0x0C();
-void handle_interrupt_request_0x80();
+// handled in irq.s
+IDT_REQUEST_DEF(0x00);
+IDT_REQUEST_DEF(0x01);
+IDT_REQUEST_DEF(0x02);
+IDT_REQUEST_DEF(0x03);
+IDT_REQUEST_DEF(0x04);
+IDT_REQUEST_DEF(0x05);
+IDT_REQUEST_DEF(0x06);
+IDT_REQUEST_DEF(0x07);
+IDT_REQUEST_DEF(0x08);
+IDT_REQUEST_DEF(0x09);
+IDT_REQUEST_DEF(0x0A);
+IDT_REQUEST_DEF(0x0C);
+IDT_REQUEST_DEF(0x60);
 
-void handle_interrupt_exception_0x0D();
+IDT_EXCEPTION_DEF(0x00);
+IDT_EXCEPTION_DEF(0x01);
+IDT_EXCEPTION_DEF(0x02);
+IDT_EXCEPTION_DEF(0x03);
+IDT_EXCEPTION_DEF(0x04);
+IDT_EXCEPTION_DEF(0x05);
+IDT_EXCEPTION_DEF(0x06);
+IDT_EXCEPTION_DEF(0x07);
+IDT_EXCEPTION_DEF(0x08);
+IDT_EXCEPTION_DEF(0x09);
+IDT_EXCEPTION_DEF(0x0A);
+IDT_EXCEPTION_DEF(0x0B);
+IDT_EXCEPTION_DEF(0x0C);
+IDT_EXCEPTION_DEF(0x0D);
+IDT_EXCEPTION_DEF(0x0E);
+IDT_EXCEPTION_DEF(0x0F);
+IDT_EXCEPTION_DEF(0x10);
+IDT_EXCEPTION_DEF(0x11);
+IDT_EXCEPTION_DEF(0x12);
+IDT_EXCEPTION_DEF(0x13);
