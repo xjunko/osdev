@@ -84,8 +84,9 @@ run: build/kernel.iso build/master.img build/slave.img
 		-cpu pentium3 \
 		-smp 1 \
 		-m 256M \
-		-vga std \
+		-vga virtio \
 		-serial stdio \
+		-enable-kvm \
 		-no-reboot -no-shutdown
 
 
