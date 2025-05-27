@@ -5,7 +5,9 @@
 int ps2_device_init();
 
 // kb
+typedef void (*ps2_kb_callback)(u8 key);
 int ps2_kb_init();
+void ps2_kb_register_callback(ps2_kb_callback);
 u32 ps2_kb_handle(u32);
 
 // mouse

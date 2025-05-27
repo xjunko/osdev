@@ -20,6 +20,9 @@ int ps2_device_init() {
 }
 
 // irq dev 0x01 (keyboard)
+#define PS2_KB_CALLBACKS_SIZE 16
+static ps2_kb_callback kb_callbacks[PS2_KB_CALLBACKS_SIZE];
+
 int ps2_kb_init() {
   idt_set_handler(KB_IRQ, &ps2_kb_handle);
 
@@ -36,8 +39,24 @@ int ps2_kb_init() {
   return 0;
 }
 
+void ps2_kb_register_callback(ps2_kb_callback callback) {
+  for (int i = 0; i < PS2_KB_CALLBACKS_SIZE; i++) {
+    if (kb_callbacks[i] == 0) {
+      kb_callbacks[i] = callback;
+      return;
+    }
+  }
+
+  printf("[PS2] Error: No space for keyboard callback\n");
+}
+
 u32 ps2_kb_handle(u32 esp) {
   u8 key = inportb(PS2_DATA);
+  for (int i = 0; i < PS2_KB_CALLBACKS_SIZE; i++) {
+    if (kb_callbacks[i] != 0) {
+      kb_callbacks[i](key);
+    }
+  }
   return esp;
 }
 
