@@ -1,6 +1,7 @@
 // simplified kernel, just to see what went wrong.
 
 #include <kernel/ata.h>
+#include <kernel/dos.h>
 #include <kernel/framebuffer.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
@@ -64,20 +65,11 @@ void kdebug_mouse(struct ps2_mouse_state state) {
 }
 
 void kinit_storage() {
-  // ata drive
   struct ata_device *master = ata_new(true, 0x1F0);
   ata_identify(master);
 
   struct ata_device *slave = ata_new(false, 0x1F0);
   ata_identify(slave);
-
-  // write test
-  ata_write28(slave, (u8 *)"hello sekai;", 0, 13);
-  ata_flush(slave);
-
-  u8 buf[13];
-  ata_read28(slave, buf, 0, 13);
-  printf("[ATA] Read: %s\n", buf);
 }
 
 void kinit_interrupts() {
