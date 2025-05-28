@@ -1,6 +1,7 @@
-CC = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-gcc
-AS = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-as
-LD = /home/junko/Projects/cross-compiler/gcc-i686/bin/i686-elf-ld
+ARCH = i686
+CC = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-gcc
+AS = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-as
+LD = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-ld
 
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
