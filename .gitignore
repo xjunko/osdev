@@ -1,11 +1,17 @@
 # ides
 .vscode/*
+.qtcreator/*
+
+# build artifacts
+build/*
+iso/*
+obj/*
 
 # os
 src/ports/*
-build/*
-obj/*
 src/apps/*
+
+# random trash
 *.o
 *.img
 *.bin
