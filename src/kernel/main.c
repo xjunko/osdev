@@ -73,6 +73,9 @@ void kinit_storage() {
   ata_identify(slave);
 
   mikufs_init(slave);
+
+  FILE *file = fopen("hello.txt", "r");
+  fclose(file);
   // mikufs_write(slave, "hello.txt", (u8 *)"world!", 7);
   // mikufs_write(slave, "giga.txt", (u8 *)"chad", 5);
   // u8 *data = mikufs_read(slave, "hello.txt");

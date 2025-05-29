@@ -28,6 +28,7 @@
 #include <string.h>
 
 static u32 miku_sector_ends_at = 0;
+struct ata_device* global_mikufs_device;
 
 void mikufs_init(struct ata_device* dev) {
   int cur_sector = 0;
@@ -36,7 +37,6 @@ void mikufs_init(struct ata_device* dev) {
     struct miku_fs_entry entry;
     ata_read28(dev, (u8*)&entry, cur_sector, sizeof(struct miku_fs_entry));
     if (!entry.valid) break;
-    printf("[MikuFS] Filename: %s \n", entry.filename);
 
     cur_sector = entry.sector_start;       // Current
     cur_sector += entry.sector_size;       // Size
@@ -44,6 +44,8 @@ void mikufs_init(struct ata_device* dev) {
   }
 
   printf("[MikuFS] Sector ends at %d \n", miku_sector_ends_at);
+
+  global_mikufs_device = dev;
 }
 
 void mikufs_write(struct ata_device* dev, const char* filename, u8* data,
@@ -83,7 +85,7 @@ void mikufs_write(struct ata_device* dev, const char* filename, u8* data,
   miku_sector_ends_at = new_entry.sector_start + new_entry.sector_size;
 }
 
-u8* mikufs_read(struct ata_device* dev, const char* filename) {
+struct miku_fs_file* mikufs_read(struct ata_device* dev, const char* filename) {
   int cur_sector = 0;
 
   while (1) {
@@ -107,7 +109,12 @@ u8* mikufs_read(struct ata_device* dev, const char* filename) {
       printf("[MikuFS] Read file '%s' (%d sectors)\n", entry.filename,
              entry.sector_size);
 
-      return data;
+      struct miku_fs_file* cur_file = malloc(sizeof(struct miku_fs_file));
+      memcpy(cur_file->filename, entry.filename, 16);
+      cur_file->sector_start = entry.sector_start;
+      cur_file->sector_size = entry.sector_size;
+      cur_file->data = data;
+      return cur_file;
     }
     cur_sector += entry.sector_start + entry.sector_size;  // Skip this sector.
   }
