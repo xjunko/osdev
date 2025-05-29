@@ -61,6 +61,27 @@ void print_decimal(int value) {
   }
 }
 
+void print_float(float value, int precision) {
+  if (value < 0) {
+    putchar('-');
+    value = -value;
+  }
+
+  int int_part = (int)value;
+  float fraction = value - int_part;
+
+  print_decimal(int_part);
+
+  putchar('.');
+
+  for (int i = 0; i < precision; ++i) {
+    fraction *= 10;
+    int digit = (int)fraction;
+    putchar('0' + digit);
+    fraction -= digit;
+  }
+}
+
 void print_hex(unsigned int value) {
   char hex_digits[] = "0123456789ABCDEF";
   print_string("0x");
@@ -96,6 +117,9 @@ int printf(string __restrict__ fmt, ...) {
           break;
         case 'X':
           print_hex(va_arg(args, unsigned int));
+          break;
+        case 'f':
+          print_float(va_arg(args, double), 6);  // autoconvert float to double
           break;
         default:
           putchar('%');
