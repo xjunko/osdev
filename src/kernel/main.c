@@ -74,8 +74,8 @@ void kinit_storage() {
 
   mikufs_init(slave);
 
-  FILE *file = fopen("hello.txt", "r");
-  fclose(file);
+  // FILE *file = fopen("hello.txt", "r");
+  // fclose(file);
   // mikufs_write(slave, "hello.txt", (u8 *)"world!", 7);
   // mikufs_write(slave, "giga.txt", (u8 *)"chad", 5);
   // u8 *data = mikufs_read(slave, "hello.txt");
