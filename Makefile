@@ -29,7 +29,7 @@ OBJECTS     := $(C_OBJECTS) $(ASM_OBJECTS)
 
 OS_FOLDER      := build
 STORAGE_FORMAT := raw
-STORAGE_SIZE   := 1024M
+STORAGE_SIZE   := 8M
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c

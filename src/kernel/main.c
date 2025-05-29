@@ -6,6 +6,7 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
+#include <kernel/mikufs.h>
 #include <kernel/multiboot.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
@@ -70,6 +71,13 @@ void kinit_storage() {
 
   struct ata_device *slave = ata_new(false, 0x1F0);
   ata_identify(slave);
+
+  mikufs_init(slave);
+  // mikufs_write(slave, "hello.txt", (u8 *)"world!", 7);
+  // mikufs_write(slave, "giga.txt", (u8 *)"chad", 5);
+  // u8 *data = mikufs_read(slave, "hello.txt");
+  // free(data);
+  // mikufs_read(slave);
 }
 
 void kinit_interrupts() {
