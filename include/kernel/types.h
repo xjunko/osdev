@@ -25,5 +25,9 @@ typedef unsigned long long uint64;
 typedef uint64 u64;
 typedef uint64 uint64_t;
 
+typedef float f32;
+typedef double f64;
+typedef long double f128;
+
 typedef bool boolean;
 typedef const char* string;
