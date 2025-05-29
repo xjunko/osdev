@@ -6,3 +6,6 @@ void bcopy(const void *, void *, u32);
 void bzero(void *, u32);
 char *index(const char *, int);
 char *rindex(const char *, int);
+
+int strcasecmp(const char *, const char *);
+int strncasecmp(const char *, const char *, u32);

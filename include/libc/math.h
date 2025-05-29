@@ -3,3 +3,5 @@
 
 int round(int);
 f32 roundf(f32);
+
+float fabs(float);
