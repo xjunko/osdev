@@ -2,21 +2,16 @@ ARCH = i686
 OS   = fullmoon
 CC = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
 AS = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-as
-LD = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-ld
+LD = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
 
-C_FLAGS = -m32 -ffreestanding \
-	      -fno-stack-protector \
-		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member \
-		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast -Wno-error=implicit-fallthrough= -Wno-error=expansion-to-defined\
-								-Wno-error=type-limits -Wno-error=unused-but-set-parameter -Wno-error=enum-conversion -Wno-error=missing-field-initializers\
-		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone -Wno-error=sign-compare -Wno-error=char-subscripts -Wno-error=unused-but-set-variable\
-		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
-		  
-C_FLAGS += -Iinclude/ -Isysroot/usr/include
+C_FLAGS = -ffreestanding \
+				-g -c \
+				-nostdlib \
+				-fno-exceptions \
+				-Iinclude/ 
 
-AS_FLAGS = --32 
-LD_FLAGS = -melf_i386 -nostdlib
-LD_FLAGS += -Lsysroot/usr/lib
+AS_FLAGS = 
+LD_FLAGS = -nostdlib -ffreestanding -lgcc
 
 SRC_DIR  := src
 OBJ_DIR  := obj
@@ -45,8 +40,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
 
 build/kernel.bin: src/linker/link.ld $(OBJECTS)
 	mkdir -p build/
-	echo $(LD) $(LD_FLAGS) -T $< -o $@ ${OBJECTS}
-	$(LD) $(LD_FLAGS) -T $< -o $@ ${OBJECTS}
+	$(LD) -T $< -o $@ ${OBJECTS} $(LD_FLAGS)
 
 install: build/kernel.bin
 	sudo cp $< /boot/kernel.bin
