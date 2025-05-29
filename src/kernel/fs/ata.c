@@ -118,7 +118,12 @@ void ata_read28(struct ata_device* dev, u8* out_buffer, u32 sector_num,
   for (int i = size + (size % 2); i < 512; i += 2) {
     inportw(dev->base + DATA_PORT);  // leftovers
   }
+
   ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+
   printf("[ATA] Read %d bytes from sector %d\n", size, sector_num);
 }
 
@@ -153,7 +158,12 @@ void ata_write28(struct ata_device* dev, u8* data, u32 sector_num, i32 size) {
   for (int i = size + (size % 2); i < 512; i += 2) {
     outportw(dev->base + DATA_PORT, 0x0);
   }
+
   ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+
   printf("[ATA] Wrote %d bytes to sector %d\n", size, sector_num);
 }
 
