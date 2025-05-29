@@ -12,7 +12,8 @@ src/ports/*
 src/apps/*
 
 # libs
-sysroot/usr/lib/*
+sysroot/usr/lib/*.a
+sysroot/usr/lib/*.so
 
 # random trash
 *.o
