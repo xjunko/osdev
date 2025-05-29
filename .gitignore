@@ -11,8 +11,12 @@ obj/*
 src/ports/*
 src/apps/*
 
+# libs
+sysroot/usr/lib/*
+
 # random trash
 *.o
+
 *.img
 *.bin
 *.log

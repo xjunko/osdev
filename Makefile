@@ -1,20 +1,22 @@
 ARCH = i686
-CC = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-gcc
-AS = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-as
-LD = ~/.cross/$(ARCH)/bin/$(ARCH)-elf-ld
+OS   = fullmoon
+CC = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
+AS = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-as
+LD = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-ld
 
 C_FLAGS = -m32 -ffreestanding \
 	      -fno-stack-protector \
 		  -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=address-of-packed-member \
-		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast -Wno-error=implicit-fallthrough=\
-								-Wno-error=type-limits \
-		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone \
+		                        -Wno-error=unused-const-variable -Wno-error=int-to-pointer-cast -Wno-error=implicit-fallthrough= -Wno-error=expansion-to-defined\
+								-Wno-error=type-limits -Wno-error=unused-but-set-parameter -Wno-error=enum-conversion -Wno-error=missing-field-initializers\
+		  -g -c -fcommon -mno-mmx -mno-sse -mno-red-zone -Wno-error=sign-compare -Wno-error=char-subscripts -Wno-error=unused-but-set-variable\
 		  -fno-lto -fno-exceptions -nostartfiles -nostdlib -fno-builtin
 		  
-C_FLAGS += -Iinclude/ -Iinclude/libc/
+C_FLAGS += -Iinclude/ -Isysroot/usr/include
 
-AS_FLAGS = --32
-LD_FLAGS = -melf_i386
+AS_FLAGS = --32 
+LD_FLAGS = -melf_i386 -nostdlib
+LD_FLAGS += -Lsysroot/usr/lib
 
 SRC_DIR  := src
 OBJ_DIR  := obj
@@ -43,7 +45,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
 
 build/kernel.bin: src/linker/link.ld $(OBJECTS)
 	mkdir -p build/
-	echo $(OBJECTS)
+	echo $(LD) $(LD_FLAGS) -T $< -o $@ ${OBJECTS}
 	$(LD) $(LD_FLAGS) -T $< -o $@ ${OBJECTS}
 
 install: build/kernel.bin
