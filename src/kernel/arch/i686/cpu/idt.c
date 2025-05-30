@@ -23,6 +23,7 @@
                 &handle_interrupt_request_##irq, priv, idt_interrupt_gate)
 
 static struct interrupt_gate_desc idt_entries[256];
+static struct interrupt_handler idt_handlers_stack[256];
 static struct interrupt_handler* idt_handlers[256];
 static struct interrupt_manager idt;
 
@@ -38,10 +39,9 @@ void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
 }
 
 void idt_set_handler(u8 interrupt_number, interrupt_callback handle) {
-  struct interrupt_handler* handler = kmalloc(sizeof(struct interrupt_handler));
-  handler->interrupt_number = interrupt_number;
-  handler->handle = handle;
-  idt_handlers[interrupt_number] = handler;
+  idt_handlers_stack[interrupt_number].interrupt_number = interrupt_number;
+  idt_handlers_stack[interrupt_number].handle = handle;
+  idt_handlers[interrupt_number] = &idt_handlers_stack[interrupt_number];
 }
 
 u32 idt_general_protection_fault(u32 esp) {

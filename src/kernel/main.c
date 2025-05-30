@@ -22,17 +22,18 @@
 void kinit_serial() { serial_init(); }
 
 // sets up the kernel internal memory (to be removed)
-void kinit_multiboot_stage1(u32 mb_info) {
+// and framebuffer
+void kinit_multiboot_bind(u32 mb_info) {
+  kprintf("[Kernel] Initiating Multiboot\n");
   multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
                          (multiboot_callback)kmalloc_init);
-  multiboot_start(mb_info);
-}
-
-// sets up the framebuffer0
-void kinit_multiboot_stage2(u32 mb_info) {
   multiboot_add_callback(MULTIBOOT_TAG_TYPE_FRAMEBUFFER,
                          (multiboot_callback)framebuffer_init);
+}
+
+void kinit_multiboot_dispatch(u32 mb_info) {
   multiboot_start(mb_info);
+  kprintf("[Kernel] Multiboot, dispatched! \n");
 }
 
 void kdebug_mouse(struct ps2_mouse_state state) {
@@ -45,26 +46,17 @@ void kdebug_mouse(struct ps2_mouse_state state) {
 }
 
 void kinit_storage() {
-  // struct ata_device *master = ata_new(true, 0x1F0);
-  // ata_identify(master);
+  struct ata_device *master = ata_new(true, 0x1F0);
+  ata_identify(master);
 
-  // struct ata_device *slave = ata_new(false, 0x1F0);
-  // ata_identify(slave);
-
-  // mikufs_init(slave);
-  // FILE *file = fopen("hello.txt", "r");
-  // fclose(file);
-  // mikufs_write(slave, "hello.txt", (u8 *)"world!", 7);
-  // mikufs_write(slave, "giga.txt", (u8 *)"chad", 5);
-  // u8 *data = mikufs_read(slave, "hello.txt");
-  // free(data);
-  // mikufs_read(slave);
+  struct ata_device *slave = ata_new(false, 0x1F0);
+  ata_identify(slave);
 }
 
 void kinit_interrupts() {
   gdt_init();
   idt_init();
-  syscall_init(0x60);
+  syscall_init();
   idt_activate();
 }
 
@@ -77,38 +69,23 @@ void kinit_devices() {
   pci_init();
 }
 
-void multitask() {
-  while (1) printf("d");
-}
-
-void multitask2() {
-  while (1) printf("d");
-}
-
 extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
     kprintf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
     while (1);  // lost cause
   }
-  kprintf("[Kernel] Stage 0\n");
-  kinit_multiboot_stage1(mb_info);
-  kprintf("[Kernel] Stage 0.5 [Mem]\n");
-  kinit_interrupts();
-  kprintf("[Kernel] Stage 0.75 [Interrupts]\n");
-  kinit_multiboot_stage2(mb_info);
-  kprintf("[Kernel] Stage 1 [Framebuffer]\n");
 
-  // userland, should be safe to use libc now.
-  kinit_storage();
+  kinit_multiboot_bind(mb_info);
+  kinit_interrupts();
+  kinit_multiboot_dispatch(mb_info);
+  kprintf("[Kernel] Booted into kernel! \n");
+
+  // userspace, libc should be available now
+  // kinit_storage();
   kinit_devices();
 
-  // multitask test [do not work]
-  struct cpu_task task = cpu_new_task(multitask);
-  cpu_add_task(&task);
-  struct cpu_task task2 = cpu_new_task(multitask2);
-  cpu_add_task(&task2);
-
+  // rgb weee :D
   int r = 0;
   int g = 0;
   int b = 0;
@@ -121,5 +98,6 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
 
     framebuffer_clear(r, g, b);
     framebuffer_flush();
+    pit_sleep(100);  // sleep for 100ms
   }
 }
