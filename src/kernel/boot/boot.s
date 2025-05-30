@@ -1,18 +1,16 @@
-// multiboot2 stuffs
 .set MULTIBOOT2_HEADER_MAGIC,      0xE85250D6
-.set MULTIBOOT2_ARCHITECTURE_I386, 0
+.set MULTIBOOT2_ARCHITECTURE,      0 // 0=i386, 1=x86_64
 .set MULTIBOOT2_HEADER_LENGTH,     multiboot2_header_end - multiboot2_header
-.set MULTIBOOT2_HEADER_CHECKSUM,   -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT2_ARCHITECTURE_I386 + MULTIBOOT2_HEADER_LENGTH)
+.set MULTIBOOT2_HEADER_CHECKSUM,   -(MULTIBOOT2_HEADER_MAGIC + MULTIBOOT2_ARCHITECTURE + MULTIBOOT2_HEADER_LENGTH)
 
 .section .multiboot2
     .align 8
 multiboot2_header:
     .long MULTIBOOT2_HEADER_MAGIC
-    .long MULTIBOOT2_ARCHITECTURE_I386
+    .long MULTIBOOT2_ARCHITECTURE
     .long MULTIBOOT2_HEADER_LENGTH
     .long MULTIBOOT2_HEADER_CHECKSUM
 
-    // Tag: information request (optional, ask for memory map)
     .short 1                  // tag type: information request
     .short 0                  // reserved
     .long  8 + 4              // size of tag
@@ -43,18 +41,18 @@ multiboot2_header_end:
 
 _start:
     mov $kernel_stack_end, %esp
-    // Multiboot2 passes boot info in %ebx
-    pushl %ebx         # Multiboot info pointer
-    pushl %eax         # Multiboot magic
+
+    pushl %ebx         # mb ptr
+    pushl %eax         # mb magic
     call kmain
 
-.hang:
     cli
+loop:
     hlt
-    jmp .hang
+    jmp loop
 
 .section .bss
     .align 16
 kernel_stack:
-    .space 2*1024*1024  # 2 MB stack
+    .space 2*1024*1024  // stack
 kernel_stack_end:
