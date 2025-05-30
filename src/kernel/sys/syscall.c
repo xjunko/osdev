@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <kernel/fs/vfs.h>
 #include <kernel/idt.h>
 #include <kernel/misc/kio.h>
 #include <kernel/regs.h>
@@ -77,7 +78,19 @@ static u32 syscall_fork(struct regs* r) {
 
 #define SYSCALL_READ 0x3
 static u32 syscall_read(struct regs* r) {
-  printf("[syscall] read! \n");
+  struct vfs_file_desc* file_desc = vfs_get_file(r->ebx);
+  if (!file_desc) {
+    errno = EBADF;
+    r->eax = -1;
+  } else {
+    int result = vfs_read(file_desc->path, (char*)r->ecx, r->edx);
+    if (result < 0) {
+      errno = EIO;
+      r->eax = -1;
+    } else {
+      r->eax = result;  // number of bytes read
+    }
+  }
   return (u32)r;
 }
 
@@ -93,7 +106,20 @@ static u32 syscall_write(struct regs* r) {
 
 #define SYSCALL_OPEN 0x5
 static u32 syscall_open(struct regs* r) {
-  kprintf("[syscall] open! %s %x \n", r->ebx, r->ecx);
+  int result = vfs_read(r->ebx, NULL, 0);
+  if (result < 0) {
+    errno = ENOENT;
+    r->eax = -1;
+  } else {
+    int fd = vfs_open_file(r->ebx);
+    if (fd < 0) {
+      errno = ENOENT;
+      r->eax = -1;
+    } else {
+      r->eax = fd;
+    }
+  }
+
   return (u32)r;
 }
 

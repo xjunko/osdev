@@ -1,9 +1,7 @@
 // simplified kernel, just to see what went wrong.
 
-#include <kernel/ata.h>
 #include <kernel/framebuffer.h>
-#include <kernel/fs/dos.h>
-#include <kernel/fs/mikufs.h>
+#include <kernel/fs/vfs.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
@@ -45,13 +43,7 @@ void kdebug_mouse(struct ps2_mouse_state state) {
   framebuffer_flush();
 }
 
-void kinit_storage() {
-  struct ata_device *master = ata_new(true, 0x1F0);
-  ata_identify(master);
-
-  struct ata_device *slave = ata_new(false, 0x1F0);
-  ata_identify(slave);
-}
+void kinit_storage() { vfs_init(); }
 
 void kinit_interrupts() {
   gdt_init();
@@ -82,7 +74,7 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
   kprintf("[Kernel] Booted into kernel! \n");
 
   // userspace, libc should be available now
-  // kinit_storage();
+  kinit_storage();
   kinit_devices();
 
   // rgb weee :D
