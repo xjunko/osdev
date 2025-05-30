@@ -29,4 +29,17 @@ SECTIONS
         *(COMMON)
         _bss_end = .;
     }
+
+    . = ALIGN(0x1000);
+    __heap_start = .;
+
+    .heap (NOLOAD) :
+    {
+        . = . + 8M; 
+    }
+
+    __heap_end = .;
+
+
+    _end = .;
 }
