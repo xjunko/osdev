@@ -96,7 +96,7 @@ void print_hex(unsigned int value) {
   }
 }
 
-int printf(string __restrict__ fmt, ...) {
+int kprintf(string __restrict__ fmt, ...) {
   va_list args;
   va_start(args, fmt);
 
@@ -119,7 +119,7 @@ int printf(string __restrict__ fmt, ...) {
           print_hex(va_arg(args, unsigned int));
           break;
         case 'f':
-          print_float(va_arg(args, double), 6);  // autoconvert float to double
+          print_float(va_arg(args, double), 6);  // autoconvert float to
           break;
         default:
           putchar('%');

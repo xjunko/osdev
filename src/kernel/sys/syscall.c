@@ -1,6 +1,8 @@
 #include <errno.h>
+#include <kernel/debug.h>
 #include <kernel/idt.h>
 #include <kernel/regs.h>
+#include <kernel/serial.h>
 #include <kernel/syscall.h>
 #include <kernel/types.h>
 #include <stdio.h>
@@ -16,8 +18,8 @@ static u32 kernel_heap_end = (u32)__heap_start;
 static u32 kernel_heap_max = (u32)__heap_end;
 
 void _dump_regs(struct regs* r) {
-  printf("[regs] a=%d b=%x c=%x d=%x si=%x di=%x bp=%x \n", r->eax, r->ebx,
-         r->ecx, r->edx, r->esi, r->edi, r->ebp);
+  kprintf("[regs] a=%d b=%x c=%x d=%x si=%x di=%x bp=%x \n", r->eax, r->ebx,
+          r->ecx, r->edx, r->esi, r->edi, r->ebp);
 }
 
 // linux style, this should be enough for now
@@ -28,17 +30,17 @@ void syscall_init(u8 interrupt_number) {
   idt_set_handler(IRQ_BASE + interrupt_number, syscall_handle);
   syscall_install();
 
-  printf("[syscall] heaps: %x %x %x \n", kernel_heap_start, kernel_heap_end,
-         kernel_heap_max);
+  kprintf("[syscall] heaps: %x %x %x \n", kernel_heap_start, kernel_heap_end,
+          kernel_heap_max);
 }
 
 void syscall_register(u32 syscall_number, syscall_callback* handler) {
-  printf("[syscall] registering %d \n", syscall_number);
+  kprintf("[syscall] registering %d \n", syscall_number);
 
   if (syscall_number < SYSCALL_N) {
     syscall_handlers[syscall_number] = handler;
   } else {
-    printf("[SYSCALL] Invalid syscall number: %d\n", syscall_number);
+    kprintf("[SYSCALL] Invalid syscall number: %d\n", syscall_number);
   }
 }
 
@@ -46,12 +48,14 @@ u32 syscall_handle(u32 esp) {
   struct regs* r = (struct regs*)esp;
 
   u32 syscall_number = r->eax;
+#ifdef KERNEL_DEBUG
   _dump_regs(r);
+#endif
 
   if (syscall_handlers[syscall_number] != 0) {
     return (*syscall_handlers[syscall_number])(r);
   } else {
-    printf("[SYSCALL] Unhandled syscall: %d\n", syscall_number);
+    kprintf("[SYSCALL] Unhandled syscall: %d\n", syscall_number);
   }
 
   return esp;
@@ -60,13 +64,13 @@ u32 syscall_handle(u32 esp) {
 // implementation
 #define SYSCALL_EXIT 0x1
 static u32 syscall_exit(struct regs* r) {
-  printf("[syscall] exit! \n");
+  kprintf("[syscall] exit! \n");
   return (u32)r;
 }
 
 #define SYSCALL_FORK 0x2
 static u32 syscall_fork(struct regs* r) {
-  printf("[syscall] fork! \n");
+  kprintf("[syscall] fork! \n");
   errno = EAGAIN;
   r->eax = -1;
   return (u32)r;
@@ -80,26 +84,30 @@ static u32 syscall_read(struct regs* r) {
 
 #define SYSCALL_WRITE 0x4
 static u32 syscall_write(struct regs* r) {
-  printf("[syscall] write! \n");
+  kprintf("[syscall] write! \n");
+  int len = r->edx;
+  for (int i = 0; i < len; i++) {
+    serial_putchar(((const char*)r->ecx)[i]);
+  }
+  r->eax = len;
   return (u32)r;
 }
 
 #define SYSCALL_OPEN 0x5
 static u32 syscall_open(struct regs* r) {
-  printf("[syscall] open! %s %x \n", r->ebx, r->ecx);
-  r->eax = -1;
+  kprintf("[syscall] open! %s %x \n", r->ebx, r->ecx);
   return (u32)r;
 }
 
 #define SYSCALL_CLOSE 0x6
 static u32 syscall_close(struct regs* r) {
-  printf("[syscall] close! \n");
+  kprintf("[syscall] close! \n");
   return (u32)r;
 }
 
 #define SYSCALL_TIME 0xD
 static u32 syscall_time(struct regs* r) {
-  printf("[syscall] time! \n");
+  kprintf("[syscall] time! \n");
   return (u32)r;
 }
 

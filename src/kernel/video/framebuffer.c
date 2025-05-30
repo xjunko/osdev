@@ -1,8 +1,8 @@
 // framebuffer.c - grub's framebuffer driver - acts like a linear framebuffer
+#include <kernel/debug.h>
 #include <kernel/framebuffer.h>
 #include <kernel/types.h>
 #include <multiboot2.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,7 +26,7 @@ void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
     fb_pitch = fb->common.framebuffer_pitch;
   }
 
-  printf("[Framebuffer] W=%d H=%d BPP=%d \n", fb_width, fb_height, fb_bpp);
+  kprintf("[Framebuffer] W=%d H=%d BPP=%d \n", fb_width, fb_height, fb_bpp);
   fb_backbuffer = malloc(fb_pitch * fb_height);
   framebuffer_clear(255, 255, 255);
   framebuffer_flush();

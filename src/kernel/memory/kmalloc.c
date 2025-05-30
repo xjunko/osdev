@@ -1,3 +1,4 @@
+#include <kernel/debug.h>
 #include <kernel/memory.h>
 #include <kernel/multiboot.h>
 #include <kernel/types.h>
@@ -14,7 +15,7 @@ static struct mem_manager* global_manager = 0;
 #define CHUNK_OVERHEAD (sizeof(struct mem_chunk))
 
 void kmalloc_init(struct multiboot_tag_mmap* mmap) {
-  printf("[Kernel] Memory Mapping: ");
+  kprintf("[Kernel] Memory Mapping: ");
 
   for (struct multiboot_mmap_entry* entry = mmap->entries;
        (u8*)entry < (u8*)mmap + mmap->size;
@@ -31,9 +32,9 @@ void kmalloc_init(struct multiboot_tag_mmap* mmap) {
     }
   }
 
-  printf("Got %d mb \n", total_usable_memory / 1024 / 1024);
-  printf("[Kernel] Memory limit: %d MiB\n", total_usable_memory / 1024 / 1024);
-  printf("[Kernel] Heap Addr: %x\n", heap_start);
+  kprintf("Got %d mb \n", total_usable_memory / 1024 / 1024);
+  kprintf("[Kernel] Memory limit: %d MiB\n", total_usable_memory / 1024 / 1024);
+  kprintf("[Kernel] Heap Addr: %x\n", heap_start);
   _kmalloc_init(heap_start, total_usable_memory);
 }
 
@@ -50,7 +51,7 @@ void _kmalloc_init(u32 start, u32 size) {
 
   global_manager->first = initial;
 
-  printf("[Kernel] Memory initialized at %x with size %d\n", start, size);
+  kprintf("[Kernel] Memory initialized at %x with size %d\n", start, size);
 }
 
 void* kmalloc(u32 size) {
@@ -77,8 +78,8 @@ void* kmalloc(u32 size) {
         current->size = size;
       }
 
-      printf("[Kernel] Allocated %d bytes at %x\n", size,
-             (u32)((u8*)current + CHUNK_OVERHEAD));
+      kprintf("[Kernel] Allocated %d bytes at %x\n", size,
+              (u32)((u8*)current + CHUNK_OVERHEAD));
 
       current->allocated = true;
       return (void*)((u8*)current + CHUNK_OVERHEAD);
@@ -120,7 +121,7 @@ int kfree(void* ptr) {
   struct mem_chunk* chunk = (struct mem_chunk*)((u8*)ptr - CHUNK_OVERHEAD);
 
   if (chunk->allocated != true) {
-    printf("[Kernel] Warning: Double free or corruption at %x\n", (u32)chunk);
+    kprintf("[Kernel] Warning: Double free or corruption at %x\n", (u32)chunk);
     return -1;
   }
 
@@ -142,7 +143,7 @@ int kfree(void* ptr) {
     }
   }
 
-  printf("[Kernel] Freed memory at %x\n", (u32)ptr);
+  kprintf("[Kernel] Freed memory at %x\n", (u32)ptr);
 
   return 0;
 }

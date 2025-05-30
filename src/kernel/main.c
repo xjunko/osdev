@@ -1,6 +1,7 @@
 // simplified kernel, just to see what went wrong.
 
 #include <kernel/ata.h>
+#include <kernel/debug.h>
 #include <kernel/dos.h>
 #include <kernel/framebuffer.h>
 #include <kernel/gdt.h>
@@ -43,14 +44,13 @@ void kdebug_mouse(struct ps2_mouse_state state) {
 }
 
 void kinit_storage() {
-  struct ata_device *master = ata_new(true, 0x1F0);
-  ata_identify(master);
+  // struct ata_device *master = ata_new(true, 0x1F0);
+  // ata_identify(master);
 
-  struct ata_device *slave = ata_new(false, 0x1F0);
-  ata_identify(slave);
+  // struct ata_device *slave = ata_new(false, 0x1F0);
+  // ata_identify(slave);
 
-  mikufs_init(slave);
-
+  // mikufs_init(slave);
   // FILE *file = fopen("hello.txt", "r");
   // fclose(file);
   // mikufs_write(slave, "hello.txt", (u8 *)"world!", 7);
@@ -79,26 +79,22 @@ void kinit_devices() {
 extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
-    printf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
+    kprintf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
     while (1);  // lost cause
   }
   kinit_multiboot_stage1(mb_info);
-  // kinit_storage();
   kinit_interrupts();
+  pit_sleep(16);  // delay just incase
   kinit_multiboot_stage2(mb_info);
 
+  // userland, should be safe to use libc now.
+  kinit_storage();
   kinit_devices();
 
   int r = 0;
   int g = 0;
   int b = 0;
   int dr = 1, dg = 2, db = 3;
-
-  FILE *f = fopen("/dev/t0", "r");
-  fclose(f);
-  void *memtest = malloc(4096);
-  // write(1, "Hello\n", 6);
-  // _exit(0);
 
   while (1) {
     r = (r + dr) % 256;

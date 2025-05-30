@@ -1,3 +1,4 @@
+#include <kernel/debug.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
@@ -5,7 +6,6 @@
 #include <kernel/ports.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define IDT_EXCEPTION(irq)                                                 \
@@ -49,11 +49,11 @@ u32 idt_general_protection_fault(u32 esp) {
   u32 cs = r->cs;          // CS pushed by CPU
   u32 eflags = r->eflags;  // EFLAGS pushed by CPU
 
-  printf("[idt] General Protection Fault!\n");
-  printf("Error code: %X\n", error_code);
-  printf("EIP: %X\n", eip);
-  printf("CS: %X\n", cs);
-  printf("EFLAGS: %X\n", eflags);
+  kprintf("[idt] General Protection Fault!\n");
+  kprintf("Error code: %X\n", error_code);
+  kprintf("EIP: %X\n", eip);
+  kprintf("CS: %X\n", cs);
+  kprintf("EFLAGS: %X\n", eflags);
 
   asm("hlt");
   return esp;
@@ -63,7 +63,7 @@ void idt_init() {
   u32 code_segment = code_segment_selector();
   const u8 idt_interrupt_gate = 0xE;
 
-  printf("[IDT] CS=%x GATE=%x \n", code_segment, idt_interrupt_gate);
+  kprintf("[IDT] CS=%x GATE=%x \n", code_segment, idt_interrupt_gate);
 
   for (u8 i = 255; i > 0; i--) {
     idt_handlers[i] = 0;
@@ -126,13 +126,13 @@ void idt_init() {
   asm volatile("sidt %0" : "=m"(after_idtr));
 
   if (idtr.size == after_idtr.size && idtr.base == after_idtr.base) {
-    printf(
+    kprintf(
         "[IDT] Matching Size and Base after fetching, safe to assume "
         "everything went fine. \n");
   } else {
     // spam so that we can see it
     for (int i = 0; i < 10; i++) {
-      printf(
+      kprintf(
           "[IDT] Size and Base mismatch after fetching, something went "
           "wrong. \n");
     }
@@ -141,17 +141,17 @@ void idt_init() {
 
 void idt_activate() {
   asm("sti");
-  printf("[IDT] Activated! \n");
+  kprintf("[IDT] Activated! \n");
 }
 
 void idt_deactivate() {
   asm("cli");
-  printf("[IDT] Deactivated! \n");
+  kprintf("[IDT] Deactivated! \n");
 }
 
 extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
 #ifdef KERNEL_DEBUG
-  printf(
+  kprintf(
       "[IDT] idt_handle_interrupt called with "
       "interrupt_number=%x, esp=%d\n",
       interrupt_number, esp);
@@ -164,8 +164,8 @@ u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
     esp = idt_handlers[interrupt_number]->handle(esp);
   } else if (interrupt_number != 0x20) {
     struct regs* r = (struct regs*)esp;
-    printf("[IDT] Unhandled Interrupt: %x", interrupt_number);
-    printf(" | a=%d b=%x c=%x d=%x \n", r->eax, r->ebx, r->ecx, r->edx);
+    kprintf("[IDT] Unhandled Interrupt: %x", interrupt_number);
+    kprintf(" | a=%d b=%x c=%x d=%x \n", r->eax, r->ebx, r->ecx, r->edx);
     asm volatile("hlt");
   }
 

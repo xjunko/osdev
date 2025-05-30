@@ -1,6 +1,6 @@
+#include <kernel/debug.h>
 #include <kernel/gdt.h>
 #include <kernel/types.h>
-#include <stdio.h>
 
 static struct global_descriptor_table gdt;
 
@@ -58,12 +58,12 @@ u32 segment_desc_limit(struct segment_desc* desc) {
 }
 
 void gdt_init() {
-  printf("[GDT] Segment Init: ");
+  kprintf("[GDT] Segment Init: ");
   gdt.null_segment_selector = new_segment_desc(0, 0, 0);
   gdt.unused_segment_selector = new_segment_desc(0, 0, 0);
   gdt.code_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x9A);
   gdt.data_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x92);
-  printf("Passed! \n");
+  kprintf("Passed! \n");
 
   struct {
     u16 limit;
@@ -73,7 +73,7 @@ void gdt_init() {
   gdtr.base = (u32)&gdt;
   asm volatile("lgdt %0" : : "m"(gdtr));
 
-  printf("[GDT] Initialized! \n");
+  kprintf("[GDT] Initialized! \n");
 }
 
 u16 code_segment_selector() { return 2 * sizeof(struct segment_desc); }

@@ -29,7 +29,7 @@ OBJECTS     := $(C_OBJECTS) $(ASM_OBJECTS)
 
 OS_FOLDER      := build
 STORAGE_FORMAT := raw
-STORAGE_SIZE   := 8M
+STORAGE_SIZE   := 64M
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
@@ -67,9 +67,11 @@ build/kernel.iso: build/kernel.bin
 
 build/master.img:
 	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
+	mkfs.fat -F 32 $@
 
 build/slave.img:
 	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
+	mkfs.fat -F 32 $@
 
 run: build/kernel.iso build/master.img build/slave.img
 	$(info Running the kernel...)
