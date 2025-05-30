@@ -4,10 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define VFS_MAX_MOUNTPOINTS 16
 static struct vfs mountpoints[VFS_MAX_MOUNTPOINTS];
-
-#define VFS_MAX_FDS 256
 static struct vfs_file* fds[VFS_MAX_FDS];
 
 bool _startswith(const char* str, const char* prefix) {
@@ -34,7 +31,7 @@ struct vfs* _vfs_find_mnt(const char* path) {
 int _vfs_get_fd(struct vfs_file* file) {
   if (!file) return -1;
 
-  for (u16 i = 0; i < VFS_MAX_FDS; i++) {
+  for (u16 i = VFS_FD_OFFSET; i < VFS_MAX_FDS; i++) {
     if (!fds[i]) {
       fds[i] = file;
       file->id = i;
@@ -52,6 +49,8 @@ int vfs_read(struct vfs_file* file, char* buffer, size_t size) {
   if (!file->fs->impl) return -4;
   if (!file->fs->impl->read) return 0;
 
+  printf("[vfs] Reading from file %s\n", file->loc);
+
   const char* loc_without_mnt = file->loc + strlen(file->fs->mnt) - 1;
   return file->fs->impl->read(loc_without_mnt, buffer, size);
 }
@@ -62,6 +61,8 @@ int vfs_write(struct vfs_file* file, char* buffer, size_t size) {
   if (!file->fs->mnt) return -3;
   if (!file->fs->impl) return -4;
   if (!file->fs->impl->write) return 0;
+
+  printf("[vfs] Attempting to write to file %s\n", file->loc);
 
   const char* loc_without_mnt = file->loc + strlen(file->fs->mnt) - 1;
   return file->fs->impl->write(loc_without_mnt, buffer, size);
@@ -88,6 +89,9 @@ struct vfs_file* vfs_open(const char* path, int flags, int mode) {
   file->flags = flags;
   file->mode = mode;
   file->fs = mnt;
+
+  printf("[vfs] Opened file %s with flags %d, mode %d and id %d\n", path, flags,
+         mode, file->id);
 
   return file;
 }

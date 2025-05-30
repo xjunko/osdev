@@ -1,6 +1,10 @@
 #pragma once
 #include <kernel/types.h>
 
+#define VFS_MAX_MOUNTPOINTS 16
+#define VFS_FD_OFFSET 10
+#define VFS_MAX_FDS 128
+
 typedef int (*fs_read)(const char* path, void* buffer, size_t size);
 typedef int (*fs_write)(const char* path, const void* buffer, size_t size);
 typedef bool (*fs_exists)(const char* path);

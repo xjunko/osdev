@@ -89,19 +89,45 @@ static u32 syscall_read(struct regs* r) {
 
 #define SYSCALL_WRITE 0x4
 static u32 syscall_write(struct regs* r) {
-  int len = r->edx;
-  for (int i = 0; i < len; i++) {
-    serial_putchar(((const char*)r->ecx)[i]);
+  // fd <= 10 is kernel api
+  // 1 -> COM1
+  u32 fd = r->ebx;
+  const char* buffer = (const char*)r->ecx;
+  size_t size = r->edx;
+
+  if (fd < VFS_FD_OFFSET) {
+    switch (fd) {
+      case 1: {  // COM1
+        for (size_t i = 0; i < size; i++) {
+          serial_putchar(buffer[i]);
+        }
+        r->eax = size;
+      } break;
+      default:
+        errno = ENOSYS;
+        r->eax = -1;
+        break;
+    }
   }
-  r->eax = len;
+
+  if (fd >= VFS_FD_OFFSET) {
+    printf("[syscall] write: fd=%d, size=%d \n", fd, size);
+    u32 ret = vfs_sys_write(fd, buffer, size);
+    if (ret < 0) {
+      errno = ENOENT;
+      ret = -1;
+    }
+    r->eax = ret;
+  }
+
   return (u32)r;
 }
 
 #define SYSCALL_OPEN 0x5
 static u32 syscall_open(struct regs* r) {
+  printf("[syscall] open: %s, flags: %d, mode: %d \n", (const char*)r->ebx,
+         r->ecx, r->edx);
   int ret = vfs_sys_open((const char*)r->ebx, r->ecx, r->edx);
-  printf("[syscall] open! %s %d %d -> %d \n", (const char*)r->ebx, r->ecx,
-         r->edx, ret);
   if (ret < 0) {
     errno = ENOENT;
     ret = -1;
@@ -112,7 +138,8 @@ static u32 syscall_open(struct regs* r) {
 
 #define SYSCALL_CLOSE 0x6
 static u32 syscall_close(struct regs* r) {
-  kprintf("[syscall] close! \n");
+  kprintf("[syscall] close: %d \n", r->ebx);
+
   int fd = r->ebx;
   int ret = vfs_sys_close(fd);
   if (ret < 0) {

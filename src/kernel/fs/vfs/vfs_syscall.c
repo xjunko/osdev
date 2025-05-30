@@ -22,6 +22,7 @@ int vfs_sys_write(int fd, const char* buffer, size_t size) {
   if (!file || !file->fs->impl || !file->fs->impl->write) {
     return -1;
   }
+
   return file->fs->impl->write(file->loc, buffer, size);
 }
 
