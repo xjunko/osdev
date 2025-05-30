@@ -25,18 +25,17 @@ void _dump_regs(struct regs* r) {
 // linux style, this should be enough for now
 #define SYSCALL_N 512
 static syscall_callback* syscall_handlers[SYSCALL_N];
+static u8 syscall_irq = 0x80;
 
-void syscall_init(u8 interrupt_number) {
-  idt_set_handler(IRQ_BASE + interrupt_number, syscall_handle);
+void syscall_init() {
   syscall_install();
+  idt_set_handler(syscall_irq, syscall_handle);
 
   kprintf("[syscall] heaps: %x %x %x \n", kernel_heap_start, kernel_heap_end,
           kernel_heap_max);
 }
 
 void syscall_register(u32 syscall_number, syscall_callback* handler) {
-  kprintf("[syscall] registering %d \n", syscall_number);
-
   if (syscall_number < SYSCALL_N) {
     syscall_handlers[syscall_number] = handler;
   } else {
@@ -84,7 +83,6 @@ static u32 syscall_read(struct regs* r) {
 
 #define SYSCALL_WRITE 0x4
 static u32 syscall_write(struct regs* r) {
-  kprintf("[syscall] write! \n");
   int len = r->edx;
   for (int i = 0; i < len; i++) {
     serial_putchar(((const char*)r->ecx)[i]);
