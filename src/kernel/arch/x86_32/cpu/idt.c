@@ -1,7 +1,9 @@
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
+#include <kernel/memory.h>
 #include <kernel/pic.h>
 #include <kernel/ports.h>
+#include <kernel/regs.h>
 #include <kernel/types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +15,10 @@
 #define IDT_REQUEST(irq)                        \
   idt_set_entry(IRQ_BASE + (irq), code_segment, \
                 &handle_interrupt_request_##irq, 0, idt_interrupt_gate)
+
+#define IDT_REQUEST_PRIV(irq, priv)             \
+  idt_set_entry(IRQ_BASE + (irq), code_segment, \
+                &handle_interrupt_request_##irq, priv, idt_interrupt_gate)
 
 static struct interrupt_gate_desc idt_entries[256];
 static struct interrupt_handler* idt_handlers[256];
@@ -30,17 +36,34 @@ void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
 }
 
 void idt_set_handler(u8 interrupt_number, interrupt_callback handle) {
-  struct interrupt_handler* handler = malloc(sizeof(struct interrupt_handler));
+  struct interrupt_handler* handler = kmalloc(sizeof(struct interrupt_handler));
   handler->interrupt_number = interrupt_number;
   handler->handle = handle;
   idt_handlers[interrupt_number] = handler;
 }
 
-void idt_init(struct global_descriptor_table* gdt) {
-  u32 code_segment = code_segment_selector(gdt);
+u32 idt_general_protection_fault(u32 esp) {
+  struct regs* r = (struct regs*)esp;
+  u32 error_code = r->error;
+  u32 eip = r->eip;        // EIP pushed by CPU
+  u32 cs = r->cs;          // CS pushed by CPU
+  u32 eflags = r->eflags;  // EFLAGS pushed by CPU
+
+  printf("[idt] General Protection Fault!\n");
+  printf("Error code: %X\n", error_code);
+  printf("EIP: %X\n", eip);
+  printf("CS: %X\n", cs);
+  printf("EFLAGS: %X\n", eflags);
+
+  asm("hlt");
+  return esp;
+}
+
+void idt_init() {
+  u32 code_segment = code_segment_selector();
   const u8 idt_interrupt_gate = 0xE;
 
-  printf("[IDT] CS=%d GATE=%d \n", code_segment, idt_interrupt_gate);
+  printf("[IDT] CS=%x GATE=%x \n", code_segment, idt_interrupt_gate);
 
   for (u8 i = 255; i > 0; i--) {
     idt_handlers[i] = 0;
@@ -83,7 +106,11 @@ void idt_init(struct global_descriptor_table* gdt) {
   IDT_REQUEST(0x09);
   IDT_REQUEST(0x0A);
   IDT_REQUEST(0x0C);
-  IDT_REQUEST(0x60);
+
+  IDT_REQUEST_PRIV(0x60, 0x3);
+
+  // in the rare event that this might happen
+  idt_set_handler(0xD, idt_general_protection_fault);
 
   // remap irqs
   irq_remap();
@@ -136,7 +163,10 @@ u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
   if (idt_handlers[interrupt_number] != 0) {
     esp = idt_handlers[interrupt_number]->handle(esp);
   } else if (interrupt_number != 0x20) {
-    printf("[IDT] Unhandled Interrupt: %x \n", interrupt_number);
+    struct regs* r = (struct regs*)esp;
+    printf("[IDT] Unhandled Interrupt: %x", interrupt_number);
+    printf(" | a=%d b=%x c=%x d=%x \n", r->eax, r->ebx, r->ecx, r->edx);
+    asm volatile("hlt");
   }
 
   irq_ack(interrupt_number);
