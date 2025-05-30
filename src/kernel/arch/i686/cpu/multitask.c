@@ -4,32 +4,29 @@
 #include <kernel/types.h>
 #include <stdio.h>
 
-static struct cpu_manager main_cpu = {.num_tasks = 0, .cur_tasks = 0};
+static struct cpu_manager main_cpu = {.num_tasks = 0, .cur_tasks = -1};
 
 struct cpu_task cpu_new_task(cpu_task_entrypoint entry) {
-  struct cpu_task new_task = {};
-  new_task.registers =
-      (struct regs*)(new_task.stack + 4096 - sizeof(struct regs));
+  struct cpu_task new_task;
 
-  new_task.registers->eax = 0;
-  new_task.registers->ebx = 0;
-  new_task.registers->ecx = 0;
-  new_task.registers->edx = 0;
+  struct regs* regs =
+      (struct regs*)(new_task.stack + TASK_STACK - sizeof(struct regs));
 
-  new_task.registers->esi = 0;
-  new_task.registers->edi = 0;
-  new_task.registers->ebp = 0;
+  regs->eax = 0;
+  regs->ebx = 0;
+  regs->ecx = 0;
+  regs->edx = 0;
+  regs->esi = 0;
+  regs->edi = 0;
+  regs->ebp = 0;
+  regs->error = 0;
 
-  new_task.registers->error = 0;
-
-  new_task.registers->esp =
-      (u32)(new_task.stack + TASK_STACK - sizeof(struct regs));
-  ;
-  new_task.registers->eip = (u32)entry;
-  new_task.registers->cs = code_segment_selector();
-  new_task.registers->ss = 0;
-  new_task.registers->eflags = 0x202;
-
+  regs->esp = 0;
+  regs->eip = (u32)entry;
+  regs->cs = code_segment_selector();
+  regs->ss = 0;
+  regs->eflags = 0x202;
+  new_task.registers = regs;
   return new_task;
 }
 
