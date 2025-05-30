@@ -1,10 +1,11 @@
 #include <kernel/gdt.h>
 #include <kernel/types.h>
 #include <stdio.h>
-#include <stdlib.h>
+
+static struct global_descriptor_table gdt;
 
 struct segment_desc new_segment_desc(u32 base, u32 limit, u8 flags) {
-  struct segment_desc desc;
+  struct segment_desc desc = {};
 
   u8* target = (u8*)&desc;
 
@@ -56,33 +57,25 @@ u32 segment_desc_limit(struct segment_desc* desc) {
   return result;
 }
 
-struct global_descriptor_table* new_gdt() {
-  struct global_descriptor_table* gdt =
-      malloc(sizeof(struct global_descriptor_table));
-
+void gdt_init() {
   printf("[GDT] Segment Init: ");
-  gdt->null_segment_selector = new_segment_desc(0, 0, 0);
-  gdt->unused_segment_selector = new_segment_desc(0, 0, 0);
-  gdt->code_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x9A);
-  gdt->data_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x92);
+  gdt.null_segment_selector = new_segment_desc(0, 0, 0);
+  gdt.unused_segment_selector = new_segment_desc(0, 0, 0);
+  gdt.code_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x9A);
+  gdt.data_segment_selector = new_segment_desc(0, 64 * 1024 * 1024, 0x92);
   printf("Passed! \n");
 
-  u32 i[2];
-  i[1] = (u32)gdt;
-  i[0] = sizeof(struct global_descriptor_table) << 16;
-  asm volatile("lgdt (%0)" : : "p"(((u8*)i) + 2));
+  struct {
+    u16 limit;
+    u32 base;
+  } __attribute__((packed)) gdtr;
+  gdtr.limit = sizeof(struct global_descriptor_table) - 1;
+  gdtr.base = (u32)&gdt;
+  asm volatile("lgdt %0" : : "m"(gdtr));
 
   printf("[GDT] Initialized! \n");
-
-  return gdt;
 }
 
-u16 code_segment_selector(struct global_descriptor_table* gdt) {
-  //   return (u8*)gdt->code_segment_selector - (u8*)gdt;
-  return (u8*)&gdt->code_segment_selector - (u8*)gdt;
-}
+u16 code_segment_selector() { return 2 * sizeof(struct segment_desc); }
 
-u16 data_segment_selector(struct global_descriptor_table* gdt) {
-  //  return (u8*)gdt->data_segment_selector - (u8*)gdt;
-  return (u8*)&gdt->data_segment_selector - (u8*)gdt;
-}
+u16 data_segment_selector() { return 3 * sizeof(struct segment_desc); }

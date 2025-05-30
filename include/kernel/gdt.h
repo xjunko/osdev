@@ -21,6 +21,6 @@ struct global_descriptor_table {
   struct segment_desc data_segment_selector;
 };
 
-struct global_descriptor_table* new_gdt();
-u16 code_segment_selector(struct global_descriptor_table*);
-u16 data_segment_selector(struct global_descriptor_table*);
+void gdt_init();
+u16 code_segment_selector();
+u16 data_segment_selector();

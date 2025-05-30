@@ -1,5 +1,4 @@
 #pragma once
-#include <kernel/gdt.h>
 #include <kernel/types.h>
 
 #define IRQ_BASE 0x20
@@ -18,7 +17,7 @@ struct interrupt_manager {
   struct interrupt_handler* handlers[256];
 };
 
-void idt_init(struct global_descriptor_table*);
+void idt_init();
 void idt_activate();
 void idt_deactivate();
 void idt_set_entry(u8, u16, void (*handler)(), u8, u8);
