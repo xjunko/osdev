@@ -26,6 +26,7 @@ void multiboot_start(u32 mb_info) {
     for (int i = 0; i < 16; i++) {
       if (handler.callback[i] != 0) {
         handler.callback[i](tag);
+        handler.callback[i] = 0;  // nulls out after running.
       }
     }
   }
