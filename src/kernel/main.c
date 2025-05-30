@@ -15,42 +15,19 @@
 #include <kernel/syscall.h>
 #include <kernel/types.h>
 #include <stdio.h>
-
-// will be filled by multiboot2
-static u32 heap_start = 4 * 1024 * 1024;
-static int total_usable_memory = 0x0;  // in bytes
+#include <unistd.h>
 
 void kinit_serial() { serial_init(); }
 
-void kmb_memory(struct multiboot_tag_mmap *mmap) {
-  printf("[Kernel] Memory Mapping: ");
-
-  for (struct multiboot_mmap_entry *entry = mmap->entries;
-       (u8 *)entry < (u8 *)mmap + mmap->size;
-       entry =
-           (struct multiboot_mmap_entry *)((u8 *)entry + mmap->entry_size)) {
-    if (entry->type == 1 && entry->addr >= 0x100000) {
-      u64 entry_end = entry->addr + entry->len;
-
-      if (entry_end > heap_start) {
-        u64 usable_start =
-            (entry->addr < heap_start) ? heap_start : entry->addr;
-        u64 usable_len = entry_end - usable_start;
-        total_usable_memory += (u32)usable_len;
-      }
-    }
-  }
-
-  printf("Got %d mb \n", total_usable_memory / 1024 / 1024);
-  printf("[Kernel] Memory limit: %d MiB\n", total_usable_memory / 1024 / 1024);
-  printf("[Kernel] Heap Addr: %x\n", heap_start);
-  kmemory_init(heap_start, total_usable_memory);
+// sets up the kernel internal memory (to be removed)
+void kinit_multiboot_stage1(u32 mb_info) {
+  multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
+                         (multiboot_callback)kmalloc_init);
+  multiboot_start(mb_info);
 }
 
-// handles memory mapping and framebuffer initialization
-void kinit_multiboot(u32 mb_info) {
-  multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
-                         (multiboot_callback)kmb_memory);
+// sets up the framebuffer0
+void kinit_multiboot_stage2(u32 mb_info) {
   multiboot_add_callback(MULTIBOOT_TAG_TYPE_FRAMEBUFFER,
                          (multiboot_callback)framebuffer_init);
   multiboot_start(mb_info);
@@ -84,14 +61,9 @@ void kinit_storage() {
 }
 
 void kinit_interrupts() {
-  struct global_descriptor_table *gdt = new_gdt();
-  if (gdt == 0) {
-    printf("[Kernel] GDT creation failed\n");
-    return;
-  }
-  printf("[Kernel] GDT created successfully\n");
-
-  idt_init(gdt);
+  gdt_init();
+  idt_init();
+  syscall_init(0x60);
   idt_activate();
 }
 
@@ -102,10 +74,6 @@ void kinit_devices() {
 
   // pci
   pci_init();
-
-  // syscalls
-  // we're doing it linux style, so 0x80
-  syscall_init(0x80);
 }
 
 extern int kmain(u32 mb_magic, u32 mb_info) {
@@ -114,16 +82,23 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
     printf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
     while (1);  // lost cause
   }
-
-  kinit_multiboot(mb_info);
-  kinit_storage();  // ata before interrupt
+  kinit_multiboot_stage1(mb_info);
+  // kinit_storage();
   kinit_interrupts();
+  kinit_multiboot_stage2(mb_info);
+
   kinit_devices();
 
   int r = 0;
   int g = 0;
   int b = 0;
   int dr = 1, dg = 2, db = 3;
+
+  FILE *f = fopen("/dev/t0", "r");
+  fclose(f);
+  void *memtest = malloc(4096);
+  // write(1, "Hello\n", 6);
+  // _exit(0);
 
   while (1) {
     r = (r + dr) % 256;

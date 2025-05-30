@@ -1,4 +1,5 @@
 #pragma once
+#include <kernel/multiboot.h>
 #include <kernel/types.h>
 
 struct mem_chunk {
@@ -13,7 +14,7 @@ struct mem_manager {
   u32 size;
 };
 
-void kmemory_init(u32, u32);
+void kmalloc_init(struct multiboot_tag_mmap*);
 void* kmalloc(u32);
 void* krealloc(void*, u32);
 int kfree(void*);
