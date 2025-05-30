@@ -77,6 +77,19 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_storage();
   kinit_devices();
 
+  // test
+  FILE* file = fopen("/dev/balls", "r");
+  if (!file) {
+    printf("[Kernel] Failed to open /dev/balls\n");
+    return -1;
+  }
+  u8* buf = malloc(32);
+  fread(buf, 1, 32, file);
+  for (int i = 0; i < 32; i++) {
+    printf("%d", buf[i]);
+  }
+  printf("\n");
+
   // rgb weee :D
   int r = 0;
   int g = 0;

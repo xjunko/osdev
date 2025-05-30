@@ -78,19 +78,12 @@ static u32 syscall_fork(struct regs* r) {
 
 #define SYSCALL_READ 0x3
 static u32 syscall_read(struct regs* r) {
-  struct vfs_file_desc* file_desc = vfs_get_file(r->ebx);
-  if (!file_desc) {
-    errno = EBADF;
-    r->eax = -1;
-  } else {
-    int result = vfs_read(file_desc->path, (char*)r->ecx, r->edx);
-    if (result < 0) {
-      errno = EIO;
-      r->eax = -1;
-    } else {
-      r->eax = result;  // number of bytes read
-    }
+  int ret = vfs_sys_read((const char*)r->ebx, r->ecx, r->edx);
+  if (ret < 0) {
+    errno = ENOENT;
+    ret = -1;
   }
+  r->eax = ret;
   return (u32)r;
 }
 
@@ -106,26 +99,27 @@ static u32 syscall_write(struct regs* r) {
 
 #define SYSCALL_OPEN 0x5
 static u32 syscall_open(struct regs* r) {
-  int result = vfs_read(r->ebx, NULL, 0);
-  if (result < 0) {
+  int ret = vfs_sys_open((const char*)r->ebx, r->ecx, r->edx);
+  printf("[syscall] open! %s %d %d -> %d \n", (const char*)r->ebx, r->ecx,
+         r->edx, ret);
+  if (ret < 0) {
     errno = ENOENT;
-    r->eax = -1;
-  } else {
-    int fd = vfs_open_file(r->ebx);
-    if (fd < 0) {
-      errno = ENOENT;
-      r->eax = -1;
-    } else {
-      r->eax = fd;
-    }
+    ret = -1;
   }
-
+  r->eax = ret;
   return (u32)r;
 }
 
 #define SYSCALL_CLOSE 0x6
 static u32 syscall_close(struct regs* r) {
   kprintf("[syscall] close! \n");
+  int fd = r->ebx;
+  int ret = vfs_sys_close(fd);
+  if (ret < 0) {
+    errno = ENOENT;
+    ret = -1;
+  }
+  r->eax = ret;
   return (u32)r;
 }
 
