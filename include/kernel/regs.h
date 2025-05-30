@@ -11,12 +11,6 @@ struct regs {
   u32 edi;
   u32 ebp;
 
-  /*
-  u32 gs;
-  u32 fs;
-  u32 es;
-  u32 ds;
-  */
   u32 error;
 
   u32 eip;
