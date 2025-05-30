@@ -85,11 +85,11 @@ run: build/kernel.iso build/master.img build/slave.img
 		-boot d \
 		-cpu pentium3 \
 		-smp 1 \
-		-m 256M \
+		-m 64M \
 		-vga virtio \
 		-serial stdio \
 		-enable-kvm \
-		-no-reboot -no-shutdown
+		-no-reboot -no-shutdown 
 
 
 .PHONY: clean

@@ -2,7 +2,9 @@
 #include <kernel/idt.h>
 #include <kernel/memory.h>
 #include <kernel/misc/kio.h>
+#include <kernel/multitask.h>
 #include <kernel/pic.h>
+#include <kernel/pit.h>
 #include <kernel/ports.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
@@ -114,6 +116,7 @@ void idt_init() {
 
   // remap irqs
   irq_remap();
+  pit_write(PIT_HZ / PIT_SCALE);
 
   // load idt
   struct interrupt_desc_table_ptr idtr;
@@ -162,11 +165,14 @@ extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
 u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
   if (idt_handlers[interrupt_number] != 0) {
     esp = idt_handlers[interrupt_number]->handle(esp);
-  } else if (interrupt_number != 0x20) {
+  } else if (interrupt_number != 0x20 && interrupt_number != 0x2e) {
     struct regs* r = (struct regs*)esp;
     kprintf("[IDT] Unhandled Interrupt: %x", interrupt_number);
     kprintf(" | a=%d b=%x c=%x d=%x \n", r->eax, r->ebx, r->ecx, r->edx);
-    asm volatile("hlt");
+  }
+
+  if (interrupt_number == 0x20) {
+    // multitask here.
   }
 
   irq_ack(interrupt_number);

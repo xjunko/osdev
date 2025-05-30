@@ -6,19 +6,17 @@
 .macro HandleException num
 .global handle_interrupt_exception_\num
 handle_interrupt_exception_\num:
-    movb $\num, (interruptnumber)
-    jmp int_bottom
+	movb $\num, (interruptnumber)
+	jmp int_bottom
 .endm
 
 .macro HandleInterruptRequest num
 .global handle_interrupt_request_\num
 handle_interrupt_request_\num:
-    movb $\num + IRQ_BASE, (interruptnumber)
-    pushl $0
-    jmp int_bottom
+	movb $\num + IRQ_BASE, (interruptnumber)
+	pushl $0
+	jmp int_bottom
 .endm
-
-
 
 HandleException 0x00
 HandleException 0x01
@@ -57,35 +55,36 @@ HandleInterruptRequest 0x0C
 HandleInterruptRequest 0x0D
 HandleInterruptRequest 0x0E
 HandleInterruptRequest 0x0F
+HandleInterruptRequest 0x31
+
 HandleInterruptRequest 0x60
 
 int_bottom:
-    pushl %ebp
-    pushl %edi
-    pushl %esi
+	pushl %ebp
+	pushl %edi
+	pushl %esi
 
-    pushl %edx
-    pushl %ecx
-    pushl %ebx
-    pushl %eax
-    
-    pushl %esp
-    push (interruptnumber)
-    call idt_handle_interrupt
-    mov %eax, %esp
+	pushl %edx
+	pushl %ecx
+	pushl %ebx
+	pushl %eax
 
-    popl %eax
-    popl %ebx
-    popl %ecx
-    popl %edx
+	pushl %esp
+	push (interruptnumber)
+	call idt_handle_interrupt
+	mov %eax, %esp 
 
-    popl %esi
-    popl %edi
-    popl %ebp
+	popl %eax
+	popl %ebx
+	popl %ecx
+	popl %edx
+	
+	popl %esi
+	popl %edi
+	popl %ebp
 
-    add $4, %esp
+	add $4, %esp
     iret
 
-
-.data 
-    interruptnumber: .byte 0
+.data
+	interruptnumber: .byte 0

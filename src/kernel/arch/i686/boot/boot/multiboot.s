@@ -42,8 +42,7 @@ multiboot2_header_end:
 .extern kmain
 
 _start:
-    mov $kernel_stack, %esp
-
+    mov $kernel_stack_end, %esp
     // Multiboot2 passes boot info in %ebx
     pushl %ebx         # Multiboot info pointer
     pushl %eax         # Multiboot magic
@@ -54,8 +53,8 @@ _start:
     hlt
     jmp .hang
 
-// Reserve stack
 .section .bss
     .align 16
-    .space 200*1024*1024 
 kernel_stack:
+    .space 2*1024*1024  # 2 MB stack
+kernel_stack_end:

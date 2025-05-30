@@ -9,6 +9,7 @@
 #include <kernel/memory.h>
 #include <kernel/misc/kio.h>
 #include <kernel/multiboot.h>
+#include <kernel/multitask.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
@@ -76,20 +77,37 @@ void kinit_devices() {
   pci_init();
 }
 
+void multitask() {
+  while (1) printf("d");
+}
+
+void multitask2() {
+  while (1) printf("d");
+}
+
 extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
     kprintf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
     while (1);  // lost cause
   }
+  kprintf("[Kernel] Stage 0\n");
   kinit_multiboot_stage1(mb_info);
+  kprintf("[Kernel] Stage 0.5 [Mem]\n");
   kinit_interrupts();
-  pit_sleep(16);  // delay just incase
+  kprintf("[Kernel] Stage 0.75 [Interrupts]\n");
   kinit_multiboot_stage2(mb_info);
+  kprintf("[Kernel] Stage 1 [Framebuffer]\n");
 
   // userland, should be safe to use libc now.
   kinit_storage();
   kinit_devices();
+
+  // multitask test [do not work]
+  struct cpu_task task = cpu_new_task(multitask);
+  cpu_add_task(&task);
+  struct cpu_task task2 = cpu_new_task(multitask2);
+  cpu_add_task(&task2);
 
   int r = 0;
   int g = 0;
@@ -103,6 +121,5 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
 
     framebuffer_clear(r, g, b);
     framebuffer_flush();
-    pit_sleep(16);
   }
 }
