@@ -1,13 +1,13 @@
 // simplified kernel, just to see what went wrong.
 
 #include <kernel/ata.h>
-#include <kernel/debug.h>
-#include <kernel/dos.h>
 #include <kernel/framebuffer.h>
+#include <kernel/fs/dos.h>
+#include <kernel/fs/mikufs.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
-#include <kernel/mikufs.h>
+#include <kernel/misc/kio.h>
 #include <kernel/multiboot.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>

@@ -1,6 +1,6 @@
 #include <errno.h>
-#include <kernel/debug.h>
 #include <kernel/idt.h>
+#include <kernel/misc/kio.h>
 #include <kernel/regs.h>
 #include <kernel/serial.h>
 #include <kernel/syscall.h>

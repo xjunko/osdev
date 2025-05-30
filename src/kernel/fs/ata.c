@@ -48,6 +48,11 @@ void ata_identify(struct ata_device* dev) {
     while (1);
   }
 
+  ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+  ata_delay(dev);
+
   // ident starts here
   outportb(dev->base + DEVICE_PORT, dev->master ? 0xA0 : 0xB0);
   outportb(dev->base + CONTROL_PORT, 0x0);

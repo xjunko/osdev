@@ -1,7 +1,7 @@
-#include <kernel/debug.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
 #include <kernel/memory.h>
+#include <kernel/misc/kio.h>
 #include <kernel/pic.h>
 #include <kernel/ports.h>
 #include <kernel/regs.h>

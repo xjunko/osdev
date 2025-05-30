@@ -1,6 +1,6 @@
 // dos.c - sus
 #include <kernel/ata.h>
-#include <kernel/dos.h>
+#include <kernel/fs/dos.h>
 #include <kernel/types.h>
 #include <stdio.h>
 

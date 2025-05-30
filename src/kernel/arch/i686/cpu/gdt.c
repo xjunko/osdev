@@ -1,5 +1,5 @@
-#include <kernel/debug.h>
 #include <kernel/gdt.h>
+#include <kernel/misc/kio.h>
 #include <kernel/types.h>
 
 static struct global_descriptor_table gdt;

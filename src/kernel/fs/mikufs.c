@@ -20,7 +20,7 @@
 */
 
 #include <kernel/ata.h>
-#include <kernel/mikufs.h>
+#include <kernel/fs/mikufs.h>
 #include <kernel/types.h>
 #include <math.h>
 #include <stdio.h>

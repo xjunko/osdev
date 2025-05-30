@@ -1,5 +1,5 @@
-#include <kernel/debug.h>
 #include <kernel/memory.h>
+#include <kernel/misc/kio.h>
 #include <kernel/multiboot.h>
 #include <kernel/types.h>
 #include <stdio.h>
