@@ -22,9 +22,8 @@ It's nothing much atm, just your average unfinished kernel.
 - [ ] some kind of gpu accel?
 
 ### filesystem
-- [x] mikufs (stub impl, will be removed once i get vfs working)
-- [ ] vfs
-- [ ] devfs
+- [x] vfs
+- [x] devfs
 - [ ] fat
 - [ ] ext2
 - [ ] ext4
