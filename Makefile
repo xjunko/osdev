@@ -4,14 +4,16 @@ CC = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
 AS = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-as
 LD = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
 
-C_FLAGS = -ffreestanding \
-				-g -c \
-				-nostdlib \
+C_FLAGS = -ffreestanding        \
+				-g -c           \
+				-nostdlib       \
 				-fno-exceptions \
 				-Iinclude/ 
 
 AS_FLAGS = 
-LD_FLAGS = -nostdlib -ffreestanding -lgcc
+LD_FLAGS = -nostdlib -ffreestanding -static \
+    -Lsysroot/usr/lib \
+    -lc -lm -lgcc --specs=sysroot/usr/lib/nosys.specs
 
 SRC_DIR  := src
 OBJ_DIR  := obj
@@ -86,7 +88,6 @@ run: build/kernel.iso build/master.img build/slave.img
 		-serial stdio \
 		-enable-kvm \
 		-no-reboot -no-shutdown
-
 
 
 .PHONY: clean
