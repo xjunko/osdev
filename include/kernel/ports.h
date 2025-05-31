@@ -1,3 +1,4 @@
+#pragma once
 #include <kernel/types.h>
 
 u8 inportb(u16 _port);

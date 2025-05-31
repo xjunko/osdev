@@ -1,104 +1,64 @@
-ARCH = i686
-OS   = fullmoon
-CC = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
-AS = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-as
-LD = ~/.cross/$(ARCH)-$(OS)/bin/$(ARCH)-$(OS)-gcc
+ARCH      = i686
+OS        = fullmoon
+TOOLCHAIN = ~/.cross/$(ARCH)-$(OS)/bin/
 
-C_FLAGS = -ffreestanding        \
-				-g -c           \
-				-nostdlib       \
-				-fno-exceptions \
-				-Iinclude/ -Ilibs/
+CC    = $(TOOLCHAIN)$(ARCH)-$(OS)-gcc
+AS    = $(TOOLCHAIN)$(ARCH)-$(OS)-as
+LD    = $(TOOLCHAIN)$(ARCH)-$(OS)-gcc
+STRIP = $(TOOLCHAIN)$(ARCH)-$(OS)-strip
 
-AS_FLAGS = 
-LD_FLAGS = -nostdlib -ffreestanding -static \
-    -Lsysroot/usr/lib \
-    -lc -lm -lgcc --specs=sysroot/usr/lib/nosys.specs
+EMU       = qemu-system-i386
+EMU_ARGS  = -cpu pentium3 -smp 1 -m 256M -vga virtio 
+EMU_ARGS += -serial stdio -enable-kvm -no-reboot -no-shutdown
 
-SRC_DIR  := src
-LIB_DIR  := libs
-OBJ_DIR  := obj
-BOOT_DIR := boot
+BASE = sysroot/usr
 
-ASM_SOURCES := $(shell find $(SRC_DIR) -name '*.s')
-C_SOURCES   := $(shell find $(SRC_DIR) -name '*.c')
-C_LIBS      := $(shell find $(LIB_DIR) -name '*.c')
-SOURCES     := $(C_SOURCES) $(ASM_SOURCES) $(C_LIBS)
+# for kernel and modules
+KERNEL_CFLAGS  = -ffreestanding -O2 -g -static
+KERNEL_CFLAGS += -Wall -Wextra -Wno-unused-function -Wno-unused-variable 
+KERNEL_CFLAGS += -pedantic -Wwrite-strings
 
-ASM_OBJECTS   := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
-C_OBJECTS     := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
-C_LIB_OBJECTS := $(patsubst $(LIB_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_LIBS))
-OBJECTS       := $(C_OBJECTS) $(C_LIB_OBJECTS) $(ASM_OBJECTS) 
+# constants
+KERNEL_CFLAGS  += -D_KERNEL_ -DKERNEL_ARCH=$(ARCH) 
 
-OS_FOLDER      := build
-STORAGE_FORMAT := raw
-STORAGE_SIZE   := 64M
+# kernel sources
+KERNEL_OBJS  = $(patsubst %.c,%.o,$(wildcard kernel/*.c))
+KERNEL_OBJS += $(patsubst %.c,%.o,$(wildcard kernel/*/*.c))
+KERNEL_OBJS += $(patsubst %.c,%.o,$(wildcard kernel/*/*/*.c))
 
+# assembly sources
+KERNEL_ASMOBJS  = $(patsubst %.S,%.o,$(wildcard kernel/*/*/*.S))
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	mkdir -p $(@D)
-	$(CC) $(C_FLAGS) -o $@ -c $<
+# libs sources
+KERNEL_LIBOBJS  = $(patsubst %.c,%.o,$(wildcard libs/*.c))
+KERNEL_LIBOBJS += $(patsubst %.c,%.o,$(wildcard libs/*/*.c))
+KERNEL_LIBOBJS += $(patsubst %.c,%.o,$(wildcard libs/*/*/*.c))
 
-$(OBJ_DIR)/%.o: $(LIB_DIR)/%.c
-	mkdir -p $(@D)
-	$(CC) $(C_FLAGS) -o $@ -c $<
+CRTS = $(BASE)/lib/crt0.o
+LIBC = $(BASE)/lib/libc.a $(BASE)/lib/libg.a $(BASE)/lib/libm.a 
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
-	mkdir -p $(@D)
-	$(AS) $(AS_FLAGS) -o $@ $<
+kernel/%.o: kernel/%.c
+	$(CC) $(KERNEL_CFLAGS) -nostdlib -g -Iinclude -Ilibs -o $@ -c $<
 
-build/kernel.bin: src/linker/link.ld $(OBJECTS)
-	mkdir -p build/
-	$(LD) -T $< -o $@ ${OBJECTS} $(LD_FLAGS)
+kernel/%.o: libs/%.c
+	$(CC) $(KERNEL_CFLAGS) -nostdlib -g -Iinclude -Ilibs -o $@ -c $<
 
-install: build/kernel.bin
-	sudo cp $< /boot/kernel.bin
+kernel/%.o: kernel/%.S
+	$(AS) -o $@ $<
 
-build/kernel.iso: build/kernel.bin
-	mkdir -p iso/
-	mkdir -p iso/boot/
-	mkdir -p iso/boot/grub/
-	cp $< iso/boot/
-	echo 'set default=0' >> iso/boot/grub/grub.cfg
-	echo 'set timeout=0' >> iso/boot/grub/grub.cfg
-	echo 'menuentry "RinOS" {' >> iso/boot/grub/grub.cfg
-	echo '  multiboot2 /boot/kernel.bin' >> iso/boot/grub/grub.cfg
-	echo '  boot' >> iso/boot/grub/grub.cfg
-	echo '}' >> iso/boot/grub/grub.cfg
-	grub-mkrescue --output=$@ iso/
+OBJS = $(KERNEL_OBJS) $(KERNEL_ASMOBJS) $(KERNEL_LIBOBJS) kernel/boot/boot.o
 
-	rm -rf iso
-	rm -rf obj
+build/boot/kernel.bin: linker/link.ld ${OBJS} ${LIBC}
+	$(CC) -T $< ${KERNEL_CFLAGS} -nostdlib -static -Wl,-z,max-page=0x1000 -o $@ ${OBJS} ${LIBC}
+	$(STRIP) $@
 
-	rm build/kernel.bin
+image.iso: build/boot/kernel.bin
+	grub-mkrescue --output=$@ build/
 
-build/master.img:
-	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
-	mkfs.fat -F 32 $@
+.PHONY: run clean
+run: image.iso
+	${EMU} ${EMU_ARGS} -cdrom $< 
 
-build/slave.img:
-	qemu-img create -f $(STORAGE_FORMAT) $@ $(STORAGE_SIZE)
-	mkfs.fat -F 32 $@
-
-run: build/kernel.iso build/master.img build/slave.img
-	$(info Running the kernel...)
-	qemu-system-i386 \
-		-drive file=build/master.img,if=none,id=hd0,index=0 \
-		-drive file=build/slave.img,if=none,id=hd1,index=1 \
-		-drive file=build/kernel.iso,if=none,id=bt0,index=2 \
-		-device ide-hd,drive=hd0,bus=ide.0,unit=0 \
- 		-device ide-hd,drive=hd1,bus=ide.0,unit=1 \
-		-device ide-cd,drive=bt0,bus=ide.1 \
-		-boot d \
-		-cpu pentium3 \
-		-smp 1 \
-		-m 256M \
-		-vga virtio \
-		-serial stdio \
-		-enable-kvm \
-		-no-reboot -no-shutdown 
-
-
-.PHONY: clean
 clean:
-	rm -rf obj kernel.bin build/kernel.iso
+	-rm -f ${KERNEL_ASMOBJS}
+	-rm -f ${KERNEL_OBJS}

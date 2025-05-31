@@ -4,6 +4,7 @@
 #include <kernel/tasks.h>
 #include <kernel/types.h>
 #include <stdio.h>
+#include <string.h>
 
 static struct cpu_manager main_cpu = {.num_tasks = 0, .cur_tasks = -1};
 

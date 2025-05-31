@@ -3,6 +3,7 @@
 #include <kernel/framebuffer.h>
 #include <kernel/tty.h>
 #include <stdio.h>
+#include <string.h>
 
 #define _tty_queue_size 4096
 static u8 _tty_queue[_tty_queue_size];
