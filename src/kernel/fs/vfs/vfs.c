@@ -91,8 +91,10 @@ struct vfs_file* vfs_open(const char* path, int flags, int mode) {
   file->mode = mode;
   file->fs = mnt;
 
+#ifdef KERNEL_DEBUG
   printf("[vfs] Opened file %s with flags %d, mode %d and id %d\n", path, flags,
          mode, file->id);
+#endif
 
   return file;
 }
@@ -128,4 +130,13 @@ void vfs_init() {
   mountpoints[0].mnt = "/dev/";
   mountpoints[0].impl = devfs;
   devfs_init(devfs);
+
+  // set up special file descriptors
+  struct vfs_file* keyboard_file = vfs_open("/dev/keyboard", 0, 0);
+  if (keyboard_file) {
+    fds[0] = keyboard_file;  // fd 0 is reserved for keyboard
+    printf("[vfs] Keyboard file opened with fd %d\n", keyboard_file->id);
+  } else {
+    printf("[vfs] Failed to open keyboard file\n");
+  }
 }

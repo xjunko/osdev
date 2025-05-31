@@ -1,5 +1,6 @@
 #include <kernel/fs/devfs.h>
 #include <kernel/fs/vfs.h>
+#include <kernel/ps2hid.h>
 #include <kernel/serial.h>
 #include <kernel/types.h>
 #include <stdio.h>
@@ -29,8 +30,9 @@ size_t devfs_read(const char* path, void* buffer, size_t size) {
 
   if (!dev) return 3;
   if (!dev->read) return 4;
-
+#ifdef KERNEL_DEBUG
   printf("[devfs] Reading from device %s\n", path);
+#endif
   size_t bytes_read = dev->read(path, buffer, size);
   return bytes_read;
 }
@@ -41,12 +43,11 @@ size_t devfs_write(const char* path, const void* buffer, size_t size) {
 
   struct devfs_dev* dev = _devfs_find_dev(path);
 
-  printf("[devfs] Attempting to write to device %s\n", path);
-
   if (!dev) return -3;
   if (!dev->write) return -4;
-
+#ifdef KERNEL_DEBUG
   printf("[devfs] Writing to device %s\n", path);
+#endif
   size_t bytes_written = dev->write(path, buffer, size);
   return bytes_written;
 }
@@ -102,9 +103,38 @@ size_t _devfs_com1_write(const char* path, const void* buffer, size_t size) {
   return size;
 }
 
+// /keyboard
+size_t _devfs_keyboard_read(const char* path, void* buffer, size_t size) {
+  char* buf = (char*)buffer;
+  buf[0] = 'n';
+  buf[1] = 'o';
+  buf[2] = 't';
+  buf[3] = '_';
+  buf[4] = 'i';
+  buf[5] = 'm';
+  buf[6] = 'p';
+  buf[7] = 'l';
+  buf[8] = 'e';
+  buf[9] = 'm';
+  buf[10] = 'e';
+  buf[11] = 'n';
+  buf[12] = 't';
+  buf[13] = 'e';
+  buf[14] = 'd';
+  buf[15] = '\n';
+
+  return strlen(buf) + 1;
+}
+
+size_t _devfs_keyboard_write(const char* path, const void* buffer,
+                             size_t size) {
+  return 0;
+}
+
 void devfs_init(struct vfs_impl* fs) {
   devfs_register_dev("/test", _devfs_test_read, NULL);
   devfs_register_dev("/com1", _devfs_com1_read, _devfs_com1_write);
+  devfs_register_dev("/keyboard", _devfs_keyboard_read, _devfs_keyboard_write);
 
   fs->read = devfs_read;
   fs->write = devfs_write;
