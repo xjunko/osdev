@@ -90,13 +90,13 @@ void print_hex(unsigned int value) {
   for (int i = 28; i >= 0; i -= 4) {
     char digit = (value >> i) & 0xF;
     if (digit || started || i == 0) {
-      kputchar(hex_digits[(u8)digit]);
+      kputchar(hex_digits[(uint8_t)digit]);
       started = 1;
     }
   }
 }
 
-int kprintf(string __restrict__ fmt, ...) {
+int kprintf(const char* __restrict__ fmt, ...) {
   va_list args;
   va_start(args, fmt);
 

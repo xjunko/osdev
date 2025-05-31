@@ -6,10 +6,10 @@
 #define IDT_EXCEPTION_DEF(irq) void handle_interrupt_exception_##irq()
 #define IDT_REQUEST_DEF(irq) void handle_interrupt_request_##irq()
 
-typedef u32 (*interrupt_callback)(u32 esp);
+typedef uint32_t (*interrupt_callback)(uint32_t esp);
 
 struct interrupt_handler {
-  u8 interrupt_number;
+  uint8_t interrupt_number;
   interrupt_callback handle;
 };
 
@@ -20,22 +20,22 @@ struct interrupt_manager {
 void idt_init();
 void idt_activate();
 void idt_deactivate();
-void idt_set_entry(u8, u16, void (*handler)(), u8, u8);
-void idt_set_handler(u8, interrupt_callback);
-u32 idt_handle_interrupt(u8, u32);
-u32 _idt_handle_interrupt(u8, u32);
+void idt_set_entry(uint8_t, uint16_t, void (*handler)(), uint8_t, uint8_t);
+void idt_set_handler(uint8_t, interrupt_callback);
+uint32_t idt_handle_interrupt(uint8_t, uint32_t);
+uint32_t _idt_handle_interrupt(uint8_t, uint32_t);
 
 struct interrupt_gate_desc {
-  u16 handler_address_low;
-  u16 gdt_code_segment_selector;
-  u8 reserved;
-  u8 access;
-  u16 handler_address_high;
+  uint16_t handler_address_low;
+  uint16_t gdt_code_segment_selector;
+  uint8_t reserved;
+  uint8_t access;
+  uint16_t handler_address_high;
 } __attribute__((packed));
 
 struct interrupt_desc_table_ptr {
-  u16 size;
-  u32 base;
+  uint16_t size;
+  uint32_t base;
 } __attribute__((packed));
 
 void ignore_interrupt_request();

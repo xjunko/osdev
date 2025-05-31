@@ -6,7 +6,7 @@
 #include <string.h>
 
 // will be filled by multiboot2
-static u32 heap_start = 4 * 1024 * 1024;
+static uint32_t heap_start = 4 * 1024 * 1024;
 static int total_usable_memory = 0x0;  // in bytes
 
 // global memory
@@ -18,16 +18,17 @@ void kmalloc_init(struct multiboot_tag_mmap* mmap) {
   kprintf("[Kernel] Memory Mapping: ");
 
   for (struct multiboot_mmap_entry* entry = mmap->entries;
-       (u8*)entry < (u8*)mmap + mmap->size;
-       entry = (struct multiboot_mmap_entry*)((u8*)entry + mmap->entry_size)) {
+       (uint8_t*)entry < (uint8_t*)mmap + mmap->size;
+       entry =
+           (struct multiboot_mmap_entry*)((uint8_t*)entry + mmap->entry_size)) {
     if (entry->type == 1 && entry->addr >= 0x100000) {
-      u64 entry_end = entry->addr + entry->len;
+      uint64_t entry_end = entry->addr + entry->len;
 
       if (entry_end > heap_start) {
-        u64 usable_start =
+        uint64_t usable_start =
             (entry->addr < heap_start) ? heap_start : entry->addr;
-        u64 usable_len = entry_end - usable_start;
-        total_usable_memory += (u32)usable_len;
+        uint64_t usable_len = entry_end - usable_start;
+        total_usable_memory += (uint32_t)usable_len;
       }
     }
   }
@@ -38,7 +39,7 @@ void kmalloc_init(struct multiboot_tag_mmap* mmap) {
   _kmalloc_init(heap_start, total_usable_memory);
 }
 
-void _kmalloc_init(u32 start, u32 size) {
+void _kmalloc_init(uint32_t start, uint32_t size) {
   global_manager = (struct mem_manager*)start;
   global_manager->size = size;
 
@@ -54,7 +55,7 @@ void _kmalloc_init(u32 start, u32 size) {
   kprintf("[Kernel] Memory initialized at %x with size %d\n", start, size);
 }
 
-void* kmalloc(u32 size) {
+void* kmalloc(uint32_t size) {
   if (!global_manager) return 0;
 
   struct mem_chunk* current = global_manager->first;
@@ -64,7 +65,7 @@ void* kmalloc(u32 size) {
     if (!current->allocated && current->size >= size) {
       if (current->size >= size + CHUNK_OVERHEAD + 8) {
         struct mem_chunk* new_chunk =
-            (struct mem_chunk*)((u8*)current + CHUNK_OVERHEAD + size);
+            (struct mem_chunk*)((uint8_t*)current + CHUNK_OVERHEAD + size);
         new_chunk->size = current->size - size - CHUNK_OVERHEAD;
         new_chunk->allocated = false;
         new_chunk->next = current->next;
@@ -79,10 +80,10 @@ void* kmalloc(u32 size) {
       }
 
       kprintf("[Kernel] Allocated %d bytes at %x\n", size,
-              (u32)((u8*)current + CHUNK_OVERHEAD));
+              (uint32_t)((uint8_t*)current + CHUNK_OVERHEAD));
 
       current->allocated = true;
-      return (void*)((u8*)current + CHUNK_OVERHEAD);
+      return (void*)((uint8_t*)current + CHUNK_OVERHEAD);
     }
 
     current = current->next;
@@ -91,7 +92,7 @@ void* kmalloc(u32 size) {
   return 0;
 }
 
-void* krealloc(void* ptr, u32 new_size) {
+void* krealloc(void* ptr, uint32_t new_size) {
   if (!ptr) return kmalloc(new_size);
 
   if (new_size == 0) {
@@ -99,8 +100,9 @@ void* krealloc(void* ptr, u32 new_size) {
     return 0;
   }
 
-  struct mem_chunk* old_chunk = (struct mem_chunk*)((u8*)ptr - CHUNK_OVERHEAD);
-  u32 old_size = old_chunk->size;
+  struct mem_chunk* old_chunk =
+      (struct mem_chunk*)((uint8_t*)ptr - CHUNK_OVERHEAD);
+  uint32_t old_size = old_chunk->size;
 
   if (new_size <= old_size) {
     return ptr;  // No need to reallocate
@@ -118,10 +120,11 @@ void* krealloc(void* ptr, u32 new_size) {
 int kfree(void* ptr) {
   if (!ptr) return -1;
 
-  struct mem_chunk* chunk = (struct mem_chunk*)((u8*)ptr - CHUNK_OVERHEAD);
+  struct mem_chunk* chunk = (struct mem_chunk*)((uint8_t*)ptr - CHUNK_OVERHEAD);
 
   if (chunk->allocated != true) {
-    kprintf("[Kernel] Warning: Double free or corruption at %x\n", (u32)chunk);
+    kprintf("[Kernel] Warning: Double free or corruption at %x\n",
+            (uint32_t)chunk);
     return -1;
   }
 
@@ -143,7 +146,7 @@ int kfree(void* ptr) {
     }
   }
 
-  kprintf("[Kernel] Freed memory at %x\n", (u32)ptr);
+  kprintf("[Kernel] Freed memory at %x\n", (uint32_t)ptr);
 
   return 0;
 }

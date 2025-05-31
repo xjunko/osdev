@@ -4,10 +4,11 @@
 
 static struct global_descriptor_table gdt;
 
-struct segment_desc new_segment_desc(u32 base, u32 limit, u8 flags) {
-  struct segment_desc desc = {};
+struct segment_desc new_segment_desc(uint32_t base, uint32_t limit,
+                                     uint8_t flags) {
+  struct segment_desc desc;
 
-  u8* target = (u8*)&desc;
+  uint8_t* target = (uint8_t*)&desc;
 
   if (limit <= 65536) {
     target[6] = 0x40;
@@ -35,18 +36,18 @@ struct segment_desc new_segment_desc(u32 base, u32 limit, u8 flags) {
   return desc;
 }
 
-u32 segment_desc_base(struct segment_desc* desc) {
-  u8* target = (u8*)desc;
-  u32 result = target[7];
+uint32_t segment_desc_base(struct segment_desc* desc) {
+  uint8_t* target = (uint8_t*)desc;
+  uint32_t result = target[7];
   result = (result << 8) + target[4];
   result = (result << 8) + target[3];
   result = (result << 8) + target[2];
   return result;
 }
 
-u32 segment_desc_limit(struct segment_desc* desc) {
-  u8* target = (u8*)desc;
-  u32 result = target[6] & 0xF;
+uint32_t segment_desc_limit(struct segment_desc* desc) {
+  uint8_t* target = (uint8_t*)desc;
+  uint32_t result = target[6] & 0xF;
   result = (result << 8) + target[1];
   result = (result << 8) + target[0];
 
@@ -66,16 +67,16 @@ void gdt_init() {
   kprintf("Passed! \n");
 
   struct {
-    u16 limit;
-    u32 base;
+    uint16_t limit;
+    uint32_t base;
   } __attribute__((packed)) gdtr;
   gdtr.limit = sizeof(struct global_descriptor_table) - 1;
-  gdtr.base = (u32)&gdt;
+  gdtr.base = (uint32_t)&gdt;
   asm volatile("lgdt %0" : : "m"(gdtr));
 
   kprintf("[GDT] Initialized! \n");
 }
 
-u16 code_segment_selector() { return 2 * sizeof(struct segment_desc); }
+uint16_t code_segment_selector() { return 2 * sizeof(struct segment_desc); }
 
-u16 data_segment_selector() { return 3 * sizeof(struct segment_desc); }
+uint16_t data_segment_selector() { return 3 * sizeof(struct segment_desc); }

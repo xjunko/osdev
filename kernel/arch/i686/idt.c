@@ -27,29 +27,31 @@ static struct interrupt_handler idt_handlers_stack[256];
 static struct interrupt_handler* idt_handlers[256];
 static struct interrupt_manager idt;
 
-void idt_set_entry(u8 interrupt_number, u16 code_segment_selector_offset,
-                   void (*handler)(), u8 privilege, u8 type) {
-  idt_entries[interrupt_number].handler_address_low = ((u32)handler) & 0xFFFF;
+void idt_set_entry(uint8_t interrupt_number,
+                   uint16_t code_segment_selector_offset, void (*handler)(),
+                   uint8_t privilege, uint8_t type) {
+  idt_entries[interrupt_number].handler_address_low =
+      ((uint32_t)handler) & 0xFFFF;
   idt_entries[interrupt_number].handler_address_high =
-      (((u32)handler) >> 16) & 0xFFFF;
+      (((uint32_t)handler) >> 16) & 0xFFFF;
   idt_entries[interrupt_number].gdt_code_segment_selector =
       code_segment_selector_offset;
   idt_entries[interrupt_number].access = 0x80 | ((privilege & 3) << 5) | type;
   idt_entries[interrupt_number].reserved = 0;
 }
 
-void idt_set_handler(u8 interrupt_number, interrupt_callback handle) {
+void idt_set_handler(uint8_t interrupt_number, interrupt_callback handle) {
   idt_handlers_stack[interrupt_number].interrupt_number = interrupt_number;
   idt_handlers_stack[interrupt_number].handle = handle;
   idt_handlers[interrupt_number] = &idt_handlers_stack[interrupt_number];
 }
 
-u32 idt_general_protection_fault(u32 esp) {
+uint32_t idt_general_protection_fault(uint32_t esp) {
   struct regs* r = (struct regs*)esp;
-  u32 error_code = r->error;
-  u32 eip = r->eip;        // EIP pushed by CPU
-  u32 cs = r->cs;          // CS pushed by CPU
-  u32 eflags = r->eflags;  // EFLAGS pushed by CPU
+  uint32_t error_code = r->error;
+  uint32_t eip = r->eip;        // EIP pushed by CPU
+  uint32_t cs = r->cs;          // CS pushed by CPU
+  uint32_t eflags = r->eflags;  // EFLAGS pushed by CPU
 
   kprintf("[idt] General Protection Fault!\n");
   kprintf("Error code: %X\n", error_code);
@@ -62,12 +64,12 @@ u32 idt_general_protection_fault(u32 esp) {
 }
 
 void idt_init() {
-  u32 code_segment = code_segment_selector();
-  const u8 idt_interrupt_gate = 0xE;
+  uint32_t code_segment = code_segment_selector();
+  const uint8_t idt_interrupt_gate = 0xE;
 
   kprintf("[IDT] CS=%x GATE=%x \n", code_segment, idt_interrupt_gate);
 
-  for (u8 i = 255; i > 0; i--) {
+  for (uint8_t i = 255; i > 0; i--) {
     idt_handlers[i] = 0;
     idt_set_entry(i, code_segment, &ignore_interrupt_request, 0,
                   idt_interrupt_gate);
@@ -121,7 +123,7 @@ void idt_init() {
   // load idt
   struct interrupt_desc_table_ptr idtr;
   idtr.size = 256 * sizeof(struct interrupt_gate_desc) - 1;
-  idtr.base = (u32)idt_entries;
+  idtr.base = (uint32_t)idt_entries;
   asm volatile("lidt %0" : : "m"(idtr));
 
   // verify idt
@@ -152,7 +154,7 @@ void idt_deactivate() {
   kprintf("[IDT] Deactivated! \n");
 }
 
-extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
+extern uint32_t idt_handle_interrupt(uint8_t interrupt_number, uint32_t esp) {
 #ifdef KERNEL_DEBUG
   kprintf(
       "[IDT] idt_handle_interrupt called with "
@@ -162,7 +164,7 @@ extern u32 idt_handle_interrupt(u8 interrupt_number, u32 esp) {
   return _idt_handle_interrupt(interrupt_number, esp);
 }
 
-u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
+uint32_t _idt_handle_interrupt(uint8_t interrupt_number, uint32_t esp) {
   if (idt_handlers[interrupt_number] != 0) {
     esp = idt_handlers[interrupt_number]->handle(esp);
   } else if (interrupt_number != 0x20 && interrupt_number != 0x2e) {

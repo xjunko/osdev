@@ -67,4 +67,4 @@ struct elf_relocation {
   uint32_t info;
 };
 
-int elf_run(u8*, int, char**);
+int elf_run(uint8_t*, int, char**);

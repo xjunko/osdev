@@ -48,18 +48,20 @@ const char* _pci_class_name(uint8_t class_code, uint8_t subclass) {
   return "Unknown Device";
 }
 
-struct base_addr_register pci_get_base_address_register(u16 bus, u16 device,
-                                                        u16 function, u16 bar) {
-  struct base_addr_register res = {};
+struct base_addr_register pci_get_base_address_register(uint16_t bus,
+                                                        uint16_t device,
+                                                        uint16_t function,
+                                                        uint16_t bar) {
+  struct base_addr_register res;
 
-  u32 header_type = pci_read(bus, device, function, 0x0E) & 0x7F;
+  uint32_t header_type = pci_read(bus, device, function, 0x0E) & 0x7F;
   int max_bars = 6 - (4 * header_type);
 
   if (bar >= max_bars) {
     return res;
   }
 
-  u32 bar_value = pci_read(bus, device, function, 0x10 + 4 * bar);
+  uint32_t bar_value = pci_read(bus, device, function, 0x10 + 4 * bar);
   res.type = (bar_value & 0x1) ? input_output : memory;
 
   if (res.type == memory) {
@@ -72,15 +74,16 @@ struct base_addr_register pci_get_base_address_register(u16 bus, u16 device,
 
     res.prefetch = ((bar_value >> 3) & 0x1) == 0x1;
   } else {
-    res.addr = (u8*)(bar_value & ~0x3);
+    res.addr = (uint8_t*)(bar_value & ~0x3);
     res.prefetch = false;
   }
 
   return res;
 }
 
-struct pci_desc pci_get_device_descriptor(u16 bus, u16 decice, u16 function) {
-  struct pci_desc res = {};
+struct pci_desc pci_get_device_descriptor(uint16_t bus, uint16_t decice,
+                                          uint16_t function) {
+  struct pci_desc res;
 
   res.bus = bus;
   res.device = decice;
@@ -99,23 +102,25 @@ struct pci_desc pci_get_device_descriptor(u16 bus, u16 decice, u16 function) {
   return res;
 }
 
-u32 pci_read(u16 bus, u16 dev, u16 func, u32 reg_offset) {
-  u32 id = 0x1 << 31 | (bus & 0xFF) << 16 | ((dev & 0x1F) << 11) |
-           ((func & 0x07) << 8) | ((reg_offset & 0xFC));
+uint32_t pci_read(uint16_t bus, uint16_t dev, uint16_t func,
+                  uint32_t reg_offset) {
+  uint32_t id = 0x1 << 31 | (bus & 0xFF) << 16 | ((dev & 0x1F) << 11) |
+                ((func & 0x07) << 8) | ((reg_offset & 0xFC));
 
   outportl(PCI_COMMAND_PORT, id);
   return inportl(PCI_DATA_PORT) >> (8 * (reg_offset % 4));
 }
 
-void pci_write(u16 bus, u16 dev, u16 func, u32 reg_ofset, u32 data) {
-  u32 id = 0x1 << 31 | (bus & 0xFF) << 16 | ((dev & 0x1F) << 11) |
-           ((func & 0x07) << 8) | ((reg_ofset & 0xFC));
+void pci_write(uint16_t bus, uint16_t dev, uint16_t func, uint32_t reg_ofset,
+               uint32_t data) {
+  uint32_t id = 0x1 << 31 | (bus & 0xFF) << 16 | ((dev & 0x1F) << 11) |
+                ((func & 0x07) << 8) | ((reg_ofset & 0xFC));
 
   outportl(PCI_COMMAND_PORT, id);
   outportl(PCI_DATA_PORT, data);
 }
 
-bool pci_device_has_function(u16 bus, u16 device) {
+bool pci_device_has_function(uint16_t bus, uint16_t device) {
   return pci_read(bus, device, 0, 0x0E) & (1 << 7);
 }
 
@@ -135,7 +140,7 @@ void pci_init() {
               pci_get_base_address_register(bus, device, function, bar_num);
 
           if (bar.addr && bar.type == input_output) {
-            dev.port_base = (u32)bar.addr;
+            dev.port_base = (uint32_t)bar.addr;
           }
         }
 

@@ -22,11 +22,11 @@
 #define VGA_COLOR_DATA_WRITE 0x3C9
 #define VGA_COLOR_REGISTER_WRITE 0x3C8
 
-static u8 vga_pallete[256][3];
-static u8 vga_buffer[320 * 200];
+static uint8_t vga_pallete[256][3];
+static uint8_t vga_buffer[320 * 200];
 
 // 320x200 8bit color mode
-static u8 vga_default_mode[] = {
+static uint8_t vga_default_mode[] = {
     0x63,
     /* seq */
     0x03, 0x01, 0x0f, 0x00, 0x0e,
@@ -57,11 +57,11 @@ void vga_init() {
   printf("[VGA] Pallete initialized.\n");
 }
 
-void vga_write_registers(u8* registers) {
+void vga_write_registers(uint8_t* registers) {
   outportb(VGA_MISC_PORT, *(registers++));
 
   // sequencer
-  for (u8 i = 0; i < 5; i++) {
+  for (uint8_t i = 0; i < 5; i++) {
     outportb(VGA_SEQUENCER_INDEX_PORT, i);
     outportb(VGA_SEQUENCER_DATA_PORT, *(registers++));
   }
@@ -75,19 +75,19 @@ void vga_write_registers(u8* registers) {
   registers[0x03] = registers[0x03] | 0x80;
   registers[0x11] = registers[0x11] & ~0x80;
 
-  for (u8 i = 0; i < 25; i++) {
+  for (uint8_t i = 0; i < 25; i++) {
     outportb(VGA_CRTC_INDEX_PORT, i);
     outportb(VGA_CRTC_DATA_PORT, *(registers++));
   }
 
   // graphics controller
-  for (u8 i = 0; i < 9; i++) {
+  for (uint8_t i = 0; i < 9; i++) {
     outportb(VGA_GRAPHICS_CONTROLLER_INDEX_PORT, i);
     outportb(VGA_GRAPHICS_CONTROLLER_DATA_PORT, *(registers++));
   }
 
   // attribute controller
-  for (u8 i = 0; i < 21; i++) {
+  for (uint8_t i = 0; i < 21; i++) {
     inportb(VGA_ATTRIBUTE_CONTROLLER_RESET_PORT);
     outportb(VGA_ATTRIBUTE_CONTROLLER_INDEX_PORT, i);
     outportb(VGA_ATTRIBUTE_CONTROLLER_WRITE_PORT, *(registers++));
@@ -98,7 +98,7 @@ void vga_write_registers(u8* registers) {
   outportb(VGA_ATTRIBUTE_CONTROLLER_INDEX_PORT, 0x20);
 }
 
-void vga_set_mode(u32 width, u32 height, u32 color_depth) {
+void vga_set_mode(uint32_t width, uint32_t height, uint32_t color_depth) {
   // force overwrite these for now.
   width = 320;
   height = 200;
@@ -110,16 +110,16 @@ void vga_set_mode(u32 width, u32 height, u32 color_depth) {
   vga_write_registers(vga_default_mode);  // 8bit color depth!
 }
 
-static inline u8 square_diff(u8 a, u8 b) {
+static inline uint8_t square_diff(uint8_t a, uint8_t b) {
   int diff = (int)a - (int)b;
   return diff * diff;
 }
 
-u8 vga_get_color_index(u8 r, u8 g, u8 b) {
-  u8 best_index = 0;
+uint8_t vga_get_color_index(uint8_t r, uint8_t g, uint8_t b) {
+  uint8_t best_index = 0;
   int best_distance = 255 * 255 * 3;
 
-  for (u8 i = 0; i < 255; ++i) {
+  for (uint8_t i = 0; i < 255; ++i) {
     int dr = (int)vga_pallete[i][0] - r;
     int dg = (int)vga_pallete[i][1] - g;
     int db = (int)vga_pallete[i][2] - b;
@@ -136,35 +136,36 @@ u8 vga_get_color_index(u8 r, u8 g, u8 b) {
   return best_index;
 }
 
-u8* vga_get_frame_buffer_part() {
+uint8_t* vga_get_frame_buffer_part() {
   outportb(VGA_GRAPHICS_CONTROLLER_INDEX_PORT, 0x06);
-  u8 segmentNumber = inportb(VGA_GRAPHICS_CONTROLLER_DATA_PORT) & (3 << 2);
+  uint8_t segmentNumber = inportb(VGA_GRAPHICS_CONTROLLER_DATA_PORT) & (3 << 2);
   switch (segmentNumber) {
     default:
     case 0 << 2:
-      return (u8*)0x00000;
+      return (uint8_t*)0x00000;
     case 1 << 2:
-      return (u8*)0xA0000;
+      return (uint8_t*)0xA0000;
     case 2 << 2:
-      return (u8*)0xB0000;
+      return (uint8_t*)0xB0000;
     case 3 << 2:
-      return (u8*)0xB8000;
+      return (uint8_t*)0xB8000;
   }
 }
 
-void vga_put_color_index(u32 x, u32 y, u32 color_index) {
-  u8* pixel_address = vga_get_frame_buffer_part() + ((y << 8) + (y << 6) + x);
+void vga_put_color_index(uint32_t x, uint32_t y, uint32_t color_index) {
+  uint8_t* pixel_address =
+      vga_get_frame_buffer_part() + ((y << 8) + (y << 6) + x);
   *pixel_address = color_index;
 }
 
 // G B R
-void vga_put_pixel(u32 x, u32 y, u8 r, u8 g, u8 b) {
-  u8 color_index = vga_get_color_index(g, b, r);
+void vga_put_pixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
+  uint8_t color_index = vga_get_color_index(g, b, r);
   vga_buffer[(y << 8) + (y << 6) + x] = color_index;
 }
 
 void vga_draw() {
-  u8* pixel_address = vga_get_frame_buffer_part();
+  uint8_t* pixel_address = vga_get_frame_buffer_part();
   for (int i = 0; i < 320 * 200; i++) {
     *(pixel_address + i) = vga_buffer[i];
   }

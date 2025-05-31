@@ -1,5 +1,6 @@
 #include <kernel/gdt.h>
 #include <kernel/kmalloc.h>
+#include <kernel/kprintf.h>
 #include <kernel/regs.h>
 #include <kernel/tasks.h>
 #include <kernel/types.h>
@@ -19,7 +20,7 @@ struct cpu_task* cpu_task_new(cpu_task_entrypoint entry) {
       (struct regs*)(new_task->stack + TASK_STACK - sizeof(struct regs));
   memset(regs, 0, sizeof(struct regs));
 
-  regs->eip = (u32)entry;
+  regs->eip = (uint32_t)entry;
   regs->cs = code_segment_selector();
   regs->ss = data_segment_selector();
   regs->eflags = 0x202;
@@ -42,7 +43,7 @@ bool cpu_task_add(struct cpu_task* task) {
   return true;
 }
 
-void cpu_task_remove(u32 id) {
+void cpu_task_remove(int id) {
   if (id >= main_cpu.num_tasks) return;
 
   kprintf("[CPU] Removing task: ID=%d \n", id);
@@ -57,7 +58,7 @@ void cpu_task_remove(u32 id) {
   }
 }
 
-u32 cpu_schedule(u32 esp) {
+uint32_t cpu_schedule(uint32_t esp) {
   if (main_cpu.num_tasks <= 0) return esp;
 
   if (main_cpu.cur_tasks >= 0) {
@@ -67,5 +68,5 @@ u32 cpu_schedule(u32 esp) {
   if (++main_cpu.cur_tasks >= main_cpu.num_tasks)
     main_cpu.cur_tasks %= main_cpu.num_tasks;
 
-  return (u32)main_cpu.tasks[main_cpu.cur_tasks]->registers;
+  return (uint32_t)main_cpu.tasks[main_cpu.cur_tasks]->registers;
 }

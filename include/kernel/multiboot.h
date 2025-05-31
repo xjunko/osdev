@@ -12,4 +12,4 @@ struct multiboot_handler {
 
 void multiboot_add_callback(int, multiboot_callback);
 
-void multiboot_start(u32);
+void multiboot_start(uint32_t);

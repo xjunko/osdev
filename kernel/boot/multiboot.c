@@ -14,14 +14,14 @@ void multiboot_add_callback(int type, multiboot_callback callback) {
   }
 }
 
-void multiboot_start(u32 mb_info) {
+void multiboot_start(uint32_t mb_info) {
   struct multiboot_tag *tag;
 
-  u32 size = *(u32 *)mb_info;
-  u32 end = mb_info + size;
+  uint32_t size = *(uint32_t *)mb_info;
+  uint32_t end = mb_info + size;
 
-  for (tag = (struct multiboot_tag *)(mb_info + 8); (u32)tag < end;
-       tag = (struct multiboot_tag *)(((u32)tag + tag->size + 7) & ~7)) {
+  for (tag = (struct multiboot_tag *)(mb_info + 8); (uint32_t)tag < end;
+       tag = (struct multiboot_tag *)(((uint32_t)tag + tag->size + 7) & ~7)) {
     struct multiboot_handler handler = mb_handlers[tag->type];
     for (int i = 0; i < 16; i++) {
       if (handler.callback[i] != 0) {

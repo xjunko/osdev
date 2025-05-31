@@ -6,36 +6,37 @@ enum base_addr_register_type { memory, input_output };
 
 struct base_addr_register {
   bool prefetch;
-  u8* addr;
-  u32 size;
+  uint8_t* addr;
+  uint32_t size;
   enum base_addr_register_type type;
 };
 
-struct base_addr_register pci_get_base_address_register(u16, u16, u16, u16);
+struct base_addr_register pci_get_base_address_register(uint16_t, uint16_t,
+                                                        uint16_t, uint16_t);
 
 struct pci_desc {
-  u32 port_base;
-  u32 interrupt;
+  uint32_t port_base;
+  uint32_t interrupt;
 
-  u16 bus;
-  u16 device;
-  u16 func;
+  uint16_t bus;
+  uint16_t device;
+  uint16_t func;
 
-  u16 vendor;
-  u16 dev;
+  uint16_t vendor;
+  uint16_t dev;
 
-  u8 class;
-  u8 subclass;
-  u8 interface;
+  uint8_t class;
+  uint8_t subclass;
+  uint8_t interface;
 
-  u8 rev;
+  uint8_t rev;
 };
 
-struct pci_desc pci_get_device_descriptor(u16, u16, u16);
-bool pci_device_has_function(u16, u16);
+struct pci_desc pci_get_device_descriptor(uint16_t, uint16_t, uint16_t);
+bool pci_device_has_function(uint16_t, uint16_t);
 void pci_init();
 
-u32 pci_read(u16, u16, u16, u32);
-void pci_write(u16, u16, u16, u32, u32);
+uint32_t pci_read(uint16_t, uint16_t, uint16_t, uint32_t);
+void pci_write(uint16_t, uint16_t, uint16_t, uint32_t, uint32_t);
 
 void* pci_get_driver(struct pci_desc);

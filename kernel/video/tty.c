@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define _tty_queue_size 4096
-static u8 _tty_queue[_tty_queue_size];
+static uint8_t _tty_queue[_tty_queue_size];
 static int _tty_queue_i = 0;
 
 static struct framebuffer_info fb_info;
@@ -20,13 +20,13 @@ void tty_init() {
     printf("[tty] framebuffer not found, cannot initialize tty0\n");
     return;
   }
-  printf("[tty] framebuffer found at %p, %ux%u, %u bpp\n", fb_info.addr,
+  printf("[tty] framebuffer found at %p, %dx%d, %d bpp\n", fb_info.addr,
          fb_info.width, fb_info.height, fb_info.bpp);
 
   printf("[tty] initializing flanterm context \n");
   fb_ctx = flanterm_fb_init(
-      malloc, free, fb_info.addr, fb_info.width, fb_info.height, fb_info.pitch,
-      fb_info.red_mask_size, fb_info.red_field_position,
+      &malloc, 0, (uint32_t *)fb_info.addr, fb_info.width, fb_info.height,
+      fb_info.pitch, fb_info.red_mask_size, fb_info.red_field_position,
       fb_info.green_mask_size, fb_info.green_field_position,
       fb_info.blue_mask_size, fb_info.blue_field_position, NULL, NULL, NULL,
       NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 0, 0, 0);

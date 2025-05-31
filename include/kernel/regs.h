@@ -2,20 +2,20 @@
 #include <kernel/types.h>
 
 struct regs {
-  u32 eax;
-  u32 ebx;
-  u32 ecx;
-  u32 edx;
+  uint32_t eax;
+  uint32_t ebx;
+  uint32_t ecx;
+  uint32_t edx;
 
-  u32 esi;
-  u32 edi;
-  u32 ebp;
+  uint32_t esi;
+  uint32_t edi;
+  uint32_t ebp;
 
-  u32 error;
+  uint32_t error;
 
-  u32 eip;
-  u32 cs;
-  u32 eflags;
-  u32 esp;
-  u32 ss;
+  uint32_t eip;
+  uint32_t cs;
+  uint32_t eflags;
+  uint32_t esp;
+  uint32_t ss;
 } __attribute__((packed));

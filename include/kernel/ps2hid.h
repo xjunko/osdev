@@ -16,16 +16,16 @@ struct ps2_kb_state {
 typedef void (*ps2_kb_callback)(struct ps2_kb_state state);
 int ps2_kb_init();
 void ps2_kb_register_callback(ps2_kb_callback);
-u32 ps2_kb_handle(u32);
+uint32_t ps2_kb_handle(uint32_t);
 
 // mouse
 struct ps2_mouse_state {
-  i32 x;
-  i32 y;
+  int32_t x;
+  int32_t y;
   bool buttons[3];
 };
 typedef void (*ps2_mouse_callback)(struct ps2_mouse_state state);
 
 int ps2_mouse_init();
 void ps2_mouse_register_callback(ps2_mouse_callback);
-u32 ps2_mouse_handle(u32);
+uint32_t ps2_mouse_handle(uint32_t);

@@ -2,4 +2,4 @@
 
 void serial_init();
 bool serial_ready();
-void serial_putchar(u8 c);
+void serial_putchar(uint8_t c);

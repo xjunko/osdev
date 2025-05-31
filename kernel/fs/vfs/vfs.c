@@ -1,3 +1,4 @@
+#include <kernel/devfs.h>
 #include <kernel/types.h>
 #include <kernel/vfs.h>
 #include <stddef.h>
@@ -18,7 +19,7 @@ struct vfs* _vfs_find_mnt(const char* path) {
 
   struct vfs* mnt = 0;
 
-  for (u16 i = 0; i < VFS_MAX_MOUNTPOINTS; i++) {
+  for (uint16_t i = 0; i < VFS_MAX_MOUNTPOINTS; i++) {
     if (mountpoints[i].mnt) {
       if (_startswith(path, mountpoints[i].mnt)) {
         return &mountpoints[i];
@@ -32,7 +33,7 @@ struct vfs* _vfs_find_mnt(const char* path) {
 int _vfs_get_fd(struct vfs_file* file) {
   if (!file) return -1;
 
-  for (u16 i = VFS_FD_OFFSET; i < VFS_MAX_FDS; i++) {
+  for (uint16_t i = VFS_FD_OFFSET; i < VFS_MAX_FDS; i++) {
     if (!fds[i]) {
       fds[i] = file;
       file->id = i;

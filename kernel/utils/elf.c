@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-uint8_t is_elf(u8* buf) {
+uint8_t is_elf(uint8_t* buf) {
   struct elf_header* header = (struct elf_header*)buf;
 
   for (int i = 0; i < 4; i++) {
@@ -15,7 +15,7 @@ uint8_t is_elf(u8* buf) {
   return 1;
 }
 
-uint8_t elf_compatibility(u8* buf) {
+uint8_t elf_compatibility(uint8_t* buf) {
   struct elf_header* header = (struct elf_header*)buf;
 
   if (header->ident[EI_CLASS] != ELFCLASS32 ||
@@ -29,7 +29,7 @@ uint8_t elf_compatibility(u8* buf) {
   return 1;
 }
 
-int elf_run(u8* buf, int argc, char** argv) {
+int elf_run(uint8_t* buf, int argc, char** argv) {
   if (!is_elf(buf) || !elf_compatibility(buf)) {
     return -1;
   }
@@ -45,7 +45,7 @@ int elf_run(u8* buf, int argc, char** argv) {
     }
   }
 
-  u8* proc = malloc(size);
+  uint8_t* proc = malloc(size);
   if (proc == NULL) {
     printf("[elf] failed to allocate memory for process!\n");
     return -1;

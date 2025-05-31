@@ -1,14 +1,14 @@
 #pragma once
 #include <kernel/types.h>
 
-u8 inportb(u16 _port);
-void outportb(u16 _port, u8 data);
+uint8_t inportb(uint16_t _port);
+void outportb(uint16_t _port, uint8_t data);
 
-u8 inportbslow(u16 _port);
-void outportbslow(u16 _port, u8 data);
+uint8_t inportbslow(uint16_t _port);
+void outportbslow(uint16_t _port, uint8_t data);
 
-u16 inportw(u16 _port);
-void outportw(u16 _port, u16 _data);
+uint16_t inportw(uint16_t _port);
+void outportw(uint16_t _port, uint16_t _data);
 
-u32 inportl(u16 _port);
-void outportl(u16 _port, u32 _data);
+uint32_t inportl(uint16_t _port);
+void outportl(uint16_t _port, uint32_t _data);

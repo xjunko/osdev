@@ -5,8 +5,8 @@
 #define VFS_FD_OFFSET 10
 #define VFS_MAX_FDS 128
 
-typedef int (*fs_read)(const char* path, void* buffer, size_t size);
-typedef int (*fs_write)(const char* path, const void* buffer, size_t size);
+typedef size_t (*fs_read)(const char* path, void* buffer, size_t size);
+typedef size_t (*fs_write)(const char* path, const void* buffer, size_t size);
 typedef bool (*fs_exists)(const char* path);
 
 struct vfs_impl {

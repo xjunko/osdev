@@ -22,7 +22,7 @@ void kinit_serial() { serial_init(); }
 
 // sets up the kernel internal memory (to be removed)
 // and framebuffer
-void kinit_multiboot_bind(u32 mb_info) {
+void kinit_multiboot_bind() {
   kprintf("[Kernel] Initiating Multiboot\n");
   multiboot_add_callback(MULTIBOOT_TAG_TYPE_MMAP,
                          (multiboot_callback)kmalloc_init);
@@ -30,7 +30,7 @@ void kinit_multiboot_bind(u32 mb_info) {
                          (multiboot_callback)framebuffer_init);
 }
 
-void kinit_multiboot_dispatch(u32 mb_info) {
+void kinit_multiboot_dispatch(uint32_t mb_info) {
   multiboot_start(mb_info);
   kprintf("[Kernel] Multiboot, dispatched! \n");
 }
@@ -81,14 +81,14 @@ void kmain_loop() {
   }
 }
 
-extern int kmain(u32 mb_magic, u32 mb_info) {
+extern int kmain(uint32_t mb_magic, uint32_t mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
     kprintf("[Kernel] Invalid multiboot magic number: %x\n", mb_magic);
     while (1);  // lost cause
   }
 
-  kinit_multiboot_bind(mb_info);
+  kinit_multiboot_bind();
   kinit_interrupts();
   kinit_multiboot_dispatch(mb_info);
   kprintf("[Kernel] Booted into kernel! \n");

@@ -10,6 +10,6 @@
 #define PIT_SCALE 1193180
 #define PIT_SET 0x36
 
-void pit_write(u32);
-u32 pit_read();
-void pit_sleep(u32);
+void pit_write(uint32_t);
+uint32_t pit_read();
+void pit_sleep(uint32_t);

@@ -26,7 +26,7 @@ void irq_remap() {
   outportbslow(IRQ_SLAVE_DATA, 0x00);
 }
 
-void irq_ack(u8 interrupt_number) {
+void irq_ack(uint8_t interrupt_number) {
   if (0x20 <= interrupt_number && interrupt_number < 0x30) {
     outportb(IRQ_MASTER_COMMAND, IRQ_EOI);
 

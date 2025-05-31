@@ -2,4 +2,4 @@
 #include <kernel/types.h>
 
 void irq_remap();
-void irq_ack(u8);
+void irq_ack(uint8_t);

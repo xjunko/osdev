@@ -7,7 +7,7 @@
 static bool _dev_init = false;
 
 #define _queue_size 256
-static u8 _queue[_queue_size];  // ought to be enough!
+static uint8_t _queue[_queue_size];  // ought to be enough!
 static int _queue_i = 0;
 
 void serial_init() {
@@ -24,7 +24,7 @@ void serial_init() {
 
 bool serial_ready() { return (inportb(COM1 + 5) & 0x20) != 0; }
 
-void serial_putchar(u8 c) {
+void serial_putchar(uint8_t c) {
   tty_write((const char *)&c);
 
   if (!serial_ready() || !_dev_init) {

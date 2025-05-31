@@ -32,7 +32,7 @@ int ps2_kb_init() {
     inportb(PS2_DATA);
     outportb(PS2_CMD, 0xAE);
     outportb(PS2_CMD, 0x20);
-    u8 status = (inportb(PS2_DATA) | 1) & ~0x10;
+    uint8_t status = (inportb(PS2_DATA) | 1) & ~0x10;
     outportb(PS2_CMD, 0x60);
     outportb(PS2_DATA, status);
     outportb(PS2_DATA, 0xF4);
@@ -53,8 +53,8 @@ void ps2_kb_register_callback(ps2_kb_callback callback) {
 }
 
 static int kbd_state = 0;
-struct ps2_kb_state _ps2_kb_process_(u8 key) {
-  struct ps2_kb_state state = {};
+struct ps2_kb_state _ps2_kb_process_(uint8_t key) {
+  struct ps2_kb_state state;
 
   int press, index, page, code;
 
@@ -101,8 +101,8 @@ struct ps2_kb_state _ps2_kb_process_(u8 key) {
   return state;
 }
 
-u32 ps2_kb_handle(u32 esp) {
-  u8 key = inportb(PS2_DATA);
+uint32_t ps2_kb_handle(uint32_t esp) {
+  uint8_t key = inportb(PS2_DATA);
   struct ps2_kb_state state = _ps2_kb_process_(key);
   for (int i = 0; i < PS2_KB_CALLBACKS_SIZE; i++) {
     if (kb_callbacks[i] != 0) {
@@ -114,13 +114,13 @@ u32 ps2_kb_handle(u32 esp) {
 
 // irq dev 0x0c (mouse)
 #define PS2_MOUSE_CALLBACKS_SIZE 8
-static u8 mouse_buffer[3];
-static u8 mouse_offset = 0;
-static u8 mouse_buttons = 0;
-static i32 mouse_x = 0;
-static i32 mouse_y = 0;
-static i32 mouse_max_x = -1;
-static i32 mouse_max_y = -1;
+static uint8_t mouse_buffer[3];
+static uint8_t mouse_offset = 0;
+static uint8_t mouse_buttons = 0;
+static int32_t mouse_x = 0;
+static int32_t mouse_y = 0;
+static int32_t mouse_max_x = -1;
+static int32_t mouse_max_y = -1;
 static ps2_mouse_callback mouse_callbacks[PS2_MOUSE_CALLBACKS_SIZE];
 
 int ps2_mouse_init() {
@@ -129,8 +129,8 @@ int ps2_mouse_init() {
 
   // sets the mouse max res based on fb's resolution
   struct framebuffer_info fb_info = framebuffer_get_info();
-  mouse_max_x = (i32)fb_info.width;
-  mouse_max_y = (i32)fb_info.height;
+  mouse_max_x = (int32_t)fb_info.width;
+  mouse_max_y = (int32_t)fb_info.height;
 
   if (mouse_max_x <= 0 || mouse_max_y <= 0) {
     printf(
@@ -147,7 +147,7 @@ int ps2_mouse_init() {
   outportb(PS2_CMD, 0xA8);  // active
   outportb(PS2_CMD, 0x20);  // get current state
 
-  u8 status = inportb(PS2_DATA) | 2;
+  uint8_t status = inportb(PS2_DATA) | 2;
   outportb(PS2_CMD, 0x60);  // set state
   outportb(PS2_DATA, status);
 
@@ -176,8 +176,8 @@ void ps2_mouse_register_callback(ps2_mouse_callback callback) {
   printf("[PS2] Error: No space for mouse callback\n");
 }
 
-u32 ps2_mouse_handle(u32 esp) {
-  u8 status = inportb(PS2_CMD);
+uint32_t ps2_mouse_handle(uint32_t esp) {
+  uint8_t status = inportb(PS2_CMD);
 
   if (!(status & 0x20)) {
     return esp;
@@ -187,10 +187,10 @@ u32 ps2_mouse_handle(u32 esp) {
   mouse_offset = (mouse_offset + 1) % 3;
 
   if (mouse_offset == 0) {
-    struct ps2_mouse_state state = {};
+    struct ps2_mouse_state state;
 
-    mouse_x += (i8)mouse_buffer[2];
-    mouse_y -= (i8)mouse_buffer[0];
+    mouse_x += (int8_t)mouse_buffer[2];
+    mouse_y -= (int8_t)mouse_buffer[0];
 
     if (mouse_x < 0) mouse_x = 0;
     if (mouse_x >= mouse_max_x) mouse_x = mouse_max_x - 1;

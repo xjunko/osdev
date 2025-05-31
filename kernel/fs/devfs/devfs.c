@@ -52,7 +52,7 @@ size_t devfs_write(const char* path, const void* buffer, size_t size) {
   return bytes_written;
 }
 
-size_t devfs_exists(const char* path) {
+bool devfs_exists(const char* path) {
   if (!path) return 0;
 
   struct devfs_dev* dev = _devfs_find_dev(path);
@@ -84,19 +84,41 @@ void devfs_register_dev(const char* loc, fs_read read, fs_write write) {
   }
 }
 
-// /test
-size_t _devfs_test_read(const char* path, void* buffer, size_t size) {
-  memset(buffer, 1, size);
+// /null
+size_t _devfs_null_read(const char* path, void* buffer, size_t size) {
+  UNUSED(path);
+  UNUSED(buffer);
+  UNUSED(size);
+  return 0;
+}
+size_t _devfs_null_write(const char* path, const void* buffer, size_t size) {
+  UNUSED(path);
+  UNUSED(buffer);
   return size;
 }
 
-// /com1
-size_t _devfs_com1_read(const char* path, void* buffer, size_t size) {
+// /zero
+size_t _devfs_zero_read(const char* path, void* buffer, size_t size) {
+  UNUSED(path);
   memset(buffer, 0, size);
   return size;
 }
+size_t _devfs_zero_write(const char* path, const void* buffer, size_t size) {
+  UNUSED(path);
+  UNUSED(buffer);
+  return size;
+}
 
-size_t _devfs_com1_write(const char* path, const void* buffer, size_t size) {
+// /stdout
+size_t _devfs_stdout_read(const char* path, void* buffer, size_t size) {
+  UNUSED(path);
+  UNUSED(buffer);
+  return size;
+}
+
+size_t _devfs_stdout_write(const char* path, const void* buffer, size_t size) {
+  UNUSED(path);
+
   for (size_t i = 0; i < size; i++) {
     serial_putchar(((const char*)buffer)[i]);
   }
@@ -105,6 +127,9 @@ size_t _devfs_com1_write(const char* path, const void* buffer, size_t size) {
 
 // /keyboard
 size_t _devfs_keyboard_read(const char* path, void* buffer, size_t size) {
+  UNUSED(path);
+  UNUSED(size);
+
   char* buf = (char*)buffer;
   buf[0] = 'n';
   buf[1] = 'o';
@@ -128,12 +153,16 @@ size_t _devfs_keyboard_read(const char* path, void* buffer, size_t size) {
 
 size_t _devfs_keyboard_write(const char* path, const void* buffer,
                              size_t size) {
+  UNUSED(path);
+  UNUSED(buffer);
+  UNUSED(size);
   return 0;
 }
 
 void devfs_init(struct vfs_impl* fs) {
-  devfs_register_dev("/test", _devfs_test_read, NULL);
-  devfs_register_dev("/com1", _devfs_com1_read, _devfs_com1_write);
+  devfs_register_dev("/null", _devfs_null_read, _devfs_null_write);
+  devfs_register_dev("/zero", _devfs_zero_read, _devfs_zero_write);
+  devfs_register_dev("/stdout", _devfs_stdout_read, _devfs_stdout_write);
   devfs_register_dev("/keyboard", _devfs_keyboard_read, _devfs_keyboard_write);
 
   fs->read = devfs_read;
