@@ -8,7 +8,7 @@ C_FLAGS = -ffreestanding        \
 				-g -c           \
 				-nostdlib       \
 				-fno-exceptions \
-				-Iinclude/ 
+				-Iinclude/ -Ilibs/
 
 AS_FLAGS = 
 LD_FLAGS = -nostdlib -ffreestanding -static \
@@ -16,16 +16,19 @@ LD_FLAGS = -nostdlib -ffreestanding -static \
     -lc -lm -lgcc --specs=sysroot/usr/lib/nosys.specs
 
 SRC_DIR  := src
+LIB_DIR  := libs
 OBJ_DIR  := obj
 BOOT_DIR := boot
 
 ASM_SOURCES := $(shell find $(SRC_DIR) -name '*.s')
 C_SOURCES   := $(shell find $(SRC_DIR) -name '*.c')
-SOURCES     := $(C_SOURCES) $(ASM_SOURCES)
+C_LIBS      := $(shell find $(LIB_DIR) -name '*.c')
+SOURCES     := $(C_SOURCES) $(ASM_SOURCES) $(C_LIBS)
 
-ASM_OBJECTS := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
-C_OBJECTS   := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
-OBJECTS     := $(C_OBJECTS) $(ASM_OBJECTS)
+ASM_OBJECTS   := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(ASM_SOURCES))
+C_OBJECTS     := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_SOURCES))
+C_LIB_OBJECTS := $(patsubst $(LIB_DIR)/%.c,$(OBJ_DIR)/%.o,$(C_LIBS))
+OBJECTS       := $(C_OBJECTS) $(C_LIB_OBJECTS) $(ASM_OBJECTS) 
 
 OS_FOLDER      := build
 STORAGE_FORMAT := raw
@@ -33,6 +36,10 @@ STORAGE_SIZE   := 64M
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(@D)
+	$(CC) $(C_FLAGS) -o $@ -c $<
+
+$(OBJ_DIR)/%.o: $(LIB_DIR)/%.c
 	mkdir -p $(@D)
 	$(CC) $(C_FLAGS) -o $@ -c $<
 

@@ -13,6 +13,7 @@
 #include <kernel/serial.h>
 #include <kernel/syscall.h>
 #include <kernel/tasks.h>
+#include <kernel/tty.h>
 #include <kernel/types.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -62,22 +63,11 @@ void kinit_devices() {
 }
 
 void kmain_loop() {
-  FILE* file = fopen("/dev/com1", "w");
-  fwrite("hello world\n", 1, 13, file);
-  fclose(file);
+  tty_init();
+  tty_write("[kernel] kernel started! \n");
+  tty_write("rin@root: ");
 
-  // rgb weee :D
-  int r = 0;
-  int g = 0;
-  int b = 0;
-  int dr = 1, dg = 2, db = 3;
   while (1) {
-    r = (r + dr) % 256;
-    g = (g + dg) % 256;
-    b = (b + db) % 256;
-
-    framebuffer_clear(r, g, b);
-    framebuffer_flush();
     asm volatile("hlt");
   }
 }
