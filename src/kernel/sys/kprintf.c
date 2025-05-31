@@ -16,7 +16,7 @@ int kputchar(int c) {
     serial_putchar('\033');
     serial_putchar('[');
     serial_putchar('3');
-    serial_putchar('4');
+    serial_putchar('2');
     serial_putchar('m');
     at_line_start = 0;
   }
