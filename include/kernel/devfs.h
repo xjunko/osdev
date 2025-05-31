@@ -1,6 +1,6 @@
 #pragma once
-#include <kernel/fs/vfs.h>
 #include <kernel/types.h>
+#include <kernel/vfs.h>
 
 struct devfs_dev {
   const char* loc;

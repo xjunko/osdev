@@ -1,7 +1,9 @@
 #include <kernel/framebuffer.h>
 #include <kernel/idt.h>
+#include <kernel/input.h>
 #include <kernel/ports.h>
 #include <kernel/ps2hid.h>
+#include <kernel/ps2table.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
 #include <stdio.h>
@@ -50,11 +52,61 @@ void ps2_kb_register_callback(ps2_kb_callback callback) {
   printf("[PS2] Error: No space for keyboard callback\n");
 }
 
+static int kbd_state = 0;
+struct ps2_kb_state _ps2_kb_process_(u8 key) {
+  struct ps2_kb_state state = {};
+
+  int press, index, page, code;
+
+  press = !(key & SCAN_RELEASE) ? INPUT_PRESS : INPUT_RELEASE;
+  index = key & ~SCAN_RELEASE;
+
+  switch (kbd_state) {
+    case 1:
+      page = scanmap_escaped[index].page;
+      code = scanmap_escaped[index].code;
+      break;
+    case 2:
+      kbd_state = (index == 0x1D) ? 3 : 0;
+      return state;  // early return
+    case 3:
+      if (index == SCAN_NUMLOCK) {
+        page = INPUT_PAGE_KEY;
+        code = INPUT_KEY_PAUSE;
+        break;
+      }
+      /* FALLTHROUGH */
+    default:
+      switch (key) {
+        case SCAN_EXT0:
+          kbd_state = 1;
+          return state;
+        case SCAN_EXT1:
+          kbd_state = 2;
+          return state;
+      }
+
+      page = scanmap_normal[index].page;
+      code = scanmap_normal[index].code;
+      break;
+  }
+
+  kbd_state = 0;
+
+  state.page = page;
+  state.code = code;
+  state.value = press;
+  state.flags = 0;
+
+  return state;
+}
+
 u32 ps2_kb_handle(u32 esp) {
   u8 key = inportb(PS2_DATA);
+  struct ps2_kb_state state = _ps2_kb_process_(key);
   for (int i = 0; i < PS2_KB_CALLBACKS_SIZE; i++) {
     if (kb_callbacks[i] != 0) {
-      kb_callbacks[i](key);
+      kb_callbacks[i](state);
     }
   }
   return esp;

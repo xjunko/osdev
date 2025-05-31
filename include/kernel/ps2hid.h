@@ -1,3 +1,4 @@
+#pragma once
 #include <kernel/idt.h>
 #include <kernel/types.h>
 
@@ -5,7 +6,14 @@
 int ps2_device_init();
 
 // kb
-typedef void (*ps2_kb_callback)(u8 key);
+struct ps2_kb_state {
+  int page;
+  int code;
+  int value;
+  int flags;
+};
+
+typedef void (*ps2_kb_callback)(struct ps2_kb_state state);
 int ps2_kb_init();
 void ps2_kb_register_callback(ps2_kb_callback);
 u32 ps2_kb_handle(u32);

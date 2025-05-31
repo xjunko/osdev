@@ -1,8 +1,8 @@
-#include <kernel/fs/devfs.h>
-#include <kernel/fs/vfs.h>
+#include <kernel/devfs.h>
 #include <kernel/ps2hid.h>
 #include <kernel/serial.h>
 #include <kernel/types.h>
+#include <kernel/vfs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

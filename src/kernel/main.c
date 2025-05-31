@@ -1,11 +1,10 @@
 // simplified kernel, just to see what went wrong.
 
 #include <kernel/framebuffer.h>
-#include <kernel/fs/vfs.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
-#include <kernel/memory.h>
-#include <kernel/misc/kio.h>
+#include <kernel/kmalloc.h>
+#include <kernel/kprintf.h>
 #include <kernel/multiboot.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
@@ -15,6 +14,7 @@
 #include <kernel/tasks.h>
 #include <kernel/tty.h>
 #include <kernel/types.h>
+#include <kernel/vfs.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -62,9 +62,18 @@ void kinit_devices() {
   pci_init();
 }
 
+void _keyboard_input(struct ps2_kb_state state) {}
+
 void kmain_loop() {
+  ps2_kb_register_callback(_keyboard_input);
+
   tty_init();
   tty_write("[kernel] kernel started! \n");
+
+  char buf[256];
+  scanf("%s", buf);
+  printf("[kernel] scanf returned: %s\n", buf);
+
   tty_write("rin@root: ");
 
   while (1) {

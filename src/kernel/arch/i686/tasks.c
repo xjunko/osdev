@@ -1,5 +1,5 @@
 #include <kernel/gdt.h>
-#include <kernel/memory.h>
+#include <kernel/kmalloc.h>
 #include <kernel/regs.h>
 #include <kernel/tasks.h>
 #include <kernel/types.h>

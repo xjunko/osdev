@@ -1,11 +1,11 @@
 #include <errno.h>
-#include <kernel/fs/vfs.h>
 #include <kernel/idt.h>
-#include <kernel/misc/kio.h>
+#include <kernel/kprintf.h>
 #include <kernel/regs.h>
 #include <kernel/serial.h>
 #include <kernel/syscall.h>
 #include <kernel/types.h>
+#include <kernel/vfs.h>
 #include <stdio.h>
 
 #undef errno

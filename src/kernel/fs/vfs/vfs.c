@@ -1,5 +1,5 @@
-#include <kernel/fs/vfs.h>
 #include <kernel/types.h>
+#include <kernel/vfs.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

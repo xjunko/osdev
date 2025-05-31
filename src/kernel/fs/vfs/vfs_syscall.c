@@ -1,4 +1,4 @@
-#include <kernel/fs/devfs.h>
+#include <kernel/devfs.h>
 #include <kernel/types.h>
 
 int vfs_sys_open(const char* path, int flags, int mode) {
