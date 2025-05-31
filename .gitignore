@@ -16,6 +16,10 @@ sysroot/usr/lib/*.a
 sysroot/usr/lib/*.so
 sysroot/usr/lib/*.specs*
 
+# build
+*.iso
+*.bin
+
 # random trash
 *.o
 
