@@ -1,5 +1,6 @@
 #include <kernel/ports.h>
 #include <kernel/serial.h>
+#include <kernel/tty.h>
 #include <kernel/types.h>
 
 #define COM1 0x3F8
@@ -24,6 +25,8 @@ void serial_init() {
 bool serial_ready() { return (inportb(COM1 + 5) & 0x20) != 0; }
 
 void serial_putchar(u8 c) {
+  tty_write((const char *)&c);
+
   if (!serial_ready() || !_dev_init) {
     if (_queue_i >= _queue_size) {
       return;  // sue me
