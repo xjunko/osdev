@@ -13,6 +13,8 @@ static u32 fb_height;
 static u32 fb_bpp;
 static u32 fb_pitch;
 
+static struct framebuffer_info fb_info = {};
+
 #define FB_DRAW_TO fb_backbuffer
 
 // we're booting thru grub, so we don't have any say about the resolution, we
@@ -24,7 +26,22 @@ void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
     fb_height = fb->common.framebuffer_height;
     fb_bpp = fb->common.framebuffer_bpp;
     fb_pitch = fb->common.framebuffer_pitch;
+
+    // info
+    fb_info.addr = fb_addr;
+    fb_info.width = fb_width;
+    fb_info.height = fb_height;
+    fb_info.bpp = fb_bpp;
+    fb_info.pitch = fb_pitch;
+    fb_info.red_field_position = fb->framebuffer_red_field_position;
+    fb_info.red_mask_size = fb->framebuffer_red_mask_size;
+    fb_info.green_field_position = fb->framebuffer_green_field_position;
+    fb_info.green_mask_size = fb->framebuffer_green_mask_size;
+    fb_info.blue_field_position = fb->framebuffer_blue_field_position;
+    fb_info.blue_mask_size = fb->framebuffer_blue_mask_size;
   }
+
+  printf("[fb] pitch=%d addr=%p\n", fb_pitch, fb_addr);
 
   kprintf("[Framebuffer] W=%d H=%d BPP=%d \n", fb_width, fb_height, fb_bpp);
   fb_backbuffer = malloc(fb_pitch * fb_height);
@@ -33,11 +50,7 @@ void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
   return;
 }
 
-// sets the current framebuffer resolution to the ptr
-void framebuffer_get_resolution(u32 *width, u32 *height) {
-  if (width) *width = fb_width;
-  if (height) *height = fb_height;
-}
+struct framebuffer_info framebuffer_get_info() { return fb_info; }
 
 void framebuffer_set_pixel(u32 x, u32 y, u32 r, u32 g, u32 b) {
   if (x >= fb_width || y >= fb_height) return;
