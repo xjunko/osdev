@@ -7,12 +7,12 @@
 #include <kernel/memory.h>
 #include <kernel/misc/kio.h>
 #include <kernel/multiboot.h>
-#include <kernel/multitask.h>
 #include <kernel/pci.h>
 #include <kernel/pit.h>
 #include <kernel/ps2hid.h>
 #include <kernel/serial.h>
 #include <kernel/syscall.h>
+#include <kernel/tasks.h>
 #include <kernel/types.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -99,12 +99,9 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_devices();
 
   // run the main loop in a task
-  struct cpu_task* task = cpu_new_task(kmain_loop);
-  if (task == NULL) {
-    kprintf("[Kernel] Failed to create main task\n");
-    while (1);  // lost cause
-  }
-  cpu_add_task(task);
+  struct cpu_task* task = cpu_task_new(kmain_loop);
+  if (task == 0) kprintf("[Kernel] Failed to create main loop task\n");
+  cpu_task_add(task);
   pit_write(PIT_HZ / PIT_SCALE);
   while (1) {
     asm("hlt");

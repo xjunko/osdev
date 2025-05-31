@@ -2,11 +2,11 @@
 #include <kernel/idt.h>
 #include <kernel/memory.h>
 #include <kernel/misc/kio.h>
-#include <kernel/multitask.h>
 #include <kernel/pic.h>
 #include <kernel/pit.h>
 #include <kernel/ports.h>
 #include <kernel/regs.h>
+#include <kernel/tasks.h>
 #include <kernel/types.h>
 #include <stdlib.h>
 
