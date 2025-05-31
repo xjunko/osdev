@@ -6,14 +6,14 @@
 .macro HandleException num
 .global handle_interrupt_exception_\num
 handle_interrupt_exception_\num:
-	movb $\num, (interruptnumber)
+	movb $\num, (interrupt_number)
 	jmp int_bottom
 .endm
 
 .macro HandleInterruptRequest num
 .global handle_interrupt_request_\num
 handle_interrupt_request_\num:
-	movb $\num + IRQ_BASE, (interruptnumber)
+	movb $\num + IRQ_BASE, (interrupt_number)
 	pushl $0
 	jmp int_bottom
 .endm
@@ -69,10 +69,14 @@ int_bottom:
 	pushl %ebx
 	pushl %eax
 
+	// remember that argumetns are reversed
+	// idt_handle_interrupt(interrupt_number, esp)
 	pushl %esp
-	push (interruptnumber)
-	call idt_handle_interrupt
-	mov %eax, %esp 
+	pushl (interrupt_number) 
+	call idt_handle_interrupt 
+	// then in c code, set the current esp to eax
+	// then we replace it here
+	movl %eax, %esp 
 
 	popl %eax
 	popl %ebx
@@ -83,8 +87,8 @@ int_bottom:
 	popl %edi
 	popl %ebp
 
-	add $4, %esp
+	add $4, %esp // clears out the interrupt_number
     iret
 
 .data
-	interruptnumber: .byte 0
+	interrupt_number: .byte 0

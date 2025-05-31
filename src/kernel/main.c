@@ -100,7 +100,10 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
 
   // run the main loop in a task
   struct cpu_task* task = cpu_task_new(kmain_loop);
-  if (task == 0) kprintf("[Kernel] Failed to create main loop task\n");
+  if (task == 0) {
+    kprintf("[Kernel] Failed to create main loop task\n");
+    asm("hlt");
+  }
   cpu_task_add(task);
   pit_write(PIT_HZ / PIT_SCALE);
   while (1) {

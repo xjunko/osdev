@@ -64,7 +64,7 @@ u32 syscall_handle(u32 esp) {
 // implementation
 #define SYSCALL_EXIT 0x1
 static u32 syscall_exit(struct regs* r) {
-  kprintf("[syscall] exit! \n");
+  kprintf("[syscall] exit! code=%d \n", r->ebx);
   return (u32)r;
 }
 
