@@ -79,7 +79,7 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
 
   // test
   FILE* file = fopen("/dev/com1", "w");
-  fwrite("hello world", 1, 12, file);
+  fwrite("hello world\n", 1, 13, file);
   fclose(file);
 
   // rgb weee :D

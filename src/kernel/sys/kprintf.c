@@ -10,8 +10,7 @@ typedef __builtin_va_list va_list;
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
 
-// putchars
-void kputchar(int c, void* extras) {
+int kputchar(int c) {
   static int at_line_start = 1;
   if (at_line_start && c != '\n') {
     serial_putchar('\033');
@@ -29,17 +28,18 @@ void kputchar(int c, void* extras) {
     serial_putchar('m');
     at_line_start = 1;
   }
+  return c;
 }
 
 void print_string(const char* str) {
   while (*str) {
-    putchar(*str++);
+    kputchar(*str++);
   }
 }
 
 void print_decimal(int value) {
   if (value < 0) {
-    putchar('-');
+    kputchar('-');
     value = -value;
   }
 
@@ -47,7 +47,7 @@ void print_decimal(int value) {
   int i = 0;
 
   if (value == 0) {
-    putchar('0');
+    kputchar('0');
     return;
   }
 
@@ -57,13 +57,13 @@ void print_decimal(int value) {
   }
 
   while (i--) {
-    putchar(buffer[i]);
+    kputchar(buffer[i]);
   }
 }
 
 void print_float(float value, int precision) {
   if (value < 0) {
-    putchar('-');
+    kputchar('-');
     value = -value;
   }
 
@@ -72,12 +72,12 @@ void print_float(float value, int precision) {
 
   print_decimal(int_part);
 
-  putchar('.');
+  kputchar('.');
 
   for (int i = 0; i < precision; ++i) {
     fraction *= 10;
     int digit = (int)fraction;
-    putchar('0' + digit);
+    kputchar('0' + digit);
     fraction -= digit;
   }
 }
@@ -90,7 +90,7 @@ void print_hex(unsigned int value) {
   for (int i = 28; i >= 0; i -= 4) {
     char digit = (value >> i) & 0xF;
     if (digit || started || i == 0) {
-      putchar(hex_digits[(u8)digit]);
+      kputchar(hex_digits[(u8)digit]);
       started = 1;
     }
   }
@@ -122,12 +122,12 @@ int kprintf(string __restrict__ fmt, ...) {
           print_float(va_arg(args, double), 6);  // autoconvert float to
           break;
         default:
-          putchar('%');
-          putchar(*fmt);
+          kputchar('%');
+          kputchar(*fmt);
           break;
       }
     } else {
-      putchar(*fmt);
+      kputchar(*fmt);
     }
     fmt++;
     written++;
