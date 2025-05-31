@@ -61,6 +61,27 @@ void kinit_devices() {
   pci_init();
 }
 
+void kmain_loop() {
+  FILE* file = fopen("/dev/com1", "w");
+  fwrite("hello world\n", 1, 13, file);
+  fclose(file);
+
+  // rgb weee :D
+  int r = 0;
+  int g = 0;
+  int b = 0;
+  int dr = 1, dg = 2, db = 3;
+  while (1) {
+    r = (r + dr) % 256;
+    g = (g + dg) % 256;
+    b = (b + db) % 256;
+
+    framebuffer_clear(r, g, b);
+    framebuffer_flush();
+    asm volatile("hlt");
+  }
+}
+
 extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
@@ -77,24 +98,15 @@ extern int kmain(u32 mb_magic, u32 mb_info) {
   kinit_storage();
   kinit_devices();
 
-  // test
-  FILE* file = fopen("/dev/com1", "w");
-  fwrite("hello world\n", 1, 13, file);
-  fclose(file);
-
-  // rgb weee :D
-  int r = 0;
-  int g = 0;
-  int b = 0;
-  int dr = 1, dg = 2, db = 3;
-
+  // run the main loop in a task
+  struct cpu_task* task = cpu_new_task(kmain_loop);
+  if (task == NULL) {
+    kprintf("[Kernel] Failed to create main task\n");
+    while (1);  // lost cause
+  }
+  cpu_add_task(task);
+  pit_write(PIT_HZ / PIT_SCALE);
   while (1) {
-    r = (r + dr) % 256;
-    g = (g + dg) % 256;
-    b = (b + db) % 256;
-
-    framebuffer_clear(r, g, b);
-    framebuffer_flush();
-    pit_sleep(100);  // sleep for 100ms
+    asm("hlt");
   }
 }

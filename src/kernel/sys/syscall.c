@@ -138,7 +138,7 @@ static u32 syscall_open(struct regs* r) {
 
 #define SYSCALL_CLOSE 0x6
 static u32 syscall_close(struct regs* r) {
-  kprintf("[syscall] close: %d \n", r->ebx);
+  printf("[syscall] close: %d \n", r->ebx);
 
   int fd = r->ebx;
   int ret = vfs_sys_close(fd);
@@ -152,7 +152,7 @@ static u32 syscall_close(struct regs* r) {
 
 #define SYSCALL_TIME 0xD
 static u32 syscall_time(struct regs* r) {
-  kprintf("[syscall] time! \n");
+  printf("[syscall] time! \n");
   return (u32)r;
 }
 

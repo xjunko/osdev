@@ -8,6 +8,46 @@
 #define PCI_DATA_PORT 0xCFC
 #define PCI_COMMAND_PORT 0xCF8
 
+const char* _pci_class_name(uint8_t class_code, uint8_t subclass) {
+  switch (class_code) {
+    case 0x01:
+      switch (subclass) {
+        case 0x00:
+          return "SCSI Bus Controller";
+        case 0x01:
+          return "IDE Controller";
+        case 0x02:
+          return "Floppy Disk Controller";
+        case 0x03:
+          return "IPI Bus Controller";
+        case 0x04:
+          return "RAID Controller";
+        case 0x05:
+          return "ATA Controller";
+        case 0x06:
+          return "SATA Controller (AHCI)";
+        case 0x07:
+          return "Serial Attached SCSI (SAS) Controller";
+        case 0x08:
+          return "NVMe Controller";
+        default:
+          return "Unknown Storage Controller";
+      }
+    case 0x02:
+      return "Network Controller";
+    case 0x03:
+      return "Display Controller";
+    case 0x04:
+      return "Multimedia Controller";
+    case 0x05:
+      return "Memory Controller";
+    case 0x06:
+      return "Bridge Device";
+  }
+
+  return "Unknown Device";
+}
+
 struct base_addr_register pci_get_base_address_register(u16 bus, u16 device,
                                                         u16 function, u16 bar) {
   struct base_addr_register res = {};
@@ -104,29 +144,16 @@ void pci_init() {
           // todo: drivers
         }
 
-        printf(
-            "[PCI] Bus: 0x%X | Function: 0x%X | Vendor: 0x%X | Device: 0x%X\n",
-            bus & 0xFF, function & 0xFF, (dev.vendor & 0xFF00) >> 8,
-            (dev.vendor & 0x00FF));
+        printf("\tBus: 0x%X | Function: 0x%X | Vendor: 0x%X | Device: 0x%X\n",
+               bus & 0xFF, function & 0xFF, (dev.vendor & 0xFF00) >> 8,
+               (dev.vendor & 0x00FF));
       }
     }
   }
 }
 
 void* pci_get_driver(struct pci_desc dev) {
-  switch (dev.vendor) {
-    case 0x8086:
-      printf("[PCI] Intel device found\n");
-      break;
-  }
-
-  switch (dev.class) {
-    case 0x03:
-      printf("[PCI] VGA device found\n");
-      break;
-    case 0x04:
-      printf("[PCI] Multimedia device found\n");
-      break;
-  }
+  const char* device_name = _pci_class_name(dev.class, dev.subclass);
+  printf("[PCI]\tDevice: %s \n", device_name);
   return 0;
 }

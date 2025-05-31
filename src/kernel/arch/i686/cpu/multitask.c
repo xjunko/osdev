@@ -1,4 +1,5 @@
 #include <kernel/gdt.h>
+#include <kernel/memory.h>
 #include <kernel/multitask.h>
 #include <kernel/regs.h>
 #include <kernel/types.h>
@@ -6,11 +7,15 @@
 
 static struct cpu_manager main_cpu = {.num_tasks = 0, .cur_tasks = -1};
 
-struct cpu_task cpu_new_task(cpu_task_entrypoint entry) {
-  struct cpu_task new_task;
+struct cpu_task* cpu_new_task(cpu_task_entrypoint entry) {
+  struct cpu_task* new_task = kmalloc(sizeof(struct cpu_task));
+  if (new_task == NULL) {
+    kprintf("[CPU] Failed to allocate memory for new task\n");
+    return NULL;
+  }
 
   struct regs* regs =
-      (struct regs*)(new_task.stack + TASK_STACK - sizeof(struct regs));
+      (struct regs*)(new_task->stack + TASK_STACK - sizeof(struct regs));
 
   regs->eax = 0;
   regs->ebx = 0;
@@ -24,9 +29,9 @@ struct cpu_task cpu_new_task(cpu_task_entrypoint entry) {
   regs->esp = 0;
   regs->eip = (u32)entry;
   regs->cs = code_segment_selector();
-  regs->ss = 0;
+  regs->ss = data_segment_selector();
   regs->eflags = 0x202;
-  new_task.registers = regs;
+  new_task->registers = regs;
   return new_task;
 }
 
@@ -37,15 +42,15 @@ bool cpu_add_task(struct cpu_task* task) {
   return true;
 }
 
-struct regs* cpu_schedule(struct regs* registers) {
-  if (main_cpu.num_tasks <= 0) return registers;
+u32 cpu_schedule(u32 esp) {
+  if (main_cpu.num_tasks <= 0) return esp;
 
   if (main_cpu.cur_tasks >= 0) {
-    main_cpu.tasks[main_cpu.cur_tasks]->registers = registers;
+    main_cpu.tasks[main_cpu.cur_tasks]->registers = (struct regs*)esp;
   }
 
   if (++main_cpu.cur_tasks >= main_cpu.num_tasks)
     main_cpu.cur_tasks %= main_cpu.num_tasks;
 
-  return main_cpu.tasks[main_cpu.cur_tasks]->registers;
+  return (u32)main_cpu.tasks[main_cpu.cur_tasks]->registers;
 }

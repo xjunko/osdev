@@ -16,6 +16,6 @@ struct cpu_manager {
   int cur_tasks;
 };
 
-struct cpu_task cpu_new_task(cpu_task_entrypoint);
+struct cpu_task* cpu_new_task(cpu_task_entrypoint);
 bool cpu_add_task(struct cpu_task*);
-struct regs* cpu_schedule(struct regs*);
+u32 cpu_schedule(u32);

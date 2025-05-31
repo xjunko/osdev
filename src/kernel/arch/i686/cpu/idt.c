@@ -172,7 +172,9 @@ u32 _idt_handle_interrupt(u8 interrupt_number, u32 esp) {
   }
 
   if (interrupt_number == 0x20) {
-    // multitask here.
+    asm volatile("cli");
+    esp = cpu_schedule(esp);
+    asm volatile("sti");
   }
 
   irq_ack(interrupt_number);
