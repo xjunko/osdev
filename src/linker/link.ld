@@ -44,7 +44,7 @@ SECTIONS
 
     .heap (NOLOAD) :
     {
-        . = . + 8M; 
+        . = . + 128M; 
     }
 
     __heap_end = .;

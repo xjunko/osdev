@@ -41,9 +41,7 @@ void framebuffer_init(struct multiboot_tag_framebuffer *fb) {
     fb_info.blue_mask_size = fb->framebuffer_blue_mask_size;
   }
 
-  printf("[fb] pitch=%d addr=%p\n", fb_pitch, fb_addr);
-
-  kprintf("[Framebuffer] W=%d H=%d BPP=%d \n", fb_width, fb_height, fb_bpp);
+  kprintf("[fb] w=%d h=%d bpp=%d \n", fb_width, fb_height, fb_bpp);
   fb_backbuffer = malloc(fb_pitch * fb_height);
   framebuffer_clear(255, 255, 255);
   framebuffer_flush();

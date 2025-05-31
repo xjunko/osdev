@@ -32,8 +32,8 @@ void syscall_init() {
   syscall_install();
   idt_set_handler(syscall_irq, syscall_handle);
 
-  kprintf("[syscall] heaps: %x %x %x \n", kernel_heap_start, kernel_heap_end,
-          kernel_heap_max);
+  printf("[syscall] heaps: start=0x%x, end=0x%x, max=%dMiB \n",
+         kernel_heap_start, kernel_heap_end, kernel_heap_max / 1024 / 1024);
 }
 
 void syscall_register(u32 syscall_number, syscall_callback* handler) {

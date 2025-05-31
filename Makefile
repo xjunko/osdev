@@ -85,7 +85,7 @@ run: build/kernel.iso build/master.img build/slave.img
 		-boot d \
 		-cpu pentium3 \
 		-smp 1 \
-		-m 64M \
+		-m 256M \
 		-vga virtio \
 		-serial stdio \
 		-enable-kvm \
