@@ -1,0 +1,3 @@
+[submodule "libs/flanterm"]
+	path = libs/flanterm
+	url = https://codeberg.org/mintsuki/flanterm
