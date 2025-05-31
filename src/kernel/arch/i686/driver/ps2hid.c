@@ -76,10 +76,9 @@ int ps2_mouse_init() {
   idt_set_handler(MOUSE_IRQ, &ps2_mouse_handle);
 
   // sets the mouse max res based on fb's resolution
-  u32 _x, _y = 0;
-  framebuffer_get_resolution(&_x, &_y);
-  mouse_max_x = (i32)_x;
-  mouse_max_y = (i32)_y;
+  struct framebuffer_info fb_info = framebuffer_get_info();
+  mouse_max_x = (i32)fb_info.width;
+  mouse_max_y = (i32)fb_info.height;
 
   if (mouse_max_x <= 0 || mouse_max_y <= 0) {
     printf(
