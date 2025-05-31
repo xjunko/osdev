@@ -1,6 +1,11 @@
 # rinux - a monolithic kernel written in c
 It's nothing much atm, just your average unfinished kernel.
 
+## preview
+![image](https://github.com/user-attachments/assets/6932ecb6-fc45-4c1d-a512-51dbab5564b6)
+
+it aint much but its honest work
+
 ## kernel
 ### internal
 - [x] boots
