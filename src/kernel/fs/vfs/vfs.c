@@ -2,6 +2,7 @@
 #include <kernel/types.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static struct vfs mountpoints[VFS_MAX_MOUNTPOINTS];
