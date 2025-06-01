@@ -14,7 +14,7 @@ struct mem_manager {
   uint32_t size;
 };
 
-void kmalloc_init(struct multiboot_tag_mmap*);
+void kmalloc_init(uint32_t, uint32_t);
 void* kmalloc(uint32_t);
 void* krealloc(void*, uint32_t);
 int kfree(void*);

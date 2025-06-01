@@ -9,17 +9,19 @@ STRIP = $(TOOLCHAIN)$(ARCH)-$(OS)-strip
 
 EMU       = qemu-system-i386
 EMU_ARGS  = -cpu pentium3 -smp 1 -m 256M -vga virtio 
+EMU_ARGS += -device AC97
 EMU_ARGS += -serial stdio -enable-kvm -no-reboot -no-shutdown
 
 BASE = sysroot/usr
 
 # for kernel and modules
-KERNEL_CFLAGS  = -ffreestanding -O2 -g -static
+KERNEL_CFLAGS  = -ffreestanding -O2 -g -static 
 KERNEL_CFLAGS += -Wall -Wextra -Wno-unused-function -Wno-unused-variable 
 KERNEL_CFLAGS += -pedantic -Wwrite-strings
 
 # constants
 KERNEL_CFLAGS  += -D_KERNEL_ -DKERNEL_ARCH=$(ARCH) 
+KERNEL_CFLAGS  += -DKERNEL_MINIMAL
 
 # kernel sources
 KERNEL_OBJS  = $(patsubst %.c,%.o,$(wildcard kernel/*.c))

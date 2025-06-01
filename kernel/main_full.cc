@@ -1,5 +1,3 @@
-// simplified kernel, just to see what went wrong.
-
 #include <kernel/framebuffer.h>
 #include <kernel/gdt.h>
 #include <kernel/idt.h>
@@ -81,6 +79,7 @@ void kmain_loop() {
   }
 }
 
+#ifndef KERNEL_MINIMAL
 extern int kmain(uint32_t mb_magic, uint32_t mb_info) {
   kinit_serial();
   if (mb_magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
@@ -109,3 +108,4 @@ extern int kmain(uint32_t mb_magic, uint32_t mb_info) {
     asm("hlt");
   }
 }
+#endif

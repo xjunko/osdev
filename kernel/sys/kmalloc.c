@@ -14,32 +14,7 @@ static struct mem_manager* global_manager = 0;
 
 #define CHUNK_OVERHEAD (sizeof(struct mem_chunk))
 
-void kmalloc_init(struct multiboot_tag_mmap* mmap) {
-  kprintf("[Kernel] Memory Mapping: ");
-
-  for (struct multiboot_mmap_entry* entry = mmap->entries;
-       (uint8_t*)entry < (uint8_t*)mmap + mmap->size;
-       entry =
-           (struct multiboot_mmap_entry*)((uint8_t*)entry + mmap->entry_size)) {
-    if (entry->type == 1 && entry->addr >= 0x100000) {
-      uint64_t entry_end = entry->addr + entry->len;
-
-      if (entry_end > heap_start) {
-        uint64_t usable_start =
-            (entry->addr < heap_start) ? heap_start : entry->addr;
-        uint64_t usable_len = entry_end - usable_start;
-        total_usable_memory += (uint32_t)usable_len;
-      }
-    }
-  }
-
-  kprintf("Got %d mb \n", total_usable_memory / 1024 / 1024);
-  kprintf("[Kernel] Memory limit: %d MiB\n", total_usable_memory / 1024 / 1024);
-  kprintf("[Kernel] Heap Addr: %x\n", heap_start);
-  _kmalloc_init(heap_start, total_usable_memory);
-}
-
-void _kmalloc_init(uint32_t start, uint32_t size) {
+void kmalloc_init(uint32_t start, uint32_t size) {
   global_manager = (struct mem_manager*)start;
   global_manager->size = size;
 
@@ -52,7 +27,8 @@ void _kmalloc_init(uint32_t start, uint32_t size) {
 
   global_manager->first = initial;
 
-  kprintf("[Kernel] Memory initialized at %x with size %d\n", start, size);
+  kprintf("[Kernel] Memory initialized at %x with size %dMiB\n", start,
+          size / 1024 / 1024);
 }
 
 void* kmalloc(uint32_t size) {

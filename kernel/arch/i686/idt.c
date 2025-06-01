@@ -117,7 +117,7 @@ void idt_init() {
   idt_set_handler(0xD, idt_general_protection_fault);
 
   // remap irqs
-  irq_remap();
+  irq_remap2();
   pit_write(PIT_HZ / PIT_SCALE);
 
   // load idt
@@ -179,7 +179,7 @@ uint32_t _idt_handle_interrupt(uint8_t interrupt_number, uint32_t esp) {
     asm volatile("sti");
   }
 
-  irq_ack(interrupt_number);
+  irq_ack2(interrupt_number);
 
   return esp;
 }

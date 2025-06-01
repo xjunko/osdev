@@ -38,6 +38,10 @@ const char* _pci_class_name(uint8_t class_code, uint8_t subclass) {
     case 0x03:
       return "Display Controller";
     case 0x04:
+      switch (subclass) {
+        case 0x01:
+          return "Intel AC97 Audio";
+      }
       return "Multimedia Controller";
     case 0x05:
       return "Memory Controller";
@@ -125,6 +129,7 @@ bool pci_device_has_function(uint16_t bus, uint16_t device) {
 }
 
 void pci_init() {
+  printf("[pci] reading pci: \n");
   for (int bus = 0; bus < 8; bus++) {
     for (int device = 0; device < 32; device++) {
       int num_functions = pci_device_has_function(bus, device) ? 8 : 1;
@@ -146,10 +151,9 @@ void pci_init() {
 
         void* driver = pci_get_driver(dev);
         if (driver != 0) {
-          // todo: drivers
         }
 
-        printf("\tBus: 0x%X | Function: 0x%X | Vendor: 0x%X | Device: 0x%X\n",
+        printf("bus: 0x%X | function: 0x%X | vendor: 0x%X | device: 0x%X\n",
                bus & 0xFF, function & 0xFF, (dev.vendor & 0xFF00) >> 8,
                (dev.vendor & 0x00FF));
       }
@@ -159,6 +163,14 @@ void pci_init() {
 
 void* pci_get_driver(struct pci_desc dev) {
   const char* device_name = _pci_class_name(dev.class, dev.subclass);
-  printf("[PCI]\tDevice: %s \n", device_name);
+
+  if (dev.class == 0x04 && dev.subclass == 0x01) {
+    printf("[pci] found intel ac97 \n");
+    printf("[pci] device: %s | vendor: 0x%X | device: 0x%X\n", device_name,
+           dev.vendor, dev.dev);
+
+    //  init
+  }
+
   return 0;
 }
